@@ -7,6 +7,10 @@ Location Recommendation*, WWW 2021; arXiv:2102.04095; reference repo
 embeddings + OWN sequence construction + OWN spatio-temporal interval attention, learned **from raw**
 (NOT fed our HGI/Check2HGI substrate — that is a separate, optional `stl_hgi` ablation).
 
+> **Correction (2026-10-01):** "our seed-0 user-disjoint 5-fold split" was the intent, never implemented. `train.py` (`run()`)
+> builds its own seed-0 user-grouped `StratifiedGroupKFold` over STAN's own rows (`etl.py`: prefix expansion,
+> `MIN_HISTORY = 5`), so STAN's rows and folds are not the ones our models use.
+
 Files: `model.py` (architecture), `etl.py` (data → windows), `train.py` (5-fold trainer),
 `profile_forward.py` (perf observer). Audit table: `../../../docs/baselines/next_region/stan.md`.
 

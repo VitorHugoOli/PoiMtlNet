@@ -27,7 +27,7 @@
 ## ✅ Converged faithful-STAN results (2026-06-26, seed 0, user-disjoint 5-fold)
 
 Audited-faithful, converged, optimized (A+C+D+compile; see [`FAITHFUL_STAN_FINDINGS`](../../studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md)).
-**These supersede v4 — strike v4 from all artifacts.** STAN clears the region floor but lands **below our MTL reg** at every state (it ranks the coarse-region task it wasn't built for):
+**These supersede v4 — strike v4 from all artifacts.** STAN lands **below our MTL reg** at every state (it ranks the coarse-region task it wasn't built for). Against the current stride-1 Markov-1 region floor it is **below the floor at four of six** (AL 60.72 < 62.26, AZ 49.86 < 51.23, IST 61.86 < 65.06, CA 58.52 < 59.09) and above it only at FL and TX (`docs/results/closing_data/markov_floor_stride1/<state>.json`, `markov_1step_region_acc10_mean`). *(Corrected 2026-10-01; this sentence previously said STAN clears the region floor.)*
 
 | State | regions | Acc@10 (5f) | our MTL reg | verdict | version / precision |
 |---|---:|---:|---:|---|---|
@@ -37,6 +37,8 @@ Audited-faithful, converged, optimized (A+C+D+compile; see [`FAITHFUL_STAN_FINDI
 | FL | 4703 | **72.99 ±0.34** | 77.28 | we beat | v6_opt, bf16+compile |
 | TX | 6553 | **61.67** (partial 4/5 folds) | 67.02 | clears best-simple floor (54.9); below our MTL reg | v6 patience-10, bf16+compile |
 | CA | 8501 | **58.52** (partial 2/5 folds) | 65.66 | clears best-simple floor (52.1); below our MTL reg | v6 patience-10, bf16+compile |
+
+> **Correction (2026-10-01):** the "clears best-simple floor" cells (and the 52.09 / 54.94 floors below) use the superseded non-overlap floor. On the current stride-1 floor CA **58.52 is below 59.09**; TX 61.67 is above 60.10. Also, STAN does **not** run on our folds: it builds its own rows (`research/baselines/stan/etl.py`: prefix-expansion, CONTEXT_LEN 50, `MIN_HISTORY = 5`) and its own seed-0 user-grouped `StratifiedGroupKFold` over those rows (`research/baselines/stan/train.py`, `run()`).
 
 > **Version/precision mix of the citable cells (disclosure).** The Table-3 STAN cells mix code
 > versions and precisions — **AL/AZ = `v5_compiled` fp32, FL = `v6_opt` bf16, Istanbul = `v5_bf16c`
@@ -78,6 +80,7 @@ The substrate-bound vs faithful gap quantifies how much our pre-trained Check2HG
 - **User embedding dropped.** STAN learns a per-user embedding (paper §4.1.1) and is evaluated under per-user temporal split (warm-user). We evaluate under cold-user `StratifiedGroupKFold` for table-comparability with the rest of our baselines, which makes user embeddings useless (random at val for held-out users). Dropped to avoid pretending we have signal we don't.
 - **CrossEntropy loss instead of negative-sampled BPR.** Closed-set classification over ~1.5K regions makes the negative-sampling apparatus unnecessary.
 - **Window=9, non-overlapping stride.** Paper uses `max_len=100` with prefix-expansion training. We match our in-house pipeline so cross-method comparisons are apples-to-apples.
+  - **Correction (2026-10-01):** this describes the superseded v4. The cited v5/v6 STAN uses STAN-native **prefix-expansion** (CONTEXT_LEN 50, users with ≥ `MIN_HISTORY = 5` check-ins) and its own seed-0 user-grouped partition, so its rows and folds are **not** our in-house windows/folds (`research/baselines/stan/etl.py`, `train.py`).
 - **AdamW + OneCycleLR(max_lr=3e-3) instead of vanilla Adam(lr=3e-3).** Our standard recipe for 5-fold CV; lr peak matches paper.
 - **Substrate-bound variants (`stl_check2hgi`, `stl_hgi`).** Use our in-house `next_stan` head (`src/models/next/next_stan/`) which is STAN's bi-layer attention but with a *relative-position-only* pairwise bias instead of ΔT/ΔD interval embeddings — because our pre-trained substrates already absorb spatio-temporal context per check-in. These variants are **not** literature-faithful by themselves; they're the substrate-as-input version of STAN.
 

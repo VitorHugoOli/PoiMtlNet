@@ -230,7 +230,7 @@ Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymm
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Majority class (floor)             |  7.28 ± 0.00 |  7.25 ± 0.00 |  5.66 ± 0.00 |  7.04 ± 0.00 |  6.76 ± 0.00 |  6.69 ± 0.00 | 7.14 |
 | Markov-1-POI (floor)               | 16.81 ± 1.06 | 19.48 ± 0.63 | 27.60 ± 0.32 | 24.95 ± 1.18 | 25.85 ± 0.55 | 21.36 ± 0.36 | 17.55 ± 0.44 |
-| best Markov-K-cat (floor)          | 20.50 ± 0.67 (k=5) | 23.92 ± 2.26 (k=5) | 29.74 ± 1.19 (k=3) | 27.59 ± 0.61 (k=5) | 28.67 ± 0.66 (k=5) | 27.01 ± 1.10 (k=3) | 24.55 ± 0.30 (k=5) |
+| best Markov-K-cat (floor)          | 20.50 ± 0.67 (k=5) | 23.92 ± 2.26 (k=5) | 29.74 ± 1.19 (k=3) | 27.58 ± 0.61 (k=5) | 28.67 ± 0.66 (k=5) | 27.01 ± 1.10 (k=3) | 24.55 ± 0.30 (k=5) |
 | MHA+PE — `faithful`                | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 29.13 ± 0.71 | 29.91 ± 0.43 | 27.62 ± 0.97 | ⚪ |
 | **POI-RGNN — `faithful`**          | **★ 23.80 ± 1.12** | **★ 27.64 ± 2.34** | **★ 33.35 ± 1.14** | **★ 30.71 ± 0.82** | **★ 32.08 ± 0.70** | **★ 30.24 ± 0.87** | **★ 30.12 ± 0.84** |
 | C2HGI cat — matched-head `next_gru` (substrate axis) | 40.76 ± 1.68 | 43.21 ± 0.87 | 63.43 ± 0.98 | 59.94 ± 0.59 | 60.24 ± 1.84 | 50.96 ± 0.38 | 54.65 (dk_ovl re-foot) |
@@ -239,6 +239,8 @@ Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymm
 | Substrate linear probe — C2HGI F1                    | 30.84 ± 2.26 | 34.12 ± 1.36 | 40.77 ± 1.24 | 37.45 ± 0.29 | 38.38 ± 0.28 | 36.86 ± 0.88 |
 | Substrate linear probe — HGI F1                      | 18.70 ± 1.54 | 22.54 ± 0.50 | 25.74 ± 0.29 | 21.32 ± 0.16 | 22.33 ± 0.25 | 23.81 ± 0.58 |
 | Substrate linear probe — Δ (C2HGI − HGI)             | +12.14 | +11.58 | +15.03 | +16.13 | +16.06 | **+13.05** |
+
+> **Correction (2026-10-01):** CA best Markov-K-cat was printed as 27.59; `docs/results/P0/simple_baselines/california/next_category_markov_kstep.json` gives k5 = 27.5849 → 27.58. The Markov-K floor is seed 42 on the POI-RGNN ETL rows (~11% of our rows at AL) with its own user-grouped folds, K chosen on the evaluation folds — not our windows/partitions.
 
 (★ marks the best non-floor numeric value per state. Substrate-axis and Markov-K-cat-floor rows below the dividing line are **secondary** to the headline external-baseline rows above; ★ is restricted to the headline rows so the table reflects the published-architecture ranking. Substrate-axis cells for GA are pending — substrate-comparison runs were originally scoped out for GA and are being launched 2026-05-01 to close the matrix.)
 

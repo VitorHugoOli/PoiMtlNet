@@ -244,6 +244,10 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   value is correct; the **62.37 is the outlier** (unreproducible, artifacts reclaimed). Use the Mac/CPU HMT-GRN reg:
   **AL 57.1 / AZ 43.7 / FL 63.7 / CA 49.6 / TX 53.9 / Istanbul 60.4** — all **well below our MTL ~65-69**, so we beat
   the sole region-native baseline by a wide margin (all 6 states now done). (Re-verify the old 62.37, not the Mac value.)
+  **Correction (2026-10-01):** 62.37 is not an outlier — its JSON survives at repo-root `results/baseline_b3_hmt_grn_style/alabama/b3_seed0_folds5.json`
+  with `epochs: 20`; 57.05 is the 50-epoch run (`docs/results/baselines/hmt_grn/alabama/`). Also, HMT-GRN does **not** clear the
+  stride-1 Markov-1 region floor at any of the six datasets (`docs/results/closing_data/markov_floor_stride1/<state>.json`,
+  `markov_1step_region_acc10_mean`: AL 62.26 / AZ 51.23 / FL 72.47 / CA 59.09 / TX 60.10 / IST 65.06).
   ⚠ **Wording: this is HMT-GRN-*style*** (own LSTM trunk + train-only region-transition prior from raw; **graph module
   + hierarchical beam search dropped**, no next-POI head), NOT a strict reproduction — call it "region-native E2E",
   never "faithful HMT-GRN" (deviation ledger: `../../baselines/next_region/hmt_grn.md`).

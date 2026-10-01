@@ -12,6 +12,9 @@
 > Gowalla states. The ReHDM-faithful-on-Istanbul run command is preserved in §2 below.
 > Protocol: **seed 0 × 5 folds (n=5)**, leak-free per-fold train-only priors, user-disjoint folds, MPS = fp32.
 > **n=5 provisional** — report **gap-to-ceiling / lift-over-floor**, not absolute Acc@k.
+> **Correction (2026-10-01):** the Markov-K-cat cell is **not** seed 0. `scripts/compute_markov_kstep_cat.py` hard-codes
+> `SEED=42` and runs on the POI-RGNN ETL rows (`research/baselines/poi_rgnn/etl.py`), so 24.55 is seed 42 (k5 = 24.5487);
+> seed 0 on the same rows gives 24.3768 (recomputed 2026-10-01). Source: `P0/simple_baselines/istanbul/next_category_markov_kstep.json`.
 >
 > **Variant alignment (user directive 2026-06-25):** **STAN = `stl_hgi`** everywhere (incl. Istanbul — run from
 > the HGI substrate); **ReHDM = faithful** everywhere. The earlier `stl_check2hgi` STAN and the from-scratch

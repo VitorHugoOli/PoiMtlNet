@@ -9,6 +9,10 @@
 > US path byte-identical) and is the strongest Istanbul region external (> STAN 61.86 > HMT-GRN 60.4), still below
 > our MTL reg 75.44. CA/TX v4 = seed-42 partials (50.26/48.81, both BELOW their best-simple floors 52.09/54.94 —
 > coverage-only; remaining seeds on the A40).
+>
+> **Correction (2026-10-01):** 52.09 / 54.94 are the superseded non-overlap floors. The current stride-1 Markov-1 region
+> floors (`docs/results/closing_data/markov_floor_stride1/<state>.json`, `markov_1step_region_acc10_mean`) are AL 62.26 /
+> AZ 51.23 / FL 72.47 / CA 59.09 / TX 60.10 / IST 65.06; ReHDM v4 is below them at FL, CA and TX, above at AL, AZ and Istanbul.
 
 ## Source
 - **Paper:** Li, Gu, Yao, Zhou, Zhu, Zhao, Du. *Beyond Individual and Point: Next POI Recommendation via Region-aware Dynamic Hypergraph with Dual-level Modeling.* IJCAI 2025. [pdf](https://www.ijcai.org/proceedings/2025/0343.pdf).

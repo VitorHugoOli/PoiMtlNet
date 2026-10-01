@@ -18,6 +18,10 @@
   trajectory divergence or an undocumented run difference). **Takeaway: trust the Mac/CPU HMT (~57); the recorded
   62.37 should be re-verified on CUDA, not the Mac value.** HMT reg "closest region competitor" framing → ~57, not 62.
   (CPU-vs-M4 per-fold: 60.0/56.5/58.8/58.2/51.4 vs 60.1/56.5/59.1/58.2/51.4.)
+  > **Correction (2026-10-01):** 62.37 is **not** a device anomaly. Its artifact survives at the repo-root
+  > `results/baseline_b3_hmt_grn_style/alabama/b3_seed0_folds5.json` (cat 20.43 / reg 62.37) and records **`epochs: 20`**;
+  > 57.05 is the **50-epoch** run (`docs/results/baselines/hmt_grn/alabama/b3_seed0_folds5.json`, `epochs: 50`). The gap is the
+  > epoch budget. This applies to every "M2 outlier/anomaly" mention in this file; 57.05 (50 ep) remains the value to cite.
 
 ## CTLE-SC vs Check2HGI-SC (the W3 novelty gate — cat is the headline)
 | State | rows | CTLE-SC cat | Check2HGI-SC cat | **Δ cat** | CTLE-SC reg | Check2HGI-SC reg | Δ reg |
@@ -133,6 +137,7 @@ All bit-identical-verified where a numeric path changed.
 - **dk_ovl build ≠ log_T**: `build_overlap_probe_engine` (next/seq/next_region) is feasible on Mac for CA (succeeded); the failing step was `compute_region_transition` (loads the 12.6GB embedding matrix → `_guard_cpu_resident_ram` MemoryError). **HMT builds its own per-fold prior → needs only the dk_ovl inputs, not the log_T.** So CA/TX HMT run on the built inputs directly.
 - **Run-from-local**: SSD 99% full + disconnect-under-concurrent-writes → mirror to `~/ingred_run`, write results back to SSD. CTLE-SC large-state input build is memory-spiky → run large states one heavy job at a time (orchestrator "never 2 heavy"). 24GB unified memory is the binding constraint, not CPU/disk.
 - **Device caveat (post-audit)**: STL-on-frozen-embedding heads (CTLE-SC, Check2HGI-SC comparand) reproduce CUDA within noise → device-internal Δ valid. HMT (from-scratch training) is **CPU-validated on the Mac** (AL CPU 56.99 ≈ M4 57.05); the recorded **M2 62.37 was the outlier**, not the Mac value. So the Mac HMT is citable; the cross-device discrepancy is in the old M2 number.
+  *(Correction 2026-10-01: 62.37 was a 20-epoch run, not a device outlier — see the note under §Device caveat. HMT-GRN at 50 epochs is below the stride-1 Markov-1 region floor at all six datasets, `markov_floor_stride1/<state>.json`.)*
 
 ## CUDA HANDOFF (A40/H100) — self-contained on SSD
 Everything needed is on the SSD; no Mac staging required.

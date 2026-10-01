@@ -33,6 +33,10 @@ intervalo inteiro da Tabela 9 ali, que e $+1{,}62$. Este estudo refaz o controle
 > `13cee8c9`: *"nao reproduzem a Tabela 9 fold a fold e a causa esta por identificar. O par entregue
 > e internamente consistente."* O texto continua a imprimir os valores do A2. Quem estranhar a
 > diferenca entre os dois conjuntos tem aqui a resposta, e nao precisa de a reconstruir.
+>
+> **Atualizacao (2026-10-01):** a decisao acima foi revertida. Desde 2026-10-01 o texto imprime os
+> valores deste estudo ($+1{,}73$ / $+1{,}70$ / $+1{,}02$) no lugar dos valores do A2
+> (`src/chapters/5_mobiwac/06_results.tex`, paragrafo do controle de concatenacao).
 
 ## O desenho
 
@@ -182,6 +186,11 @@ Florida nao rodou por falta de espaco em disco. Isso nunca foi medido, e esta er
 check-in ocupa 4,0 GB. A causa real e mais simples: o `next.parquet` do place embedding para Florida
 **nunca tinha sido construido**, e o script que o constroi existe. Florida entrou na onda depois
 dessa medicao.
+
+> **Correcao (2026-10-01):** "nunca tinha sido construido" esta errado. O `next.parquet` do place embedding de
+> Florida (engine `hgi_dk_ovl`) ja tinha sido construido: dele saiu a propria celula da Tabela 9 (37,13), rodada em 2026-08-11
+> (`docs/results/closing_data/v18_place_level/florida_s0_cat_placelevel.json`, rundir `..._20260811_042620_...`), e antes
+> dela um run de 2026-06-25 (`docs/results/closing_data/baseline_compare/florida_hgi_ovl_cat.json`). Se ainda estava em disco em 08-16, e por que o driver nao o achou, nao foi estabelecido.
 
 ## Procedencia
 

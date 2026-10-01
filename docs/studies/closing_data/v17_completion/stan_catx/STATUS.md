@@ -23,6 +23,11 @@ Cross-fold variance tiny (TX ±0.2, CA ±0.1). Both means are **~7 pp above floo
 (CA 65.66 / TX 67.02) — i.e. STAN citable but does not threaten the "we lead" story, exactly as expected. (Markov-1
 floors are lower still: TX 35.6 / CA 31.5; A40.md's "~55/~52" bar is the *best-simple* baseline.)
 
+> **Correction (2026-10-01):** "clears the floor at both" holds only against the superseded non-overlap floors above. Against
+> the current stride-1 Markov-1 region floor (`docs/results/closing_data/markov_floor_stride1/<state>.json`,
+> `markov_1step_region_acc10_mean`) TX 61.67 clears 60.10, but **CA 58.52 is below 59.09**. STAN also builds its own rows
+> (prefix expansion, `MIN_HISTORY = 5`) and its own seed-0 user-grouped partition; it does not run on our folds.
+
 ## Recipe (matched to the citable FL/AL/AZ v6 numbers)
 `research/baselines/stan/train.py --state {ca,tx} --seed 0 --epochs 200 --folds 5 --only-fold {k} --batch-size 2048
 --amp bf16 --compile --d-model 128 --patience 10 --tag v6_p10`, `PYTHONPATH=repo:src`.

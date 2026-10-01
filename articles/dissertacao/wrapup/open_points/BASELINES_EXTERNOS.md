@@ -159,6 +159,8 @@ de Markov deixa de ser ameaça e vira **o primeiro degrau do próprio argumento*
 | **2** | **modelo dedicado** | acima do piso e de todo sistema externo, nos seis, nas duas tarefas. **É o sistema mais forte da tabela — é a régua real** |
 | **3** | **modelo conjunto** | **não-inferior ao dedicado nos seis** (TOST, margem de 2 pontos registrada antes de qualquer resultado), **à frente em três células**, com **metade dos modelos e uma passagem** |
 
+> **Correção (2026-10-01):** o piso Markov-K de categoria **não** é computado "sob as nossas janelas e partições". Ele usa `SEED=42` sobre as linhas da ETL do POI-RGNN (janelas de 9 visitas sem sobreposição, duplicatas consecutivas removidas — ~11% das nossas linhas no Alabama, 10.749 contra 96.326), StratifiedGroupKFold agrupado por usuário próprio, e o K é escolhido nos próprios folds de avaliação. Evidência: `scripts/compute_markov_kstep_cat.py`, `research/baselines/poi_rgnn/etl.py`, `docs/results/P0/simple_baselines/<estado>/next_category_markov_kstep.json`.
+
 **O que a escada faz que uma manchete isolada não faz:**
 - responde à pergunta do piso antes de ela ser feita;
 - traz a comparação externa à tela, mas **subordinada e explicada**;
