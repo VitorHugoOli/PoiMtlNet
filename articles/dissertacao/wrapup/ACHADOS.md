@@ -787,15 +787,20 @@ ponteiros de linha.
 
 ### O que o autor decide
 
-- se a pergunta 4 passa a ser a de duas faces;
-- se se cria a tag antes de qualquer apagamento, e **como a migração trata a história** — que já
-  se estreita a uma pergunta só. O autor disse (2026-09-03) que o código passa para o `mtlcheck` e
-  que **de lá copiam** para o GitHub do departamento. Medido a 2026-09-29: o `mtlcheck` **não é**
-  um repositório à parte — é outro clone do próprio `PoiMtlNet` (mesmo remote, mesmo commit-raiz,
-  2 460 commits), logo esse passo **preserva** a história. O que falta saber é o segundo salto: o
-  repositório do departamento nasce de um **push/fork** (a história vem) ou de uma **cópia de
-  ficheiros** (a história fica para trás, e com ela o "restaura-se do git")? Só o autor sabe;
-- a ordem: os 93 primeiro, os 36 depois.
+> ✅ **AS TRÊS DECIDIDAS pelo autor a 2026-09-30/10-01** — e executadas, ver **§A13**:
+- a pergunta 4 passa a ser a de duas faces: **aprovado**;
+- **a história não vai para o departamento.** O repositório de lá é **novo, criado a partir do nosso
+  commit final** (autor, 2026-10-01): o que não estiver na árvore final não existe para um leitor
+  público, e o histórico completo fica no `PoiMtlNet`. Criou-se a tag antes do primeiro apagamento
+  (e a âncora `refs/backup/dissertacao-pre-organizacao`, porque `git fetch` apaga tags locais);
+- a ordem seguiu o plano do Fable em 8 passos, dos binários sem leitor às rondas fechadas.
+
+> ❌ **CORREÇÃO, 2026-10-01 (apanhada pela `knowladge`):** escrevi aqui a 29/09 que o `mtlcheck` era
+> "outro clone" do `PoiMtlNet`. **É um worktree deste mesmo repositório** — o `.git` dele é um ficheiro
+> com `gitdir: …/ingred/.git/worktrees/mtlcheck`. Medi o remote e o commit-raiz em comum, que são iguais
+> num clone e num worktree, e concluí a partir de uma prova que não distinguia os dois. A
+> consequência que tirei (esse passo preserva a história) mantém-se; a pergunta que deixei aberta já
+> foi respondida acima.
 
 ---
 
