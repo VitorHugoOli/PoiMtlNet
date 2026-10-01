@@ -149,9 +149,15 @@ at the other four it stays within the two-point margin registered before any res
 dedicated model at Florida, and at every dataset the difference between the two is equivalent to zero
 within half a point, simultaneously across all six.
 
+% [2026-10-01, AUTHOR-APPROVED errata, Table B.5 row] "at least $3.06$ points" -> "at least
+% $4.11$ points": the POI-RGNN FL/CA/TX cells of Table 3 were corrected to the reimplementation's
+% values (33.35 / 30.71 / 32.08; header of tables/mobiwac/results.tex). Recomputed from the
+% printed table: joint minus POI-RGNN = IST 5.30, AL 6.79, AZ 6.93, FL 4.20, CA 4.92, TX 4.11;
+% minimum 4.11 at Texas. POI-RGNN stays above Markov-K at every dataset, so it remains the
+% strongest external baseline on category. Same change in 08_conclusion.tex.
 Half a point is worth placing against the two comparisons that give the category axis its scale. The
 input representation moves the same metric by $+0.23$ to $+6.29$ points, up to thirty-two times the
-largest difference the choice of architecture makes, and the joint model stands at least $3.06$ points
+largest difference the choice of architecture makes, and the joint model stands at least $4.11$ points
 above the strongest external baseline at every dataset. Whether one model or two produce the category
 prediction is therefore the smallest of the three effects at work here, which is the sense in which
 one model can replace two on this task.
@@ -220,7 +226,9 @@ that reason, and every verdict in this chapter is the one it yields.
 %     rehdm.md): Ist 69.33 / AL 65.38 / AZ 53.00 / FL 64.49 / TX 48.81 (seed-42 only) / CA 50.26 (seed-42
 %     only); STAN faithful 61.86/60.72/49.86/72.99 + TX 61.67 (4/5 folds) + CA 58.52 (2/5 folds) --
 %     partials closed-as-final with fold-count disclosure (stan_catx/STATUS.md; "infeasible" RETIRED).
-%     Markov-9-cat 24.55/20.50/23.92/29.74/28.67/27.58; POI-RGNN 30.12/23.80/27.64/34.49/33.03/31.78.
+%     Markov-9-cat 24.55/20.50/23.92/29.74/28.67/27.58; POI-RGNN 30.12/23.80/27.64/33.35/32.08/30.71
+%     [2026-10-01: FL/TX/CA were 34.49/33.03/31.78 from the Oct-2025 TF runs; now the
+%     reimplementation JSONs, see tables/mobiwac/results.tex header].
 % Honesty rules (do NOT relax): cat BEATS at every dataset; reg BEATS at Ist/FL/TX/CA (90% CI of the
 %   paired difference above zero; all n=20 seed-level since 2026-07-18) and is non-inferior (TOST, <=2pp)
 %   at AL/AZ -- AZ's CI grazes zero, NEVER upgrade AZ to a beat. The two matched reg cells are NOT bolded.

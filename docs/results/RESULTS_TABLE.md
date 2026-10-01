@@ -179,6 +179,8 @@ Source: [`../baselines/next_category/comparison.md`](../baselines/next_category/
 | Majority class (floor) | 34.20 | — | — | — | — |
 | Markov-1-POI (floor) | ≈31.7 | — | ≈37.2 | — | — |
 | **POI-RGNN** faithful | 31.78–34.5 (state-level range) | — | 34.49 | 31.78 | 33.03 |
+
+> ⚠ **2026-10-01: the POI-RGNN row above is NOT the faithful reimplementation.** (2026-10-01) These are the OCTOBER-2025 runs of the older TensorFlow implementation (mtl_poi, results/baselines/rgnn/*_2025100*): folds split WITHIN each user, 3-visit windows, a 1,500-user sample. They are NOT the user-disjoint reimplementation. The reimplementation (research/baselines/poi_rgnn, user-grouped StratifiedGroupKFold, seed 42) gives FL 33.35 / CA 30.71 / TX 32.08 (docs/results/baselines/faithful_poi_rgnn_*_5f_35ep_*.json), and that is what the dissertation prints since 2026-10-01. There was never a bug; the "pre-bugfix" label began as a guess (a32bfdc4, 2026-05-02) and was later restated as fact.
 | **MHA+PE** faithful | (closed all 5 states) | (closed) | (closed) | (closed) | (closed) |
 | Substrate linear probe — C2HGI / HGI / Δ | 30.84 / 18.70 / **+12.14** | 34.12 / 22.54 / **+11.58** | 40.77 / 25.74 / **+15.03** | 37.45 / 21.32 / **+16.13** | 38.38 / 22.33 / **+16.06** |
 | C2HGI cat — `next_gru` STL (matched-head) | 40.76 ± 1.68 | 43.21 ± 0.87 | 63.43 ± 0.98 | 59.94 ± 0.59 | 60.24 ± 1.84 |

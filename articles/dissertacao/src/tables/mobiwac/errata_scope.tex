@@ -381,6 +381,21 @@ The floor uses the same sliding windows and the same
 user-grouped fold construction, but a different partition of
 users, so both sentences now claim only the windows and the
 grouping. The floor values are unchanged. \\
+\addlinespace
+% [2026-10-01] Achado pelo autor; confirmado por workflow (4 buscas + 2 verificadores adversariais) e
+% recalculado aqui. Celulas FL/CA/TX vinham de results/baselines/rgnn/*_2025100* (TF antigo, folds
+% dentro do utilizador, janelas de 3, 1500 utilizadores). A reimplementacao (research/baselines/
+% poi_rgnn, user-disjoint, seed 42) corre nos seis: docs/results/baselines/faithful_poi_rgnn_*.json.
+% O rotulo "pre-bugfix" que as afastava era um palpite (a32bfdc4); nunca houve bug.
+The results table prints POI-RGNN at Florida, California and
+Texas from an earlier implementation whose folds split each
+user's windows between training and test, while the other three
+datasets use the reimplementation the setup section describes. &
+The three cells now come from the same reimplementation as the
+other three, with user-disjoint folds: $33.35$, $30.71$ and
+$32.08$ in place of $34.49$, $31.78$ and $33.03$. The joint
+model's smallest margin over POI-RGNN moves from $3.06$ to
+$4.11$ points, at Texas. No verdict changes. \\
 \bottomrule
 \end{tabular}
 \end{table}

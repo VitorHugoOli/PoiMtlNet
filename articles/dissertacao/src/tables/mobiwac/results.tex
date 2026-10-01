@@ -1,15 +1,20 @@
 % !TeX root = ../../main.tex
 % mobiwac/results.tex -- one table. Extraction provenance and verification: tables/README.md
-% [2026-08-12] POI-RGNN PROVENANCE, recorded here because a reviewer traced the column to the wrong
-% file and it took a chain of four documents to settle. The printed FL/TX/CA cells (34.49 / 33.03 /
-% 31.78) do NOT reproduce from docs/results/baselines/faithful_poi_rgnn_{florida,texas,california}_5f_*.json,
-% which average 33.347 / 32.084 / 30.711, about one point lower. Those three JSONs are the PRE-BUGFIX
-% May-2 draw. The repository says so itself: docs/baselines/next_category/comparison.md carries a
-% "SUPERSEDED 2026-05-04" banner naming 33.35 / 30.71 / 32.08 as pre-bugfix and 34.49 / 31.78 / 33.03
-% as canonical, and docs/baselines/POI_RGNN_AUDIT.md records the canonical trio against BASELINE.md.
-% The Istanbul, AL and AZ cells match their JSONs exactly, which is why the mismatch looks like mixed
-% provenance rather than a stale set. The printed values are correct; the JSONs are the trap. A reader
-% checking this column must use the canonical chain, not the per-fold files.
+% [2026-10-01, AUTHOR-APPROVED errata, Table B.5 row] POI-RGNN PROVENANCE, CORRECTED. The 2026-08-12
+% header that stood here said the opposite of the truth: it called the per-fold JSONs
+% docs/results/baselines/faithful_poi_rgnn_<state>_5f_35ep_*.json "the PRE-BUGFIX May-2 draw" and the
+% printed FL/CA/TX cells (34.49 / 31.78 / 33.03) "correct". Measured chain: (1) the reimplementation
+% (research/baselines/poi_rgnn, user-grouped StratifiedGroupKFold, seed 42) ran at all six datasets and
+% its JSONs give AL 23.80 / AZ 27.64 / FL 33.35 / CA 30.71 / TX 32.08 / IST 30.12 (per_fold f1, n=5
+% each; re-aggregated by the writer 2026-10-01). (2) The old FL/CA/TX cells came from the OCTOBER-2025
+% runs of the older TensorFlow implementation (results/baselines/rgnn/*_2025100*), which splits folds
+% within each user, uses 3-visit windows and a 1,500-user sample -- a different protocol from every
+% other cell of this table. (3) There was never a bug: the port's code is unchanged since 6e3cd490 apart
+% from a path reorg; "pre-bugfix" began as a guess in a32bfdc4 ("JSONs may be pre-bugfix. Trusted
+% §0.6.", 2026-05-02) and was later restated as fact, including by the header this one replaces. The
+% six POI-RGNN cells now all come from the reimplementation JSONs, on the same split protocol as the
+% dedicated and joint cells; the derived margin "at least 3.06" became "at least 4.11" (06_results.tex,
+% 08_conclusion.tex). No emphasis changes: POI-RGNN is never among the two largest values of its row.
 \begin{table}[htbp]
 % [2026-08-12, AUTHOR RULING] ROW ORDER CHANGED to ascending check-in count (AL 113,846; AZ 236,450;
 % Istanbul 462,615; FL 1,407,034; CA 3,171,380; TX 4,089,892 -- read from Table
@@ -76,9 +81,9 @@ interval supports, half a point.}
 AL       & 1{,}109 & 20.50 & 23.80 & \textbf{30.77}\sd{0.07} & \underline{30.59}\sd{0.07} \\
 AZ       & 1{,}547 & 23.92 & 27.64 & \textbf{34.57}\sd{0.04} & \textbf{34.57}\sd{0.06} \\
 Istanbul & 520     & 24.55 & 30.12 & \underline{35.34}\sd{0.01} & \textbf{35.42}\sd{0.06} \\
-FL       & 4{,}703 & 29.74 & 34.49 & \underline{37.35}\sd{0.02} & \textbf{37.55}\sd{0.07}$^{\uparrow}$ \\
-CA       & 8{,}501 & 27.58 & 31.78 & \textbf{35.63}\sd{0.01} & \textbf{35.63}\sd{0.02} \\
-TX       & 6{,}553 & 28.67 & 33.03 & \textbf{36.33}\sd{0.01} & \underline{36.19}\sd{0.04} \\
+FL       & 4{,}703 & 29.74 & 33.35 & \underline{37.35}\sd{0.02} & \textbf{37.55}\sd{0.07}$^{\uparrow}$ \\
+CA       & 8{,}501 & 27.58 & 30.71 & \textbf{35.63}\sd{0.01} & \textbf{35.63}\sd{0.02} \\
+TX       & 6{,}553 & 28.67 & 32.08 & \textbf{36.33}\sd{0.01} & \underline{36.19}\sd{0.04} \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}

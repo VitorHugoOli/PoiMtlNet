@@ -875,6 +875,11 @@ conclusion is not: `comparison.md` carries a dated `SUPERSEDED` banner naming th
 as pre-bugfix and the printed values as canonical. No number changed; the table gained a note so the
 next reader does not repeat the trace.
 
+> ⚠ **[2026-10-01] THIS DECISION WAS WRONG, and the fact gate was right.** The banner it trusted was
+> an unverified guess restated as fact. The printed FL/CA/TX cells came from the older within-user TF
+> runs; the "pre-bugfix" JSONs are the user-disjoint reimplementation and are now printed (33.35 /
+> 30.71 / 32.08). The author caught it. See `CLAUDE.md` §5 trap 3.
+
 **The frozen cross-volume labels.** Not a reviewer finding but my own overclaim, caught in review:
 the relocation commit said all nine were re-checked when three were. See section 15.5.
 

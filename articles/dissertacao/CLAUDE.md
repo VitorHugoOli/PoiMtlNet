@@ -339,10 +339,17 @@ Two more registries: [`wrapup/NEW_VERSION.md`](wrapup/NEW_VERSION.md) (the `mtlc
 2. **Read the exit code, not the output.** `make check` prints a green-looking table and then exits
    2. This has produced a full day of commit messages claiming gates pass. The folder's own history
    records it twice; this session hit it a third time.
-3. **The printed baseline column does not reproduce from the per-fold baseline JSONs.**
-   `docs/results/baselines/faithful_poi_rgnn_*.json` are the **pre-bugfix May-2 draw**. The printed
-   values are correct and the JSONs are the trap — the chain is written into the header comment of
-   `src/tables/mobiwac/results.tex`.
+3. **The POI-RGNN column once mixed two implementations, and this trap said the opposite.**
+   Until 2026-10-01 this item claimed the reimplementation's JSONs
+   (`docs/results/baselines/faithful_poi_rgnn_*.json`) were a "pre-bugfix draw" and the printed FL/CA/TX
+   values (34.49 / 31.78 / 33.03) were correct. **That was false.** Those three came from the
+   October-2025 runs of the older TF implementation (`results/baselines/rgnn/*_2025100*`), with folds
+   split within each user, 3-visit windows and a 1,500-user sample. The reimplementation ran on all six
+   datasets, user-disjoint, and its JSONs are right: FL 33.35 / CA 30.71 / TX 32.08, printed since
+   2026-10-01. There was never a bug. The label began as a guess ("JSONs may be pre-bugfix", a32bfdc4,
+   2026-05-02) and two docs-only commits restated it as fact. The fact gate flagged the mixture in August
+   and was overruled by that banner (`wrapup/REVISION_PLAN.md`). The author caught it. **Lesson: a
+   provenance banner is a claim, not evidence; re-derive before overruling a gate.**
 4. **The post-submission studies are NOT in either delivered PDF.** Q13 (concatenation) and P1
    (capacity) were verified absent by text extraction. They are oral-defense material with drafted
    erratas. And **P1's own record cites `+2.12 / +2.05` from a superseded substrate** — the

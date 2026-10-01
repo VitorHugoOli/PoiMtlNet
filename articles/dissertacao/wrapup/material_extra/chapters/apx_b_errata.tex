@@ -393,7 +393,9 @@ sentences for its tables, since the submitted text already introduces each of th
 % value changes, but one printed diagnostic (0.57 -> 0.51) does. 1 + 8 + 3 + 1 + 5 + 2 = 20.
 % [2026-09-30] twenty -> twenty-one; corrections of fact eight -> nine (the Markov floor's folds).
 % 1 + 9 + 3 + 1 + 5 + 2 = 21.
-Table~\ref{tab:apx:mobiwac-scope} lists twenty-one further departures in the reproduced prose.
+% [2026-10-01] twenty-one -> twenty-two; corrections of fact nine -> ten (the POI-RGNN column).
+% 1 + 10 + 3 + 1 + 5 + 2 = 22.
+Table~\ref{tab:apx:mobiwac-scope} lists twenty-two further departures in the reproduced prose.
 None alters a result in the two results tables; one re-measures a diagnostic constant. One predates the article's acceptance: it narrows a
 universal negative to the channels its evidence covers. The
 % [2026-09-08, second pass] "one adds a cross-reference to the appendix that measures the same
@@ -402,7 +404,7 @@ universal negative to the channels its evidence covers. The
 % the eight Ch.5 files today. My restructure had re-authored the stale row's claim; the row is now
 % corrected by the registry and this clause follows it. Lesson recorded: a restructure is the time
 % to check the rows, not only to count them.
-other twenty were applied after the article was accepted, and they fall into five kinds. Nine
+other twenty-one were applied after the article was accepted, and they fall into five kinds. Ten
 are corrections of fact: the promise of a Wilcoxon result that the text never reports is
 withdrawn; the two dedicated-model parameter sums are corrected against the measured counts;
 the concatenation control is restated against the table it cites; the logit-adjustment method
@@ -413,7 +415,10 @@ differences lie within half a point at once rests on a Bonferroni adjustment acr
 comparisons rather than on six separate intervals; the check-in range across the
 U.S. datasets ends at Texas, the state with the most check-ins, rather than at California; and the
 Markov floor is described as sharing the sliding windows and the user-grouped fold construction
-of the reported models, but not their partition of users, which is what the text now claims. Three
+of the reported models, but not their partition of users, which is what the text now claims; and
+the three POI-RGNN cells at Florida, California, and Texas now come from the same user-disjoint
+reimplementation as the other three, so the smallest margin of the joint model over POI-RGNN is
+4.11 macro-F1 points, at Texas, rather than 3.06. Three
 state the delivered method in place of development history: the gradient-cosine paragraph rests
 on the measurement taken on the reported joint model; the region vectors read by the
 spatial stream are described as a fixed region table shared by the joint and dedicated models;

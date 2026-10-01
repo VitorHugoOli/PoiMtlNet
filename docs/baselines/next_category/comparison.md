@@ -16,14 +16,14 @@
 >
 > ---
 
-> ⚠ **SUPERSEDED 2026-05-04.** Canonical:
-> `docs/results/RESULTS_TABLE.md §0.6`. The POI-RGNN
-> numbers (33.35 / 30.71 / 32.08) below are pre-bugfix (May-2 snapshot)
-> and diverge from the canonical 34.49 / 31.78 / 33.03 quoted in
-> `RESULTS_TABLE.md §0.6` and inherited by the article. The cross-validation
-> protocol below may also reflect an earlier protocol claim; the current
-> reproduction is user-disjoint per `poi_rgnn.md` "Adapted —
-> Cross-validation protocol". Trust the canonical sources, not this file.
+> ⚠ **CORRECTED 2026-10-01: the banner that stood here (dated 2026-05-04) was wrong.** It called the
+> POI-RGNN numbers below (33.35 / 30.71 / 32.08) "pre-bugfix" and named 34.49 / 31.78 / 33.03 as
+> canonical. The opposite holds. 33.35 / 30.71 / 32.08 are the user-disjoint reimplementation
+> (`research/baselines/poi_rgnn`, unchanged since 6e3cd490 apart from a path reorg; there was never a
+> bug). 34.49 / 31.78 / 33.03 are the October-2025 runs of the older TF implementation
+> (`results/baselines/rgnn/*_2025100*`), with folds split within each user, 3-visit windows and a
+> 1,500-user sample. The "pre-bugfix" label began as a guess (a32bfdc4) and was restated as fact by
+> docs-only commits. The dissertation prints the reimplementation's values since 2026-10-01.
 
 Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `../README.md` §"How to add a new baseline result").
 

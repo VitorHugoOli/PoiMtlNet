@@ -75,6 +75,8 @@ Evaluation: macro-averaged F1 over 7 categories, 5-fold cross-validation.
 
 #### Our reproduced results — per US state (mean ± std, 5 folds)
 
+> ⚠ (2026-10-01) These are the OCTOBER-2025 runs of the older TensorFlow implementation (mtl_poi, results/baselines/rgnn/*_2025100*): folds split WITHIN each user, 3-visit windows, a 1,500-user sample. They are NOT the user-disjoint reimplementation. The reimplementation (research/baselines/poi_rgnn, user-grouped StratifiedGroupKFold, seed 42) gives FL 33.35 / CA 30.71 / TX 32.08 (docs/results/baselines/faithful_poi_rgnn_*_5f_35ep_*.json), and that is what the dissertation prints since 2026-10-01. There was never a bug; the "pre-bugfix" label began as a guess (a32bfdc4, 2026-05-02) and was later restated as fact.
+
 **California:**
 
 | Category | Precision (%) | Recall (%) | F1 (%) |
