@@ -837,13 +837,17 @@ sessões (`fetch.pruneTags=true` no `~/.gitconfig`); a âncora durável é
 `git diff -M --name-status "$(git log --format=%H --grep='^organizacao 1/8' -1)^" <fim> -- articles/dissertacao`; a razão de
 cada ficheiro está na mensagem do commit do passo.
 
-**Fica para o autor decidir:**
-- fundir o ramo no `main`, e empurrar a tag (local, cai a cada `fetch`);
-- as quatro fontes TikZ mortas em `presentation/figures/src/` (o README delas diz "só o autor decide");
-- **portabilidade:** o `VERIFY_LIST.md` e o `PENDENCIAS.md` têm blocos que o `check_verify_list`
-  executa com `cd /Users/vitor/...`; no clone do departamento esses `cd` falham;
-- dois ponteiros de fora da pasta que esta reorganização tornou falsos:
-  `articles/[mobiwac]/ERRATA.md` e `handoff/STORY_REVIEW.md` (fora do âmbito, não editados).
+**O autor decidiu as quatro a 2026-10-01, e foram feitas no ramo:**
+- **fundir e empurrar a tag:** fica com a `knowladge`, que funde o ramo no `main` e empurra os dois juntos;
+- **as quatro fontes TikZ mortas saíram** de `presentation/figures/src/`, e o README diz onde se recuperam;
+- **portabilidade:** os 13 `cd /Users/vitor/...` passaram à convenção do próprio `cwd_for`
+  (`cd articles/dissertacao` a partir da raiz, `cd ../..` a partir da pasta). Com a mesma árvore, o
+  portão dá saída idêntica antes e depois. A medição mostrou uma coisa que nenhuma comparação anterior
+  podia mostrar: **até aqui, estes blocos verificavam o checkout principal em `/Users/vitor/...`, não a
+  árvore onde o portão corria** — incluindo as minhas 18/18 por passo;
+- **os dois ponteiros de fora** (`[mobiwac]/ERRATA.md`, `handoff/STORY_REVIEW.md`) apontam para os
+  caminhos novos. Ficou um terceiro, não aprovado e não editado: um comentário em
+  `articles/[mobiwac]/src/figs/fig1_dataflow_new.tex:57` cita `c2h_flow.tex`, que saiu com as TikZ.
 
 ---
 
