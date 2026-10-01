@@ -824,7 +824,7 @@ history vector under the tested causal construction.
 | `docs/results/embedding_eval/rescreen_cat/RESCREEN.md` | mechanism audit, full sequence results, and known linear false negative |
 | `scripts/embedding_eval/autocorrelation_ceiling.py` | implemented label-history comparison |
 | `docs/results/embedding_eval/rescreen_cat/autocorrelation_ceiling.csv` | label-history and majority-floor results |
-| `articles/dissertacao/src_utils/_round13/72_leak_screening_search.md` | audit of what the screen establishes and what remains untested |
+| `articles/dissertacao/src_utils/_history/_round13/72_leak_screening_search.md` | audit of what the screen establishes and what remains untested |
 
 ---
 

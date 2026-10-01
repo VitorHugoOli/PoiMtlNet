@@ -32,7 +32,7 @@ isso que toda a coluna de categoria se moveu tanto. A região mexeu menos de 2 p
 a auditoria estudo-a-estudo em `wrapup/open_points/AUDITORIA_PRE_LEAK.md`, que percorre os nove
 estudos pré-correcção e diz, por estudo, se a contaminação alcança alguma alegação viva.
 
-**Induz ao contrário:** `src_utils/_review_v1/09_stats_leakage_skeptic_report.md` (2026-07-24).
+**Induz ao contrário:** `src_utils/_history/_review_v1/09_stats_leakage_skeptic_report.md` (2026-07-24).
 Relatório de persona, 4.817 palavras, escopo exactamente `src/chapters/3_cbic`. Apoia-se **sete
 vezes** numa fonte que já estava morta (ver **V2**). É citado pelo `.tex` entregue como proveniência
 de uma decisão deliberada (`src/chapters/5_mobiwac/07_discussion.tex:245`), por isso continua no
@@ -84,13 +84,13 @@ está cheio de lixo.
 
 **Veredito: NÃO. São de carga.** Verificado por três caminhos independentes.
 
-1. `src_utils/check.sh:345` **executa** `_round9/35_wave_a_render_check.py`.
+1. `src_utils/check.sh:345` **executa** `_history/_round9/35_wave_a_render_check.py`.
 2. `check_audit_claims.py` **lê os `.md` como dados** — tem uma tabela de expressões regulares que
-   casa contra `_round9/37_reviewer_gate_round9.md`, `_round9/47_applied_check.md` e outros.
+   casa contra `_history/_round9/37_reviewer_gate_round9.md`, `_history/_round9/47_applied_check.md` e outros.
    Apagar um deles faz o portão de auditoria **falhar, não avisar**.
 3. O `.tex` entregue cita caminhos de rodada **quarenta vezes**, em comentários de proveniência.
 
-Também não tocar: `_fixtures/check_verify_list/{clean,dirty}/src_utils/_round6/VERIFY_LIST.md` são
+Também não tocar: `_fixtures/check_verify_list/{clean,dirty}/src_utils/_history/_round6/VERIFY_LIST.md` são
 cópias-fixture que o próprio `check.sh` compara.
 
 **Prova:** `ACHADOS.md` §A5 · `README.md` §"parecem pastas de trabalho velhas e não são" ·
@@ -185,8 +185,8 @@ Assinatura medida **2026-09-06**, com o `main.pdf` de 2026-09-04 presente: `rc=1
 
 - **`FAIL FAB-12 new absent (wanted present)`** no portão do Wave A. As duas formas, a nova e a
   velha, estão **ambas ausentes**: a frase está numa terceira redacção. É a reversão que o autor
-  mandou fazer (`_round9/45_author_rulings.md`), e a construção está registada como **decisão do
-  orientador, não defeito** (`_round9/42_excellence_r9b.md` §3 item 8). **Não "corrigir" isto sem
+  mandou fazer (`_history/_round9/45_author_rulings.md`), e a construção está registada como **decisão do
+  orientador, não defeito** (`_history/_round9/42_excellence_r9b.md` §3 item 8). **Não "corrigir" isto sem
   falar com o autor** — o portão está a assinalar uma escolha deliberada que ninguém reconciliou
   com ele.
 - 16 alegações registadas como `APPLIED` que não estão no documento: `R8-head`, `R8-head2`,
@@ -203,7 +203,7 @@ regista **quatro** ocorrências de mensagens de commit a afirmar `rc=0` sobre ex
 ## V9b · Ponteiros pendurados pela limpeza de 2026-09
 
 **Dezoito** ficheiros foram removidos, no commit `2075e70e` — **16 de rodada** (`_review_v2` ×7,
-`_review_v3` ×2, `_round6` ×2, `_round9/reviews`, `_gates`, `_specialists_v1`, `_archive/reviews_v1`,
+`_review_v3` ×2, `_round6` ×2, `_history/_round9/reviews`, `_gates`, `_specialists_v1`, `_history/_archive/reviews_v1`,
 `science/fundamentals/_review`) mais **2 do `archive/`**. Uns saíram por afirmarem números da geração
 com vazamento, outros por serem relatórios de portão superados. Alguns eram citados **por outros
 ficheiros de rodada**, e essas citações já não resolvem. **É esperado, e não se conserta indo
@@ -214,7 +214,7 @@ procurar o ficheiro.**
 > pequeno mas é do género que este ledger existe para não ter — uma contagem em prosa que não bate
 > com o que descreve.]*
 
-O caso a conhecer: `_round9/37_reviewer_gate_round9.md:44` cita `reviews/06_number.md`, removido.
+O caso a conhecer: `_history/_round9/37_reviewer_gate_round9.md:44` cita `reviews/06_number.md`, removido.
 Esse relatório **validava as células v17 como correctas** (*"AL 64.51 … CA 77.05 — every cell
 matching"*), portanto o seu veredito não vale; a linha da tabela fica como registo de que o portão
 correu. O `check_audit_claims.py` valida expressões **dentro** do agregador, não a existência dos
@@ -308,7 +308,7 @@ validade, depois de fechar com 27 candidatos, 11 tarjados, **10 falsos positivos
 piso, ou alvo a bater** está a ser *mencionado* — mesmo sem tarja, mesmo sem aspas, mesmo numa
 tabela.
 
-O `_round9/reviews/06_number.md` saiu porque dizia *"every cell matching"*: asserção de que as
+O `_history/_round9/reviews/06_number.md` saiu porque dizia *"every cell matching"*: asserção de que as
 células estavam **certas**. O `handoff/ch5_mechanism_evidence.md` ficou apesar de imprimir `63.56`
 e `77.05` sem tarja, porque a linha lê *"77.05 (−7.17 from the matched arm)"* — o número está lá
 para ser batido.
@@ -331,12 +331,12 @@ Sem ele a resposta honesta teria sido *"ninguém sabe"* sobre um número publica
 de agir: *"o que parte alto se isto sair?"* — se a resposta for "nada", isso **não** é prova de
 segurança, é o sinal de perigo. Cinco casos medidos nesta árvore:
 
-- o ponteiro sobrevive ao ficheiro (`check.sh` **executa** `_round9/35_wave_a_render_check.py`);
+- o ponteiro sobrevive ao ficheiro (`check.sh` **executa** `_history/_round9/35_wave_a_render_check.py`);
 - o `.tex` entregue cita caminhos de ronda **40 vezes** como proveniência, e num documento
   depositado a proveniência É o artefacto;
 - o caso circular: para saber que deve restaurar o `_aut_closed_blocks.md` precisaria do que está
   escrito **dentro** dele (que 32 números não existem noutro sítio);
-- o dicionário de dados: apagar o `_round7/gradient_cosine_tests6_README.md` deixa o CSV a
+- o dicionário de dados: apagar o `_history/_round7/gradient_cosine_tests6_README.md` deixa o CSV a
   significar outra coisa em silêncio (**sete** datasets, e Georgia não é dos seis);
 - restaurar exige o caminho e o sha, e ninguém procura um ficheiro que não sabe que existiu.
 

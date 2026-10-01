@@ -49,7 +49,7 @@
 | representation contrast | recomputed from `docs/results/closing_data/v18_place_level/<state>_s0_cat_placelevel.json` against the check-in-level dedicated arm, paired t on the five matched folds | §1.2 |
 | convention gap | diagnostic-best minus served-checkpoint, per dataset, to bound what the robustness sentence may claim | §1.3 |
 | MobiWac reuse | the applied diff `da97ecf7..HEAD` over `articles/[mobiwac]/src_fix` (13 files, 671 insertions) read in full | §9 |
-| Appendix F evidence | `src_utils/_round7/gradient_cosine_observations6.parquet` opened (4,650 rows, 7 datasets, 13 configurations) and every joint run directory in the v18 results tree swept for a non-empty `grad_cosine_shared` column | §1.4, §7 |
+| Appendix F evidence | `src_utils/_history/_round7/gradient_cosine_observations6.parquet` opened (4,650 rows, 7 datasets, 13 configurations) and every joint run directory in the v18 results tree swept for a non-empty `grad_cosine_shared` column | §1.4, §7 |
 
 **No further experiment is required for Chapters 1–6 or for the tables.** Every cell the
 dissertation reports exists, is banked per fold, and reproduces. There are **two execution
@@ -398,7 +398,7 @@ than in the paper for the same measurement.
 | settings freeze and its rationale | `docs/studies/closing_data/v18/FINAL_SETTINGS.md` (author-approved 2026-08-09) |
 | what v18 is | `docs/studies/closing_data/v18/METHODOLOGY.md` |
 | head orthogonality | `docs/studies/closing_data/v18/LOSS_WEIGHT_PROBE.md` |
-| Appendix F current basis | `articles/dissertacao/src_utils/_round7/gradient_cosine_observations6.parquet` |
+| Appendix F current basis | `articles/dissertacao/src_utils/_history/_round7/gradient_cosine_observations6.parquet` |
 | Appendix F new basis | the re-run of §2.1, harvested per fold with checksums |
 | MobiWac applied revision | `da97ecf7..HEAD` over `articles/[mobiwac]/src_fix` |
 

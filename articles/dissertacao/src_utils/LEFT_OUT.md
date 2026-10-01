@@ -44,7 +44,7 @@ it. The author's recollection ("we did not change much") is consistent with the 
 recollection is not a record, and `AGENT_GUARDRAILS N1` forbids writing a number that cannot be
 traced to a source.
 
-**Where the full finding lives.** `src_utils/_round6/10_protocol_recovery.md` §1.4.
+**Where the full finding lives.** `src_utils/_history/_round6/10_protocol_recovery.md` §1.4.
 
 **Decided by.** The protocol-recovery pass, 2026-07-28, under the existing number protocol. Not a
 discretionary call: writing the number was not available.
@@ -71,7 +71,7 @@ published article that the finding itself answers in the article's favor.
 **The constraint it imposes.** No future sentence may claim the CBIC numbers are reproducible from
 this repository without excluding that column. That constraint is the reason for this entry.
 
-**Where the full finding lives.** `src_utils/_round6/10_protocol_recovery.md` §1.5.
+**Where the full finding lives.** `src_utils/_history/_round6/10_protocol_recovery.md` §1.5.
 
 **Decided by.** Recorded 2026-07-28. **Decidido pelo autor (2026-07-30):** *"Documentar no left_out.md"*. Era exatamente isso, e este registro e o desfecho — nao ha divulgacao pendente no Apendice B.
 
@@ -88,7 +88,7 @@ appears in no output.
 **Why it is out.** Because there is no cover page. The field is correct as data and will start
 rendering the moment one is added. Removing it would be worse than leaving it.
 
-**Where the full finding lives.** `src_utils/_round6/15_frontmatter_names.md`; the mechanism is
+**Where the full finding lives.** `src_utils/_history/_round6/15_frontmatter_names.md`; the mechanism is
 already commented at `src/0_main.tex:139-141`.
 
 **Decided by.** No decision needed; recorded so it is not "found" again.
@@ -127,7 +127,7 @@ and measured** at 10.53 pt, 88 percent, building clean at `tex_errors=0` with ze
 rotating the page turns the diagram's deliberate left-to-right data flow into a bottom-to-top one
 and costs the reader a page turn. The presentation cost was judged higher than the type-size gain.
 
-**Where the full finding lives.** `src_utils/_round6/12_figures.md` §3, with both measurements.
+**Where the full finding lives.** `src_utils/_history/_round6/12_figures.md` §3, with both measurements.
 
 **Decided by.** The author, 2026-07-28, answering a direct question with all three options measured.
 
@@ -164,8 +164,8 @@ co-authored one. Neither was authorized. A `.drawio` source exists for both
 is available and cheap: raise `fontSize` from 13 to about 20 and re-export at the same pixel width.
 What is missing is the decision, not the capability.
 
-**Where the full finding lives.** `src_utils/_round6/12_figures.md` for the Ch.4 figure and the fix
-recipe; `src_utils/_round6/18_visual_ufv_latex.md` finding V-1 for the Ch.3 figure and the
+**Where the full finding lives.** `src_utils/_history/_round6/12_figures.md` for the Ch.4 figure and the fix
+recipe; `src_utils/_history/_round6/18_visual_ufv_latex.md` finding V-1 for the Ch.3 figure and the
 measurement method.
 
 **Decided by.** Deferred, not declined. **Open for the author, and now covering both figures** --
@@ -188,7 +188,7 @@ already fully English, which was the reason it was examined.
 resembles the published one but was produced by a different, invented rule would be worse than one
 that cannot be regenerated.
 
-**Where the full finding lives.** `src_utils/_round6/12_figures.md` §2.
+**Where the full finding lives.** `src_utils/_history/_round6/12_figures.md` §2.
 
 **Decided by.** The figures pass, 2026-07-28, under the fail-closed rule.
 
@@ -207,7 +207,7 @@ recoverable.
 at 11 pt one annotation was measured crossing 2.18 pt into an adjacent box. Placement was the
 change available without redesigning a submitted paper's figure.
 
-**Where the full finding lives.** `src_utils/_round6/12_figures.md` §3.
+**Where the full finding lives.** `src_utils/_history/_round6/12_figures.md` §3.
 
 **Decided by.** The figures pass, 2026-07-28.
 
@@ -242,7 +242,7 @@ no page range), so that page range is **not confirmed by any source of record re
 session**. The venue itself is confirmed by the paper's own arXiv comment field. This is a
 `[VERIFY]`, not an error: the pages may well be right.
 
-**Where the full finding lives.** `src_utils/_round6/10_protocol_recovery.md` §3.1.
+**Where the full finding lives.** `src_utils/_history/_round6/10_protocol_recovery.md` §3.1.
 
 **Decided by.** The protocol-recovery pass, 2026-07-28, applied at `1fa930e0`.
 **Open for the author** only on the page range.
@@ -267,7 +267,7 @@ wrong-quantity defect recorded inside one of those very blocks. The `tables/` re
 same move successfully, but there the hoisted text was **identical** across 16 files, so nothing was
 separated from anything.
 
-**Where the full finding lives.** `src_utils/_round6/14_comments_measured.md`.
+**Where the full finding lives.** `src_utils/_history/_round6/14_comments_measured.md`.
 
 **Decided by.** Recorded 2026-07-28; recommended against. **Open for the author** if he wants the
 volume gone and accepts the trade.
@@ -374,9 +374,9 @@ but it is **Article 1's errata** (that study uses the graph embedding, not the t
 row per place at sampling time" is equally consistent with the dedup producing it and with the table
 arriving POI-level. It is the same ambiguity, not a resolution of it.
 
-**Where the full finding lives.** `_round12/50_courb_temporal_level_investigation.md`, which also carries the
+**Where the full finding lives.** `_history/_round12/50_courb_temporal_level_investigation.md`, which also carries the
 retraction of an earlier claim that this WAS resolved, and the `[VERIFY]` flag naming the closing artifact.
-The failure that produced that retraction is recorded in `_round9/34_tracker_disagreement.md`.
+The failure that produced that retraction is recorded in `_history/_round9/34_tracker_disagreement.md`.
 
 **Decided by** the author, 2026-08-03: "Vamos de B, e matamos esse assunto, se quiser podemos documentar ele
 no left_out.md."
@@ -407,7 +407,7 @@ cosine or mutual-information estimate between the two exported tables, per datas
 would answer a question about our own representation that no chapter poses. The construction fact carries
 the reader's understanding at zero evidential cost.
 
-**Where the full finding lives.** `src_utils/_round13/71_graphnode_features.md` (node features and export
+**Where the full finding lives.** `src_utils/_history/_round13/71_graphnode_features.md` (node features and export
 paths, quoted from the code) and the AUT-25 block of `PENDENCIAS.md` §4.
 
 **Decided by.** The author, 2026-08-04, in the AUT-25 decision block of the tracker: *"hedge, deixar no

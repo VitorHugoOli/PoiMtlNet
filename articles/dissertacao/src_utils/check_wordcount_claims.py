@@ -37,7 +37,7 @@ import sys
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 REGISTERS = [
     "src_utils/PENDENCIAS.md",
-    "src_utils/_archive/PENDENCIAS_RESOLVIDOS.md",
+    "src_utils/_history/_archive/PENDENCIAS_RESOLVIDOS.md",
     "science/AGENT_HANDOFF.md",
 ]
 

@@ -34,7 +34,7 @@ FOUR MEASUREMENT TRAPS, each of which produced a WRONG verdict here before it wa
      live_text() before believing any verdict about it.
 
 Full history -- why each probe exists, the closed-register audit, the corrected provenance of the
-baseline measurements -- is in _round8/29_pendencias_detail.md.
+baseline measurements -- is in _history/_round8/29_pendencias_detail.md.
 """
 from __future__ import annotations
 
@@ -95,7 +95,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("NUM-4",    "HGI sweep reports its spreads and its averaging convention",
      "../wrapup/material_extra/chapters/apx_g_hgi_tuning.tex", r"0\.8186", True),
     # ---- ROUND-9c PROBES: the AUTHOR'S OWN RULINGS of 2026-07-30, one per mechanically checkable row.
-    # Ledger and per-row evidence: _round9/47_applied_check.md. These exist because a future edit that
+    # Ledger and per-row evidence: _history/_round9/47_applied_check.md. These exist because a future edit that
     # undoes one of his requested changes must trip a gate rather than reach the banca silently.
     # The nine REMOVAL probes were each validated against git show 06529ed6:<file>, where the pattern
     # matched the original exactly once -- so an absence here is evidence and not an inexpressible pattern.
@@ -202,7 +202,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # ---- ROUND-9c, SECOND PASS. These three rows were APPLIED in the ledger on a predicate that did
     # not measure anything: 2.19's ended in `or True`, 2.23's was the literal `True`, and 2.15's asked
     # only whether the word "errata" occurs somewhere. A reviewer caught it. Probed properly now, which
-    # is the difference between a verdict and an assertion (_round9/47_applied_check.md, the CORRECTION).
+    # is the difference between a verdict and an assertion (_history/_round9/47_applied_check.md, the CORRECTION).
     ("A19-conv", "his 2.19: the word-count convention is a durable record stating the figure of record",
      "WORDCOUNT_CONVENTION.md", r"310", True),
     ("A23-R3",  "his 2.23 R-3: the unscoped limit on what the balancers can contribute is gone",
@@ -234,7 +234,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("A15-term", "his 2.15: the banned term is gone from the CoUrb chapter",
      "chapters/4_courb/methodology.tex", r"\bfclass\b", False),
     # ---- ROUND-9 PROBES: the review-tracker split itself. Paths ending .md resolve against UTILS.
-    # Each was validated by sabotage (revert the property, read rc=1) -- see _round9/32_gate_validation.md.
+    # Each was validated by sabotage (revert the property, read rc=1) -- see _history/_round9/32_gate_validation.md.
     ("R9-schema", "CONSIDERATIONS.md carries all 43 per-item blocks, not prose",
      "CONSIDERATIONS.md", r"### AUT-01", True),
     ("R9-commit", "every item block records the build commit its measurement was taken against",
@@ -256,12 +256,12 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # the heading verbatim. So this reads the ARCHIVE and pins the closure record.
     ("R9-pend6",  "the archive records that PENDENCIAS §6 existed, replaced the 2.8 placeholder, and was "
                   "closed with all twenty-six items archived rather than dropped",
-     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     "_history/_archive/PENDENCIAS_RESOLVIDOS.md",
      r"A SECAO §6 DO `PENDENCIAS\.md` FOI ENCERRADA E REMOVIDA", True),
     # R9-pend6b: and the heading itself, quoted verbatim in the archive, so a later reader can resolve a
     # source comment that still says "§6" without guessing what it named.
     ("R9-pend6b", "the archive quotes the removed §6 heading verbatim",
-     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     "_history/_archive/PENDENCIAS_RESOLVIDOS.md",
      r"## §6 · As decisoes que sairam do `CONSIDERATIONS\.md` \(round 9\)", True),
         # REPOINTED 2026-08-02: item 2.8 was archived out of the tracker, so both probes now read the
     # ARCHIVE. The second also gets a wrap-tolerant pattern: the phrase it pins now wraps across
@@ -269,12 +269,12 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # missing when it is present. A first check of mine split on exactly that wrap and nearly
     # recorded a live sentence as lost.
 ("R9-pend28", "the archived 2.8 records what was done rather than asking for a decision",
-     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     "_history/_archive/PENDENCIAS_RESOLVIDOS.md",
      r"2\.8 `CONSIDERATIONS\.md` — EXECUTADO nesta rodada", True),
     # ---- ROUND-9, THE PARETO TRACK (PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02), author's decision "DESICAO: A."). The fix has
     # two halves that can rot independently -- the §2.3 passage can be reverted, and the glossary rows
     # it depends on can be dropped -- so it gets a probe on each. Source ledger with the page of every
-    # definition, and the sabotage runs: _round9/31_pareto.md.
+    # definition, and the sabotage runs: _history/_round9/31_pareto.md.
     ("R9-pareto", "Ch.2 defines Pareto optimality and states that this dissertation does not claim it",
      "chapters/2_fundamentals.tex", r"claims no Pareto property", True),
     # R9-pareto2: the DEFINITION itself, not just the honesty clause. Found 2026-07-30 by sabotage:
@@ -347,7 +347,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # together.
     ("R9-agree",  "the archived 2.8 carries the CORRECTED stale count, agreeing with its own §6 and "
                   "with CONSIDERATIONS.md (9 of 41, not the superseded 10)",
-     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     "_history/_archive/PENDENCIAS_RESOLVIDOS.md",
      r"\*\*32 sao exatas e 9 estao\s+obsoletas\*\*", True),
     ("R9-agree2", "the superseded 'As 21 ancoras dos capitulos' claim is gone from PENDENCIAS",
      "PENDENCIAS.md", r"As 21 ancoras dos capitulos", False),
@@ -369,10 +369,10 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # from. Reporting compliance would have retired a control on a number nobody looked at, and the
     # next round would have inherited a checkpoint believed to work. Positive probe pins the worst
     # measured time (the figure a later summary is most likely to soften); the inverted one bans the
-    # superseded sentence. .md paths resolve against UTILS, so _round9/ is reachable from here.
+    # superseded sentence. .md paths resolve against UTILS, so _history/_round9/ is reachable from here.
     ("R9-clock",   "the reviewer round records that every persona OVERRAN the 25-minute checkpoint, "
                    "with the measured wall times",
-     "_round9/37_reviewer_gate_round9.md", r"2,314 s \(38\.6 min\)", True),
+     "_history/_round9/37_reviewer_gate_round9.md", r"2,314 s \(38\.6 min\)", True),
     # R9-clock2 IS ANCHORED, and the first version was not, which is why it fired on a clean file.
     # The banned string is quoted inside the correction that retires it ("The first version of this
     # paragraph said \"all four came back inside it\""), and PROBES match case-insensitively, so a bare
@@ -383,7 +383,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # legal is the point: a correction that cannot name what it corrects is not a correction.
     ("R9-clock2",  "the superseded 'All four came back inside it' ASSERTION is gone from the gate "
                    "report (the quotation of it inside the correction stays legal)",
-     "_round9/37_reviewer_gate_round9.md", r"All four came back inside it, and \*\*all four", False),
+     "_history/_round9/37_reviewer_gate_round9.md", r"All four came back inside it, and \*\*all four", False),
     # ---- R9-wave2: wave 2's checkpoint outcome, and the reason it needs a probe is that the LAST
     # wave's outcome was reported wrong and then its diagnosis was reported wrong too. Wave 1: 0 of 4
     # inside a 25-min budget, mean 31.3 min, which I first wrote as "all four came back inside it"
@@ -395,12 +395,12 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # THIS PROBE'S FIRST PATTERN WAS WRONG AND IT FIRED ON A CLEAN FILE, which is the third time this
     # round an instrument was the defect rather than the document (after R9-clock2 and R9-nocount). I
     # wrote it against a markdown table row -- r"\*\*1 of 5\*\* \| \*\*41\.1 min\*\*" -- that lives in
-    # _round9/34, not in 38; the wave-2 report states the same measurement in prose. A pattern written
+    # _history/_round9/34, not in 38; the wave-2 report states the same measurement in prose. A pattern written
     # from memory of a sibling file is not a measurement of this one. Anchored now on the prose 38
     # actually carries.
     ("R9-wave2",   "the wave-2 record states that only ONE of five personas came in under the "
                    "checkpoint, with the measured mean",
-     "_round9/38_reviewer_wave2_round9.md", r"one of five inside, mean 41\.1 minutes", True),
+     "_history/_round9/38_reviewer_wave2_round9.md", r"one of five inside, mean 41\.1 minutes", True),
     # The blocker that wave 2 found, pinned in the tracker rather than only in a report: Appendix F
     # tells the reader an experiment happened (replacing the sharing scheme in study 1) that Chapter 3
     # lists as future work. Re-verified in three places before it was written down. Inverted probes
@@ -410,12 +410,12 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      # REPOINTED 2026-08-03: §6 was archived at the author's request once all twenty-six items were
      # answered, so the block this pins now lives in the archive. VERIFIED PRESENT THERE before the
      # repoint (grep: 1 in the archive, 0 in the live tracker) rather than assumed to have travelled.
-     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     "_history/_archive/PENDENCIAS_RESOLVIDOS.md",
      r"BLQ-4 — o Apendice F descreve um experimento que nunca foi feito", True),
     ("R9-blq5",    "the PCGrad blocker is recorded as DOWNGRADED BY ME, with the half I could not "
                    "check named, rather than passed through at the persona's severity",
      # REPOINTED 2026-08-03 with R9-blq4, same reason, same arrival check.
-     "_archive/PENDENCIAS_RESOLVIDOS.md", r"eu o REBAIXEI; a decisao final e sua", True),
+     "_history/_archive/PENDENCIAS_RESOLVIDOS.md", r"eu o REBAIXEI; a decisao final e sua", True),
     # ---- ROUND-10 PROBES: the author's 28 rulings, applied 2026-08-03 against baseline dda8978e.
     # R10-blq2 is the one that would rot silently. His ruling was to keep "everywhere" for the CATEGORY
     # verdict and specify the partition where the REGION verdict needs it. Chapter 6 was already right;
@@ -493,14 +493,14 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # corrects is not a correction.
     ("R10-pm",     "the round-10 postmortem records ONE harness mechanism, isolated by reproduction, "
                    "not the three it first invented",
-     "_round9/34_tracker_disagreement.md", r"There was \*\*ONE\*\* harness bug", True),
+     "_history/_round9/34_tracker_disagreement.md", r"There was \*\*ONE\*\* harness bug", True),
     ("R10-pm2",    "the fabricated three-mechanism account is not ASSERTED anywhere (quoting it inside "
                    "the retraction stays legal)",
-     "_round9/34_tracker_disagreement.md",
+     "_history/_round9/34_tracker_disagreement.md",
      r"harness was broken, in three separate ways", False),
     ("R10-pm3",    "the postmortem states the run's REAL leg counts rather than the three-of-six it "
                    "first claimed",
-     "_round9/34_tracker_disagreement.md",
+     "_history/_round9/34_tracker_disagreement.md",
      r"\*\*one\*\* `DID NOT FIRE`, \*\*two\*\* `mutation failed`", True),
     # ---- ROUND-11 PROBES: the five items the author authorized on 2026-08-03, after suspending the
     # Chapter 2 page budget ("pode melhorar o texto da fundamentacao sem preocupacao de paginas").
@@ -632,7 +632,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # positively and the refuted phrasing is banned from the record.
     ("R12-notagg",  "the investigation records that NO check-in-to-POI aggregation exists in the Time2Vec "
                     "pipeline, so Chapter 2 may not claim one",
-     "_round12/50_courb_temporal_level_investigation.md",
+     "_history/_round12/50_courb_temporal_level_investigation.md",
      r"There is no aggregation function anywhere in the\s+Time2Vec pipeline", True),
     # R12-notagg2 WAS BROKEN ON ITS FIRST WRITING, and the defect is worth recording because it is the
     # third time in this repo that a probe's SABOTAGE LEG, not the probe, decided whether it looked
@@ -662,7 +662,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # pattern is validated over ten positions including two that must stay legal.
     ("R12-notagg2", "the investigation does not ASSERT the aggregation it was sent to look for, at any "
                     "position in the file (quoting the refuted wording inside the refutation stays legal)",
-     "_round12/50_courb_temporal_level_investigation.md",
+     "_history/_round12/50_courb_temporal_level_investigation.md",
      r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|__|\*)?\s*"
      r"The temporal channel is aggregated to the place", False),
     # ---- The two claims from his 2026-08-03 side-chat rulings that a later pass is most likely to
@@ -704,7 +704,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # record must keep citing it checkably; what it does NOT license is the conclusion drawn from it.
     ("R12-dropdup", "the record cites the placeid dedup at its source line, as an established fact and not "
                     "as evidence of a check-in-to-POI selection step",
-     "_round12/50_courb_temporal_level_investigation.md",
+     "_history/_round12/50_courb_temporal_level_investigation.md",
      r"create_inputs_hgi\.py:437", True),
     # R12-shape: the EVIDENCE, and it is the strongest kind available here -- a stored notebook output
     # shape rather than a reading of code intent. 2535573 rows against 2535573 check-ins settles the
@@ -712,7 +712,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R12-shape",  "and it carries the stored output shape that establishes the ENCODER's per-check-in "
                    "granularity numerically (which survives the retraction; what did not survive is that "
                    "this matrix is what the ETL consumes)",
-     "_round12/50_courb_temporal_level_investigation.md",
+     "_history/_round12/50_courb_temporal_level_investigation.md",
      r"\(2535573, 64\)", True),
     # R12-notwrong WAS REPLACED, 2026-08-03. It pinned "description, not a wrong number" -- the calibration
     # of a conclusion that has since been RETRACTED, so the probe was enforcing a withdrawn claim and went
@@ -721,14 +721,14 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # later pass is to re-derive the same conclusion from the same two facts and skip the link again.
     ("R12-retract", "the AD-2 investigation records that its own 'answered' conclusion was RETRACTED, and "
                     "why: the ETL reads a parquet nothing in that repository writes",
-     "_round12/50_courb_temporal_level_investigation.md",
+     "_history/_round12/50_courb_temporal_level_investigation.md",
      r"RETRACTED AND REOPENED", True),
     ("R12-retract2","and it does not assert that AD-2 is answered",
-     "_round12/50_courb_temporal_level_investigation.md",
+     "_history/_round12/50_courb_temporal_level_investigation.md",
      r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|__|\*)?\s*"
      r"AD-2 is (?:therefore )?(?:now )?answered", False),
     ("R12-verify",  "and it carries the VERIFY flag naming the one artifact that would close AD-2",
-     "_round12/50_courb_temporal_level_investigation.md",
+     "_history/_round12/50_courb_temporal_level_investigation.md",
      r"\[VERIFY: the granularity of time_embedding\.parquet", True),
     # ---- His closing rulings of 2026-08-03. Two probes on the LEFT_OUT entry, because that entry is now the
     # DURABLE home of a finding whose earlier version I had to retract, and the two ways it can rot are the
@@ -756,7 +756,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # reported the new text as present because I had checked for a substring the new text contains -- a
     # presence check on the replacement is not a check that the replacement happened. The distinction matters
     # for the rule: re-reading before computing offsets would NOT have prevented this, whereas asserting the
-    # OLD string is ABSENT would. Full account in _round9/34_tracker_disagreement.md. Ban the retracted
+    # OLD string is ABSENT would. Full account in _history/_round9/34_tracker_disagreement.md. Ban the retracted
     # framing by its two most quotable phrases, positioned anywhere.
     ("R12-ad2row",  "the design's AD-2 row does not carry the retracted 'fourth possibility' framing",
      "../science/fundamentals/DEFINITIONS.md", r"FOURTH possibility none of us had listed", False),
@@ -776,11 +776,11 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # all read the working tree and none compares a commit message against its own diff.
     ("R12-d36",     "the record carries the third commit-attribution defect, where a header asserted a "
                     "correction the table row below it did not carry",
-     "_round12/51_commit_attribution_correction.md",
+     "_history/_round12/51_commit_attribution_correction.md",
      r"shipped a header that contradicts its own table row", True),
     ("R12-d36why",  "and it names the aborted-cell mechanism plus the negative assertion that would have "
                     "caught it",
-     "_round12/51_commit_attribution_correction.md",
+     "_history/_round12/51_commit_attribution_correction.md",
      r"cannot detect that one specific replacement never happened", True),
     # R12-study: the inversion study's LOAD-BEARING finding. The author asked for it specifically, and the
     # answer is a negative: the frozen planning folder records NO argument for tasks-before-representations,
@@ -791,11 +791,11 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # outside the chapter, DEFINITIONS.md:613, and NORTH_STAR.md:73-75 all read as the study reports them.
     ("R12-study",   "the inversion study records that NO recorded rationale for the tasks-first order "
                     "exists in the frozen planning folder",
-     "_round12/52_inversion_study.md",
+     "_history/_round12/52_inversion_study.md",
      r"records NO argument for placing tasks before representations", True),
     ("R12-studyrec","and its recommendation is marked as a recommendation the author decides, not an "
                     "authorization",
-     "_round12/52_inversion_study.md",
+     "_history/_round12/52_inversion_study.md",
      r"this is a recommendation; the author decides, and nothing is authorized", True),
     # R12-extra: `make extra` is RED and it is not the document -- BSD sed aborts on a Latin-1 byte in the
     # build log, so the page-count extraction fails while the PDF builds fine. Recorded as his decision
@@ -806,7 +806,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      # REPOINTED 2026-08-03 with R9-blq4/blq5: the §6.23 diagnosis moved to the archive when the
      # section closed. The claim it protects is unchanged -- the red `extra` target was a sed locale
      # failure and not a document defect -- and the fix itself is pinned separately by R12-locale.
-     "_archive/PENDENCIAS_RESOLVIDOS.md", r"illegal byte sequence", True),
+     "_history/_archive/PENDENCIAS_RESOLVIDOS.md", r"illegal byte sequence", True),
     # R12-studyfix: the sub-agent's study asserted "git history begins 2026-07-23" to support its central
     # negative finding. FALSE about the repository -- root commit 2025-03-08, 2049 commits, 1666 of them
     # earlier. I checked instead of accepting the self-report, and the FINDING survives on a better
@@ -815,22 +815,22 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # skips, and because the wrong reason would otherwise be quotable as support for a right conclusion.
     ("R12-studyfix","the inversion study's false 'git history begins' claim is corrected in place, with the "
                     "measurement that actually supports the finding",
-     "_round12/52_inversion_study.md",
+     "_history/_round12/52_inversion_study.md",
      r"It stands on a measurement of what the early commits CONTAIN", True),
     # R12-mech: THE RECORD MUST CARRY ONE MECHANISM FOR THE SURVIVING-ROW DEFECT, NOT TWO. For a while it
     # carried two incompatible ones -- a stale byte offset whose replace missed (invented, written into
-    # _round9/34 and into the R12-ad2row rationale) and an assert that raised before write_text (measured,
-    # written into _round12/51). They are not variants: under one the replace ran and missed, under the other
+    # _history/_round9/34 and into the R12-ad2row rationale) and an assert that raised before write_text (measured,
+    # written into _history/_round12/51). They are not variants: under one the replace ran and missed, under the other
     # it succeeded and the write never happened, and only the second is what the cells show. The derived RULE
     # differs too, which is why a contradiction here is not cosmetic: re-reading before computing offsets
     # would not have prevented the real defect. Pinned on 34 because that is the file a later pass reads for
     # the lesson.
     ("R12-mech",    "the postmortem names the assert-before-write mechanism and retracts the invented "
                     "stale-offset one",
-     "_round9/34_tracker_disagreement.md",
+     "_history/_round9/34_tracker_disagreement.md",
      r"the mechanism I gave for\s+it was invented", True),
     ("R12-mech2",   "and it does not assert the stale-offset story as the cause",
-     "_round9/34_tracker_disagreement.md",
+     "_history/_round9/34_tracker_disagreement.md",
      r"The offsets had been computed against an \*earlier\* copy", False),
     # ---- His rulings of 2026-08-03 (second batch).
     #
@@ -865,14 +865,14 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # 52 recommendation reads as unopposed.
     ("R12-cmp",     "the comparison records the reader-side resolution of the mirror argument, which is why "
                     "it reverses 52's recommendation",
-     "_round12/53_order_comparison.md",
+     "_history/_round12/53_order_comparison.md",
      r"scaffold for a first reading; the answer-mirror is a reward for a second", True),
     # R12-cmpval: and it must keep saying that the "already-validated" label was 52's coinage rather than 49's
     # finding, with the concrete qualifier -- AD-4, the sign-off on the section shape, is OPEN. I verified this
     # independently: grep for "validated" in 49 returns zero occurrences of that claim about the option.
     ("R12-cmpval",  "and it records that option (a) is mechanically checked but narratively unsigned, because "
                     "AD-4 is still open",
-     "_round12/53_order_comparison.md",
+     "_history/_round12/53_order_comparison.md",
      r"mechanically checked and narratively unsigned", True),
     # R12-clock3: I published "2,236 s, 7 percent inside the checkpoint" for the comparative study and it was
     # wrong IN KIND, not by a margin: 2,236 s is when MY collect window closed with the child still reported
@@ -883,7 +883,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # assertion, anywhere in the record, while allowing the sentences that quote it as retracted.
     ("R12-clock3",  "the study record carries the parent's real measurement, that the child's lifetime "
                     "overran the checkpoint by 74 percent",
-     "_round12/53_order_comparison.md",
+     "_history/_round12/53_order_comparison.md",
      # FIGURE CORRECTED: this probe first pinned "33 percent OVER", which was my second wrong reading of the
      # same clock (3,201 s was the child's AGE when I looked, not its lifetime). The frame record gives
      # 4,185 s, 74 percent over. Pinning the real figure, not the intermediate one.
@@ -899,10 +899,10 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # the process -- so ban the superseded figure in assertion form while allowing the sentences that retract
     # it. The 2,236 ban lives in R12-clock4 for PENDENCIAS; this one covers the study file for both.
     ("R12-clock5",  "the study does not assert either superseded overrun figure as the measurement",
-     "_round12/53_order_comparison.md",
+     "_history/_round12/53_order_comparison.md",
      r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+>]\s+)?(?:\*\*)?\s*(?:Measured[^.\n]{0,40})?"
      r"(?:33 percent OVER the 2,400|7 percent inside the 2,400)", False),
-    # ---- ROUND-12 APPLICATION of the _round12/49 Part B plan, under the author's option-(a) ruling of
+    # ---- ROUND-12 APPLICATION of the _history/_round12/49 Part B plan, under the author's option-(a) ruling of
     # 2026-08-03 (keep 2.1 tasks, 2.2 representations; move the representation definitions UP into 2.1).
     # These are the first probes in this project that pin CHAPTER prose produced by the redesign, so each
     # names the property that would be silently lost rather than the sentence that carries it.
@@ -923,7 +923,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                     "displayed equation in prose",
      "chapters/2_fundamentals.tex",
      r"\\begin\{definition\}\[Representation map\]\\label\{def:fund:repmap\}", True),
-    # R12-s3scope: defect F-2 of _round12/49. The remark must stay scoped to the SEQUENTIAL tasks: the
+    # R12-s3scope: defect F-2 of _history/_round12/49. The remark must stay scoped to the SEQUENTIAL tasks: the
     # static task reads the place embedding directly, so "every predictive model" was false of it. This
     # pins the scoping word, which is the whole correction.
     ("R12-s3scope", "STEP 3: the factorization remark is scoped to the sequential tasks",
@@ -958,7 +958,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # the rule that prevents it survives: reconcile the validated names against the added names as SETS.
     ("R12-legcount", "the record carries the rule that a validation table is reconciled by probe NAME "
                      "rather than by row count, because a control leg reuses a name",
-     "_round9/34_tracker_disagreement.md",
+     "_history/_round9/34_tracker_disagreement.md",
      r"Reconcile the two sets by name, not by cardinality", True),
     # ---- AD-6, CLOSED BY THE AUTHOR'S OWN HAND on 2026-08-03. He rewrote Definition 2.2's vague
     # retention sentence himself ("A target label is withheld from it when one of the sequential tasks is
@@ -1053,7 +1053,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # execution time rather than dispatch time. Pinning the record is the only enforcement available.
     ("R12-attrib", "the commit-attribution defect is recorded, with the rule that a commit message is a "
                    "claim about a diff and that no gate here can check one",
-     "_round12/51_commit_attribution_correction.md",
+     "_history/_round12/51_commit_attribution_correction.md",
      # SECOND BRANCH CORRECTED: it was "never reads the commit log", which occurs ZERO times in the
      # target -- the file says "read the working tree and never the commit log". A dead alternation
      # branch makes a probe look broader than it is; caught by a sabotage leg reporting TARGET ABSENT.
@@ -1207,7 +1207,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # 0.3. Each probe is PRESENT-type on the corrected scope claim rather than ABSENT-type on the old
     # wording, because the old wording is quoted in the provenance comments and in the tracker that
     # record the correction, and an absence probe would fire on the record OF the fix (the R12-notwrong
-    # trap). Evidence for every figure: _round13/71_graphnode_features.md, spec and code line by line.
+    # trap). Evidence for every figure: _history/_round13/71_graphnode_features.md, spec and code line by line.
     ("R13-aut20",    "§2.2.2 states the SCOPE of what the representation objectives do not read (the "
                      "next-category and next-region targets) instead of the false blanket claim that no "
                      "category or region label is used anywhere",
@@ -1714,7 +1714,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      r"a\s+property of the joint architecture rather than of cross-task transfer", True),
     # ---- §7 DISCUSSION AND LIMITATIONS, redone 2026-08-05 on the author's instruction to delete and redo
     # whatever was wrong there. Four corrections, each applied to BOTH the dissertation copy and the
-    # submitted paper source under the standing sync policy. Audit: _round13/80_discussion_audit.md.
+    # submitted paper source under the standing sync policy. Audit: _history/_round13/80_discussion_audit.md.
     #
     # (1) THE UNSOURCED RATIO. R13-ratio-abs is ABSENT-type and is the load-bearing one: the deleted phrase
     # was a DERIVED quantity in prose (AGENT_GUARDRAILS §2 N2 forbids it), sourced only to a planning
@@ -1988,11 +1988,11 @@ def main() -> int:
 
 # ---------------------------------------------------------------------------------------------
 # THE CLOSED-ITEM REGISTER was audited for this same defect on 2026-07-30, not trusted:
-# _archive/PENDENCIAS_RESOLVIDOS.md carries 16 closed items with 40 commit citations, the identical
+# _history/_archive/PENDENCIAS_RESOLVIDOS.md carries 16 closed items with 40 commit citations, the identical
 # claim shape that failed in CODEX_AUDIT. Its most exposed row (item 1.2, nine checkable artifacts)
 # holds for five rows; the other four do not reproduce and are recorded as PENDENCIAS_RESOLVIDOS 2.19 (arquivado 2026-08-02) with the
 # reason -- they are STALE, not false: taken in round 6 against a tree that has since gained an
 # appendix and lost 0_main.tex, and none records the tree state it was taken against.
-# Full audit in _round8/29_pendencias_detail.md. Do not redo it; extend 2.19 if a number moves.
+# Full audit in _history/_round8/29_pendencias_detail.md. Do not redo it; extend 2.19 if a number moves.
 if __name__ == "__main__":
     sys.exit(main())

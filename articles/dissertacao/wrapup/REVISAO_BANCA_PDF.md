@@ -359,7 +359,7 @@ redesenho das definições" — registada em `2_fundamentals.tex:78-79`). Colaps
 tua de há um mês. E a probe `R12-s3head` pina **literalmente o comando `\subsubsection`** de `:160`:
 promover esse nível põe a suite a vermelho.
 
-**(b) "Fundamentar MTL primeiro".** Nunca foi estudado — o `src_utils/_round12/53_order_comparison.md`
+**(b) "Fundamentar MTL primeiro".** Nunca foi estudado — o `src_utils/_history/_round12/53_order_comparison.md`
 que encomendaste comparou **§2.1 ↔ §2.2** e concluiu "manter". A pergunta dele é uma **terceira**
 opção que esse estudo não considerou.
 
@@ -1087,7 +1087,7 @@ frase fica circular — "dão à representação um sentido de tempo", logo depo
 características de tempo.
 
 É prosa aceite no MobiWac e a palavra está correcta em inglês. O projecto já corrigiu um falso amigo
-desta família noutro sítio (`_review_v1/CONSOLIDATED_REVIEW_REPORT.md:2188`, "expressivo"), portanto a
+desta família noutro sítio (`_history/_review_v1/CONSOLIDATED_REVIEW_REPORT.md:2188`, "expressivo"), portanto a
 classe é reconhecida.
 
 Não mexeria. Se mexeres, é uma palavra (`tempo` → `pacing` / `rhythm`), e é errata por ser artigo

@@ -329,9 +329,9 @@ está **fora do escopo**. Ver **B1**.
 ## A5 · O que parece lixo e **não é** — armadilhas confirmadas
 
 **`src_utils/_round6` … `_round14` — NÃO APAGAR.** `[V]` Confirmado por dois caminhos:
-- `src_utils/check.sh:345-346` **executa** `python3 $UTILS/_round9/35_wave_a_render_check.py`;
+- `src_utils/check.sh:345-346` **executa** `python3 $UTILS/_history/_round9/35_wave_a_render_check.py`;
 - `check_audit_claims.py` **lê os `.md` como dados** — tem uma tabela de regexes que casa contra
-  `_round9/37_reviewer_gate_round9.md`, `_round9/47_applied_check.md` e outros. Apagar um `.md`
+  `_history/_round9/37_reviewer_gate_round9.md`, `_history/_round9/47_applied_check.md` e outros. Apagar um `.md`
   do `_round9` faz o gate de auditoria falhar, não avisar.
 
 **`science/` — CORREÇÃO ao relato do `gate`.** `[V]` Ele disse "o source entregue cita `science/`
@@ -768,7 +768,7 @@ vivo; apagar quando a decisão se justifica sozinha no contexto; e que apagar se
 
 ### ❌ O exemplo que sustentava a primeira face estava parcialmente caducado
 
-O Fable ilustrou a segunda face com `src_utils/_round14/80_apx_check2hgi_audit.md`, que declara duas
+O Fable ilustrou a segunda face com `src_utils/_history/_round14/80_apx_check2hgi_audit.md`, que declara duas
 pendências "não aplicadas". Eu verifiquei a 08/09 que a frase **existia no ficheiro** e levei ao autor
 que o **T2** — "nenhum capítulo aponta para o Apêndice E" — era um defeito aberto no volume.
 

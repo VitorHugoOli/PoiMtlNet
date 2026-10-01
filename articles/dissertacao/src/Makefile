@@ -27,7 +27,7 @@ export TEXMFCONFIG := $(shell . $(UTILS)/texenv.sh >/dev/null 2>&1 && echo "$$TE
 BUILD := $(UTILS)/latexbuild.sh
 FAST  := $(UTILS)/fastbuild.sh
 
-# Timings are in src_utils/_round7/20_build_speed.md with the command that produced each. They are
+# Timings are in src_utils/_history/_round7/20_build_speed.md with the command that produced each. They are
 # deliberately not repeated here: a duration in a Makefile comment is a measurement nobody re-runs.
 
 all: defense
@@ -109,7 +109,7 @@ help:
 	@echo "       make all3       all three dissertation variants, concurrently"
 	@echo "       make fast | fast3                          with the precompiled preamble"
 	@echo "       make format | format-status                build / inspect the format dump"
-	@echo "       (timings: src_utils/_round7/20_build_speed.md)"
+	@echo "       (timings: src_utils/_history/_round7/20_build_speed.md)"
 	@echo "GATES  make check          THE gate: the full suite, exit 0 or bust"
 	@echo "       make selftest       prove the checkers themselves, both directions"
 	@echo "       make check-scripts  every build-independent gate, one line each"

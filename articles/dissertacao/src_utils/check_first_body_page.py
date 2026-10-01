@@ -17,7 +17,7 @@ Three things made that possible, and this file answers all three.
    upload, and the UFV manual counts those pages. They are not in our file, so no amount of measuring
    our file will ever reveal them.
 
-2. THE MACRO'S OWN COMMENT CLAIMED A GATE THAT DID NOT EXIST. It read "src_utils/_round6/
+2. THE MACRO'S OWN COMMENT CLAIMED A GATE THAT DID NOT EXIST. It read "src_utils/_history/_round6/
    VERIFY_LIST.md item A4 carries the command, and check.sh runs it, which is how this was caught."
    Verified 2026-09-06 by listing every script `check.sh` invokes: nothing checked this number.
    `sync_page_counts.py` checks page TOTALS, never the first-page NUMBER. A false claim that a guard

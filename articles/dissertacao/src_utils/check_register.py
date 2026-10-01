@@ -37,7 +37,7 @@ has is itself a defect this repository has shipped:
   (`reviewers/15_readability_editor.md`, lens 2, verdict PASS / NEEDS REVISION), which this gate
   points at instead of duplicating. A green Class B is not a first-read PASS.
 
-NOT GATED, ON PURPOSE, and reported to the author instead (see _round9/44_register_law.md):
+NOT GATED, ON PURPOSE, and reported to the author instead (see _history/_round9/44_register_law.md):
 quotation-final period placement. American style puts the period inside the closing quotation
 mark; 13 sites in this tree put it outside. All 13 sit in errata tables and correction rows where
 the quoted string is the evidence, and moving a period inside a quotation alters the quotation.
@@ -431,7 +431,7 @@ OPEN_REGISTER: tuple[tuple[str, str, str, str], ...] = (
      "5.7 reserves changes to published prose to him, and this is vocabulary, not correctness. The "
      "entry stays because it is self-retiring: if the phrase ever leaves the chapter the gate FAILS "
      "and asks for the entry to be deleted, so the decision cannot rot into a silent exemption. "
-     "Reported in _round9/44_register_law.md."),
+     "Reported in _history/_round9/44_register_law.md."),
 )
 
 

@@ -263,7 +263,7 @@ gate "== PENDENCIAS section citations still resolve (silent: renders fine, point
 # A stale section number is not a LaTeX error, not an undefined reference, and not a broken link: it
 # renders correctly and points somewhere wrong (AGENT_HANDOFF §2.6). Historical citations are exempt
 # when the citation itself says so ("PENDENCIAS 2.4, was 2.2"), and dated audit records under
-# _round*/, _review_v*/, _archive/ are skipped -- they describe a tracker as it stood.
+# _round*/, _review_v*/, _history/_archive/ are skipped -- they describe a tracker as it stood.
 # Validated against the real defect: reintroducing the bare citation of 2.2 (a number that no longer resolves) in
 # apx_b_static_scope.tex:3 gives exactly 1 hit; the repaired tree gives 0.
 # (This comment names the old number in the exempt form on purpose -- see the line above --
@@ -334,14 +334,14 @@ gate "== register: British English and hard phrasing (the author found both in A
 # Validated in both directions against his real sentences: planting "feature needs saying plainly" in
 # a live line gives rc=1 naming the file and the rule, restoring gives rc=0; the American twin of
 # every spelling family is asserted NOT to fire; and a stale open-register entry fails rather than
-# silently passing. Transcript in _round9/44_register_law.md.
+# silently passing. Transcript in _history/_round9/44_register_law.md.
 if ! python3 "$UTILS/check_register.py"; then FAIL=1; fi
 
 gate "== audit APPLIED claims re-measured against the source (round 8: 8 of 9 were false) =="
 # THE GATE THAT DID NOT EXIST. On 2026-07-28 an outcome table recorded sixteen findings as APPLIED;
 # on 2026-07-30 eight of the author's nine instructions were still not in the document, five of them
 # under rows asserting they were done. Twenty gates were green throughout -- the one artifact with no
-# gate was the document certifying all the others. _round8/28_postmortem_false_applied.md and
+# gate was the document certifying all the others. _history/_round8/28_postmortem_false_applied.md and
 # AGENT_GUARDRAILS §4b V14. Runs in ~0.1 s; it would have failed loudly on the day.
 if ! python3 "$UTILS/check_audit_claims.py"; then FAIL=1; fi
 
@@ -362,8 +362,8 @@ gate "== round-9 Wave A: the applied edits re-measured in the RENDERED PDF, both
 # cannot fail is indistinguishable from a gate that passes, which is the whole reason this suite
 # self-tests.
 if [ -f build/main.pdf ]; then
-  if ! python3 "$UTILS/_round9/35_wave_a_render_check.py" build/main.pdf >/dev/null; then
-    python3 "$UTILS/_round9/35_wave_a_render_check.py" build/main.pdf || true
+  if ! python3 "$UTILS/_history/_round9/35_wave_a_render_check.py" build/main.pdf >/dev/null; then
+    python3 "$UTILS/_history/_round9/35_wave_a_render_check.py" build/main.pdf || true
     FAIL=1
   else
     echo "  16 two-directional assertions over 7 edited items hold in build/main.pdf,"

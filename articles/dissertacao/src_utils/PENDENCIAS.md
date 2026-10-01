@@ -14,27 +14,27 @@
 ```
 
 **Onde cada coisa vive.** O tracker carrega a **decisao**; a **forense** (como o defeito foi descoberto, qual
-instrumento mentiu, o que cada commit mediu) vai para `_round8/`. Em 2026-07-30 seis itens carregavam 34 mil dos 55 mil
+instrumento mentiu, o que cada commit mediu) vai para `_history/_round8/`. Em 2026-07-30 seis itens carregavam 34 mil dos 55 mil
 caracteres do arquivo, quase tudo forense: foi para
-[`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md), **nada apagado**, e o arquivo caiu de 67 mil para
+[`_history/_round8/29_pendencias_detail.md`](_history/_round8/29_pendencias_detail.md), **nada apagado**, e o arquivo caiu de 67 mil para
 37 mil.
 
 **Para ADICIONAR um ponto seu:** escreva embaixo do item, comecando a linha com `> DECISSAO:` (ou
 `> DECISAO:`). Eu leio isso como sua palavra final e nao reinterpreto. Se voce nao tiver numero de item, escreva no fim
 do §2 com um titulo qualquer — eu numero e coloco no lugar.
 
-**Para FECHAR um item:** ele sai daqui e vai para `_archive/PENDENCIAS_RESOLVIDOS.md` **com o motivo de saida no topo do
+**Para FECHAR um item:** ele sai daqui e vai para `_history/_archive/PENDENCIAS_RESOLVIDOS.md` **com o motivo de saida no topo do
 bloco**. O gate `check_tracker_refs.py` falha se um item desaparecer sem chegar ao arquivo — tres foram perdidos assim,
 e voce achou dois deles lendo o arquivo. **Nao renumere:**
 comentarios no fonte citam estes numeros, e um buraco na numeracao e melhor que um ponteiro errado.
 
 **Ordem das secoes:** §2 (voce) -> §3 (terceiros) -> §4 (o que auditar primeiro). Deliberada: o que depende de voce vem
 antes. **§5 removida em 2026-08-03** (retirado; os onze itens que apontava continuam em
-`_archive/PENDENCIAS_RESOLVIDOS.md`, re-medidos e intactos).
+`_history/_archive/PENDENCIAS_RESOLVIDOS.md`, re-medidos e intactos).
 
 **O §6 saiu deste arquivo em 2026-08-03, a seu pedido, e nao foi perdido.** Ele entrou em 2026-07-30 substituindo o §2.8
 e carregou vinte e seis itens vindos do `CONSIDERATIONS.md`; **os vinte e seis foram respondidos por voce** e estao em
-`_archive/PENDENCIAS_RESOLVIDOS.md`, cada um com o motivo da saida no topo do bloco e sob o cabecalho que registra o
+`_history/_archive/PENDENCIAS_RESOLVIDOS.md`, cada um com o motivo da saida no topo do bloco e sob o cabecalho que registra o
 encerramento da secao inteira. A numeracao 6.1 a 6.26 **nao** foi reaproveitada, e as dezenove citacoes que apontavam
 para ca foram repontadas para o arquivo na forma historica que o `check_tracker_refs.py` reconhece. O §6 seguiu a mesma
 trajetoria do §2.8: deixou de pedir decisao e virou registro.
@@ -44,14 +44,14 @@ trajetoria do §2.8: deixou de pedir decisao e virou registro.
 ## §2 · Aberto e bloqueado em VOCE
 
 > **LIMPO EM 2026-07-30, a seu pedido.** Cinco itens desta secao estavam **de fato fechados** e foram
-> movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` com o motivo de saida no topo de cada bloco:
+> movidos para `_history/_archive/PENDENCIAS_RESOLVIDOS.md` com o motivo de saida no topo de cada bloco:
 > **2.2** (push publicado, verificado por hash contra o remoto — o resto virou 2.16), **2.3** (fechado
 > pela sua frase *"podemos fechar esse ponto"*), **2.7** (orcamento de tuning nao-recuperavel,
 > registrado em `LEFT_OUT.md`), **2.13** (o comando contava 4 a mais por ser cego a comentarios;
 > corrigido) e **2.17** (afirmacao falsa minha, corrigida com nota de git em `a07e547b`).
 >
 > **Os buracos na numeracao — 2.2, 2.3, 2.7, 2.13, 2.17 — sao esses cinco, e nao perdas.** Nao
-> renumerei os que ficaram: seis comentarios no fonte e o `_round6/VERIFY_LIST.md` citam estes numeros,
+> renumerei os que ficaram: seis comentarios no fonte e o `_history/_round6/VERIFY_LIST.md` citam estes numeros,
 > e renumerar transformaria cada citacao num ponteiro para o item errado, que e pior que um buraco.
 > O gate `check_tracker_refs.py` agora falha se um item sair daqui sem chegar ao arquivo.
 >
@@ -63,7 +63,7 @@ trajetoria do §2.8: deixou de pedir decisao e virou registro.
 **O que e.** Pontos do fonte marcados como precisando do seu aval. Nenhum bloqueia build, e **nenhum aparece no PDF**:
 todos vivem em comentario `%`. **O numero anda** — tracks paralelas removem marcadores conforme voce decide.
 
-**Novo em 2026-08-02: [`src_utils/NEEDS_SIGN_OFF.md`](NEEDS_SIGN_OFF.md)** traduz os 56 marcadores para PT-BR, um por
+**Novo em 2026-08-02: [`src_utils/_history/NEEDS_SIGN_OFF.md`](_history/NEEDS_SIGN_OFF.md)** traduz os 56 marcadores para PT-BR, um por
 um, com contexto, a pergunta exata e um espaco `> **SUA DECISAO:**` para voce responder — o mesmo padrao deste arquivo.
 Cada item foi conferido contra o fonte vivo (`grep` na linha exata) antes de entrar no mapa. Quando um item for
 resolvido la, ele sai daquele arquivo e o `[NEEDS SIGN-OFF]` correspondente sai do `.tex`. Confie no comando, nao no
@@ -86,13 +86,13 @@ afirmava.)*
 
 **Tres tem prioridade** (afirmam algo sobre trabalho publicado ou co-autorado): o paragrafo corrigido do Apendice B
 sobre o Cap. 3, o numero limitado do Cap. 4 na conclusao, e a frase de reprodutibilidade enfraquecida. Estao detalhados
-em `_round6/VERIFY_LIST.md` A1, A2 e A3.
+em `_history/_round6/VERIFY_LIST.md` A1, A2 e A3.
 
 > **DECISAO SUA:** ler os 53 e me dizer quais aprova. Nao precisa ser de uma vez — se me der os tres
 > prioritarios, eu removo os marcadores deles e mantenho os outros 50.
 
 *Forense (a tentativa de push destrutiva, o worktree, os artefatos divergentes): agora e o item 2.16 e o corpo integral
-esta em [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
+esta em [`_history/_round8/29_pendencias_detail.md`](_history/_round8/29_pendencias_detail.md).*
 
 ### 2.5 O tamanho de tipo das duas figuras de arquitetura — autorizado, mas eu nao consigo executar
 
@@ -102,7 +102,7 @@ que o contraste hoje ja deixa legivel.
 **Nao consigo fazer daqui:** nao ha `drawio` nem `inkscape` neste ambiente. **Os dois `.drawio` estao no repositorio** —
 `figures/mtlnet_poi_new.drawio` (13.640 B, `fontSize=14`) e `figures/courb/arquitetura_modelo.drawio`
 (14.588 B, `fontSize=13`), medidos em 2026-07-30 com `find . -name '*.drawio'` (quatro no repo inteiro). A receita esta
-em `_round6/12_figures.md` (subir `fontSize` para ~20 e reexportar na mesma largura em pixels).
+em `_history/_round6/12_figures.md` (subir `fontSize` para ~20 e reexportar na mesma largura em pixels).
 
 *(Este bloco dizia **"so 1 dos 2"**. Era falso, e o commit `b89a9876` ja tinha diagnosticado exatamente isso — o
 instrumento era `ls src/figures/*.drawio`, glob nao-recursivo que nao ve `figures/courb/` — mas a correcao nao chegou ao
@@ -115,7 +115,7 @@ contra corpo de 11,96 pt. O raster do Cap. 3 e byte-identico ao publicado do CBI
 ### 2.27 A arvore revisada do autor entrou no `src`, e o que ficou aberto nela
 
 **(A) O que e.** Em 2026-08-02 o autor entregou `src_clean`, lido e editado por ele. O merge esta em
-`src_utils/_round9/49_clean_tree_merge.md`. A prosa dele entrou byte a byte nos 54 arquivos; a camada de comentario do
+`src_utils/_history/_round9/49_clean_tree_merge.md`. A prosa dele entrou byte a byte nos 54 arquivos; a camada de comentario do
 `src` (4.114 linhas, 275 blocos, 54 marcadores `[NEEDS SIGN-OFF]`) foi reancorada por cima. 228 dos 275 blocos
 reancoraram exatamente.
 
@@ -145,7 +145,7 @@ diretamente.
 **(A) O que foi feito.** Voce pediu para auditar cada item do §2 e do §5, medindo o estado do documento em vez de ler o
 cabecalho do proprio item. Os 19 itens em escopo foram medidos contra a arvore em `45c75611`
 mais a arvore de trabalho. **14 fecharam e foram para
-[`_archive/PENDENCIAS_RESOLVIDOS.md`](_archive/PENDENCIAS_RESOLVIDOS.md)** com a evidencia e a sua decisao preservadas
+[`_history/_archive/PENDENCIAS_RESOLVIDOS.md`](_history/_archive/PENDENCIAS_RESOLVIDOS.md)** com a evidencia e a sua decisao preservadas
 verbatim; 51 citacoes a esses itens foram reapontadas para o arquivo, mais 3 no `GLOSSARY.md`
 e neste arquivo, e o gate `check_tracker_refs` voltou a rc=0.
 
@@ -181,7 +181,7 @@ isencao; e o `towards` fica como esta por sua decisao, com a entrada do
 
 **Sobram tres itens seus:** `2.1`, `2.5` e `2.27`.
 
-*Forense: [`_round9/50_pendencias_audit.md`](_round9/50_pendencias_audit.md), com a medicao de cada um dos 19.*
+*Forense: [`_history/_round9/50_pendencias_audit.md`](_history/_round9/50_pendencias_audit.md), com a medicao de cada um dos 19.*
 
 ### 2.29 Rodada 12, 2026-08-03 — o §6 fechou inteiro, as duas linhas do `GLOSSARY` entraram, e voce mesmo escreveu a D2
 
@@ -202,7 +202,7 @@ excecao, e mantem a regra geral de pe.
 `h3` e o cabecalho `## §6` foram removidos. **Duas coisas que eu conferi porque este arquivo manda:**
 
 1. **Chegada antes de apagar.** Para cada bloco eu confeti que o cabecalho **e** uma linha interior do corpo estavam no
-   `_archive/PENDENCIAS_RESOLVIDOS.md` antes de remover. Tres itens desta lista se perderam no passado exatamente por
+   `_history/_archive/PENDENCIAS_RESOLVIDOS.md` antes de remover. Tres itens desta lista se perderam no passado exatamente por
    apagar antes de conferir.
 2. **Ponteiros.** Remover a secao orfanou **dezenove** citacoes no fonte e **quatro probes**. As citacoes foram
    repontadas para a forma historica que o `check_tracker_refs.py` reconhece
@@ -232,12 +232,12 @@ de representacao do Cap. 5 e o Cap. 3 nao caberia mais nela.
 
 **Um defeito meu, apanhado por um revisor:** eu publiquei "os oito probes novos validados por sabotagem"
 quando eram **sete**. O oitavo era justamente o probe de **ausencia** — o unico cuja falha e o silencio. Corrigido,
-validado nos dois ramos, e a regra que evita a repeticao esta no `_round9/34`: reconciliar os nomes dos probes validados
+validado nos dois ramos, e a regra que evita a repeticao esta no `_history/_round9/34`: reconciliar os nomes dos probes validados
 contra os adicionados **como conjuntos**, nao pela contagem de linhas.
 
 ### 2.31 Sete pontos removidos, mas dois grupos de referencia cruzada ficaram de fora por sua instrucao explicita
 
-**O que foi feito** (registrado em `_archive/PENDENCIAS_RESOLVIDOS.md §2.30`): as duas sentencas de
+**O que foi feito** (registrado em `_history/_archive/PENDENCIAS_RESOLVIDOS.md §2.30`): as duas sentencas de
 primeira-autoria do Tarik e os sete ponteiros `Appendix~[B/D] of \extravolume` (volume principal ->
 volume suplementar) foram removidos dos capitulos 3-5.
 
@@ -377,8 +377,8 @@ tocaria `content.tex:398` e mais nada.
 > | 10 | AUT-11 | 20 | AUT-21 | 30 | AUT-31 | | |
 >
 > **O seu texto original nao foi apagado.** Esta byte por byte em
-> [`_round13/_aut_original.md`](_round13/_aut_original.md) (sha256 `e2a44fea...`, 162 linhas, 37 itens),
-> junto com o snapshot da arvore medida em `_round13/_snapshot/` com `MANIFEST.tsv` por arquivo.
+> [`_history/_round13/_aut_original.md`](_history/_round13/_aut_original.md) (sha256 `e2a44fea...`, 162 linhas, 37 itens),
+> junto com o snapshot da arvore medida em `_history/_round13/_snapshot/` com `MANIFEST.tsv` por arquivo.
 >
 > **Passagem de citacoes obsoletas, contada:** 29 ancoras citaveis nos 37 itens.
 > **12 EXATAS, 12 ALTERADAS, 5 DESAPARECIDAS.** Por item: 22 itens tem ancora citavel
@@ -387,19 +387,19 @@ tocaria `content.tex:398` e mais nada.
 > outra esteira commitou: **zero deriva** nas 29 ancoras.
 >
 
-*Forense completa: [`_round13/60_terminology_audit.md`](_round13/60_terminology_audit.md),
-[`61_check2hgi_audit.md`](_round13/61_check2hgi_audit.md),
-[`62_literature_audit.md`](_round13/62_literature_audit.md),
-[`63_conclusion_audit.md`](_round13/63_conclusion_audit.md),
-[`59_my_own_measurements.json`](_round13/59_my_own_measurements.json).*
+*Forense completa: [`_history/_round13/60_terminology_audit.md`](_history/_round13/60_terminology_audit.md),
+[`61_check2hgi_audit.md`](_history/_round13/61_check2hgi_audit.md),
+[`62_literature_audit.md`](_history/_round13/62_literature_audit.md),
+[`63_conclusion_audit.md`](_history/_round13/63_conclusion_audit.md),
+[`59_my_own_measurements.json`](_history/_round13/59_my_own_measurements.json).*
 
 ---
 
 > **RODADA 13, SEGUNDA ONDA, 2026-08-04 — 9 DOS 11 ITENS RESTANTES FECHARAM.** As suas decisoes chegaram
 > e foram aplicadas: AUT-02, 08, 09, 14, 29, 32, 35, 36, 37. Cada um esta arquivado com o commit em que
-> foi aplicado em [`_archive/PENDENCIAS_RESOLVIDOS.md`](_archive/PENDENCIAS_RESOLVIDOS.md), secao
+> foi aplicado em [`_history/_archive/PENDENCIAS_RESOLVIDOS.md`](_history/_archive/PENDENCIAS_RESOLVIDOS.md), secao
 > "§4 (os itens `AUT-`) — A SEGUNDA ONDA", e os blocos completos ficam em
-> [`_round13/_aut_closed_blocks_wave2.md`](_round13/_aut_closed_blocks_wave2.md).
+> [`_history/_round13/_aut_closed_blocks_wave2.md`](_history/_round13/_aut_closed_blocks_wave2.md).
 >
 > **Sobram os dois abaixo, e nenhum espera trabalho meu.** O AUT-26 espera o seu orientador. O AUT-38
 > esta vazio no fonte e a sua decisao foi "NADA A FAZER"; o ID fica reservado, porque IDs deste arquivo

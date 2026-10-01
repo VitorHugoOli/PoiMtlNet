@@ -74,7 +74,7 @@ a resposta?** A resposta entregue, medida com CV por usuário disjunto, n=20, co
    `defense`, `all`, `all3`, `fast`/`fast-defense`, `fast3`. Para conferir sem buildar: `make check`.
 
 3. **`src_utils/_round6` … `_round14` parecem pastas de trabalho velhas e não são.**
-   `check.sh` **executa** `_round9/35_wave_a_render_check.py`, e `check_audit_claims.py` lê os
+   `check.sh` **executa** `_history/_round9/35_wave_a_render_check.py`, e `check_audit_claims.py` lê os
    `.md` do `_round9` **como dados** (uma tabela de regexes). Apagar um deles faz o gate falhar.
 
 4. **Os `.tex` do volume estão cheios de comentários de proveniência** que citam os valores

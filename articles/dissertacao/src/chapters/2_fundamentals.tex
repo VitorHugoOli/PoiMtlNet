@@ -62,7 +62,7 @@ studies three tasks: one static and two sequential.
 
 % [ROUND 12, item 44] THE PAGE-COUNT COMPACTION OF ROUND 10 IS UNDONE, on the author's
 % authorization now that the page budget is suspended. Round 10's own report
-% (src_utils/_round10/29_ch2_definitions.md sec. 4) records three display equations inlined and four
+% (src_utils/_history/_round10/29_ch2_definitions.md sec. 4) records three display equations inlined and four
 % lead-in sentences shortened, and states both were done for the page count and not for
 % readability. Restored to display form here and below: $H_i$ (Definition 2.2), $g_{cat}$
 % (Definition 2.3), and the pair $f_{cat}$ / $f_{reg}$ (Definitions 2.4 and 2.5). Restored lead-ins:
@@ -190,7 +190,7 @@ input.
 
 % [ROUND 11, item 31] The two concepts below were ONE definition head until this round
 % ("Place embedding and check-in-level representation", round 10). Round 10's own report
-% (src_utils/_round10/29_ch2_definitions.md §4 and §7 item 2) records the merge as a page-count
+% (src_utils/_history/_round10/29_ch2_definitions.md §4 and §7 item 2) records the merge as a page-count
 % measure, not a content decision, and the defect it left was visible in the cross-references:
 % :242 and :247 both pointed at the same label while meaning opposite halves of it. The author
 % lifted the page budget and authorized the split. The wording of each half is round 10's,
@@ -240,7 +240,7 @@ input.
 % [round12 STEP 3, AD-1] THE REPRESENTATION MAP AS A NUMBERED DEFINITION, not a displayed equation in
 % prose: the author chose thirteen definitions on 2026-08-03 ("Vamos de treze"), which makes $\rho$ a
 % numbered object of the chapter. The remark that follows is corrected for defects F-1, F-2 and F-3 of
-% src_utils/_round12/49: it is scoped to the SEQUENTIAL tasks (the static task reads $\mathbf{e}_p$
+% src_utils/_history/_round12/49: it is scoped to the SEQUENTIAL tasks (the static task reads $\mathbf{e}_p$
 % directly, so "every predictive model" was false of it), and Chapter 5's two streams are both named.
 \begin{definition}[Representation map]\label{def:fund:repmap}
     A representation map assigns to each check-in a vector,
@@ -447,7 +447,7 @@ the data itself says which pairing is the true one.
 % Two of his premises were also corrected by measurement and are recorded so they are not re-derived:
 % the region LABEL is not a node feature, and latitude and longitude are not node features either.
 % Both enter only at graph-construction time, coordinates through the polygon join that assigns a
-% place to a region. Full evidence: src_utils/_round13/71_graphnode_features.md.
+% place to a region. Full evidence: src_utils/_history/_round13/71_graphnode_features.md.
 % Probe: R13-aut20.
 The representations used in this work are trained with no next-category and no
 next-region target. Each visit contributes its own description: the category of
@@ -704,7 +704,7 @@ change isolates the effect of the input representation.
 %     not the complete objective that was trained. The final study's configuration adds two auxiliary
 %     terms, named after the equation rather than folded into it, so the equation keeps its meaning and
 %     the text stops presenting a partial objective as the whole one.
-% Evidence for every figure: src_utils/_round13/71_graphnode_features.md, which cites the spec and the
+% Evidence for every figure: src_utils/_history/_round13/71_graphnode_features.md, which cites the spec and the
 % shipped code line by line.
 % Probes: R13-aut23, R13-aut23b
 
@@ -821,7 +821,7 @@ is the place side that the check-in-to-place boundary reads.
 % trained without task labels", drawing a conclusion the equations do not support once the two
 % auxiliary terms are counted. The terms are now named with their weights, so the equation reads as the
 % hierarchical core it is. The 0.3 and 0.1 weights are quoted from the spec and confirmed in the code
-% (src_utils/_round13/71_graphnode_features.md §3); they are not computed here.
+% (src_utils/_history/_round13/71_graphnode_features.md §3); they are not computed here.
 % AUT-21 (PENDENCIAS §4, author ruling: "Vamos de i) Nomear o mecanimos citado e nada novo") is
 % satisfied by the second term above WITHOUT a new citation. The pretrained table is produced by
 % skip-gram over random walks on the graph of places, which is NOT the method of the published POI2Vec
@@ -1226,7 +1226,7 @@ it, and the corresponding loss vectors form the Pareto front.
 % GLOSSARY: Pareto dominance, Pareto optimality, Pareto-stationary point and gradient conflict were
 % registered in GLOSSARY.md §4 and §6 BEFORE this prose landed, per the fail-closed rule and the
 % author's decision in PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02) ("DESICAO: A."). Source ledger:
-% src_utils/_round9/31_pareto.md.
+% src_utils/_history/_round9/31_pareto.md.
 % NO NUMBER IS QUOTED in these three paragraphs, by design (CONSIDERATIONS work-list item 28: define
 % the conflict measure in Chapter 2, report its value only where it was measured).
 % [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
@@ -1259,7 +1259,7 @@ it, and the corresponding loss vectors form the Pareto front.
 % from orthogonal on the datasets measured there; it reads that result as the reason no balancing
 % method improved on a fixed weighting in this work".
 %  (M4) "STATISTICALLY INDISTINGUISHABLE" IS FALSE AS STATED. Re-measured at the fold unit over
-%       _round7/gradient_cosine_observations6.parquet: a one-sample t-test on the five fold means
+%       _history/_round7/gradient_cosine_observations6.parquet: a one-sample t-test on the five fold means
 %       rejects zero at THREE of the seven datasets -- alabama p=0.0125, california p=0.0478,
 %       georgia p=0.0093. What the appendix actually establishes is EQUIVALENCE within +/-0.05 (TOST),
 %       which is a different and weaker claim, and it prints both. "Equivalent within a margin" is now

@@ -36,11 +36,11 @@ from pathlib import Path
 
 DISS = Path(__file__).resolve().parent.parent
 
-# Durable records the author or a future agent ACTS on. Reports under _round6/ are excluded:
+# Durable records the author or a future agent ACTS on. Reports under _history/_round6/ are excluded:
 # they are the measurement itself, and their numbers are traceable through the report's own body.
 TARGETS = [
     "src_utils/PENDENCIAS.md",
-    "src_utils/_round6/VERIFY_LIST.md",
+    "src_utils/_history/_round6/VERIFY_LIST.md",
     "CLAUDE.md",
     "src_utils/README_SRC.md",
 ]

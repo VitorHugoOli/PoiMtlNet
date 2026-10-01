@@ -62,7 +62,7 @@ CLAIMS = [
     #
     # RETIRED 2026-07-29 (trackers track), and retired rather than repointed on purpose. That §1
     # table lived inside the "Fechado nesta rodada" section, which moved to
-    # _archive/PENDENCIAS_RESOLVIDOS.md when the tracker was split -- so these three patterns went
+    # _history/_archive/PENDENCIAS_RESOLVIDOS.md when the tracker was split -- so these three patterns went
     # UNMATCHED, i.e. three guards reporting that the claim they protected was no longer checked.
     # (Confirmed in both directions: all three match ba5dd5b3^:PENDENCIAS.md and none matches the
     # split file.) They are NOT repointed at the archive, because an archived record is a historical

@@ -210,7 +210,7 @@ do proprio `apx_b_errata`.
 proprio arquivo de errata. O que o suplemento afirma sobre o Capitulo 3 e que ele emparelha
 classificacao estatica de categoria com predicao da proxima categoria, nao contem tarefa de regiao, e
 hipotetiza transferencia negativa em vez de observa-la."
-*Fonte: src_utils/NEEDS_SIGN_OFF.md:1980 (item 46); chapters/apx_b_static_scope.tex:70*
+*Fonte: src_utils/_history/NEEDS_SIGN_OFF.md:1980 (item 46); chapters/apx_b_static_scope.tex:70*
 
 ### [ABERTO] · LO-6 · Tamanho de tipo das duas figuras de arquitetura publicadas
 
@@ -640,7 +640,7 @@ Uma linha por item. A coluna **medicao** e a prova; nenhum destes pede acao.
 | **REVISION_PLAN §15.5** | a checagem de rotulos congelados foi sobre-afirmada | re-executada nesta sessao contra os `.aux` do build de 119 pp: **9 de 9 rotulos congelados batem, 0 divergencias** (`ch:cbic` 3, `ch:courb` 4, `ch:mobiwac` 5, `sec:intro:organization` 1.5, `fig:courb:distribuicao` 3, `tab:courb:dataset` 5, `tab:courb:category` 6, `tab:courb:next` 7, `tab:mobiwac:results` 10). O parser foi validado: 131 entradas `\newlabel` lidas, nao zero | MORTO |
 | **REVISION_PLAN §17.3** | a contagem de celulas abaixo do dedicado estava errada (seis em vez de oito) | a tabela corrigida do proprio §17.3 traz **4 celulas negativas em categoria e 4 em regiao, 8 de 12, sobre 6 conjuntos**; o texto enviado nao carrega nenhuma contagem de celulas negativas (medido: "of the twelve" tem **0** ocorrencias nos builds), entao o defeito viveu so em comentario de fonte | MORTO |
 | **GAPS B, E, F** | tres lacunas de rastreabilidade e de relatorio | fechadas com evidencia por execucao, nao por inspecao (o item 2 do GAP E foi verificado escondendo uma celula e vendo o total cair de 20 para 15, e restaurando); `TASKS.md` criado | MORTO |
-| **_round6/VERIFY_LIST item 14** | "o intervalo de paginas do `nash`, o unico identificador que ninguem conseguiu resolver" | resolvido nesta sessao: `proceedings.mlr.press/v162/navon22a.html` (HTTP 200) declara **PMLR 162:16428-16446, 2022**; o `.bib` carrega `pages = {16428--16446}`. **Batem** | MORTO, o `[VERIFY]` fecha |
+| **_history/_round6/VERIFY_LIST item 14** | "o intervalo de paginas do `nash`, o unico identificador que ninguem conseguiu resolver" | resolvido nesta sessao: `proceedings.mlr.press/v162/navon22a.html` (HTTP 200) declara **PMLR 162:16428-16446, 2022**; o `.bib` carrega `pages = {16428--16446}`. **Batem** | MORTO, o `[VERIFY]` fecha |
 | **LEFT_OUT LO-9 (metade `[VERIFY]`)** | "o intervalo de paginas nao esta confirmado por nenhuma fonte de registro alcancavel" | idem acima: a fonte de registro foi aberta e confere. A `tables/frame/bib_errata.tex` ja declarava "The page range was already correct here and is unchanged" | MORTO |
 | **LEFT_OUT LO-10** | "41 linhas de regra puramente decorativas" a remover | **0** linhas decorativas (`%======` ou `%------`) na arvore viva; a passagem da rodada 7 as removeu. A metade de relocacao continua recomendada contra, e o autor pode reabrir se quiser o volume reduzido | MORTO na metade das 41 linhas |
 | **CONSIDERATIONS GER-09** | "faltam a taxonomia dos balanceadores, a linhagem, e a definicao de conflito na prosa do §2.3" | os tres estao no texto enviado: §2.3.4 abre com "Balancing methods differ in whether they modify loss weights or task-gradient directions" e separa as duas classes; a linhagem e creditada por nome (Kendall, Chen, S. Liu, B. Liu, Sener e Koltun, Yu, Navon, Senushkin); e o conflito e **definido** na Definicao 2.13 com a equacao do cosseno. O Cap. 2 carrega **13 ambientes de definicao** | MORTO |
@@ -653,8 +653,8 @@ Uma linha por item. A coluna **medicao** e a prova; nenhum destes pede acao.
 ## Ledger de fontes desta auditoria
 
 **Registros lidos integralmente** (nenhum amostrado): `src_utils/LEFT_OUT.md` (430 linhas, 13 entradas),
-`src_utils/PENDENCIAS.md` (746), `src_utils/NEEDS_SIGN_OFF.md` (2.206, 56 itens numerados),
-`src_utils/CONSIDERATIONS.md` (913, 46 blocos), `src_utils/_round6/VERIFY_LIST.md` (1.316, 21 itens),
+`src_utils/PENDENCIAS.md` (746), `src_utils/_history/NEEDS_SIGN_OFF.md` (2.206, 56 itens numerados),
+`src_utils/CONSIDERATIONS.md` (913, 46 blocos), `src_utils/_history/_round6/VERIFY_LIST.md` (1.316, 21 itens),
 `src_fix/REVISION_PLAN.md` (903), `docs/studies/closing_data/v18/POSTPONED.md` (138, P1-P6),
 `docs/studies/closing_data/v18/GAPS.md` (554, A-F + §7 + nove adendos), tres
 `src_utils/adaptation_ledgers/*.md`.

@@ -233,7 +233,7 @@ superseded number or claim read as the project's current state.
 ## 4b · Absorbed from `noth_star_consideration.md` (author notes, 2026-07-25)
 
 That file held three author notes. It is archived at
-`src_utils/_archive/reviews_v1/noth_star_consideration.md`; this section carries what had not yet
+`src_utils/_history/_archive/reviews_v1/noth_star_consideration.md`; this section carries what had not yet
 landed, so nothing is lost by the archive. Checked point by point against the source on 2026-07-27.
 
 **Point 1a, the arc — ABSORBED.** The three-paper arc it describes (CBIC's first attempt, the

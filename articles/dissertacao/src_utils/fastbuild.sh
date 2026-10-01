@@ -7,7 +7,7 @@
 # (abntex2 + memoir + newtxmath + hyperref + abntex2cite) three times. This script loads the
 # format dump that src_utils/mkformat.py produces instead. MEASURED cold, this session:
 # 122.7 s -> 15.4 s for the defense build. Full table, with the contention caveat:
-# src_utils/_round7/20_build_speed.md §3.
+# src_utils/_history/_round7/20_build_speed.md §3.
 #
 # WHAT IT IS NOT. It is an ACCELERATOR, never a requirement. `make defense`, `make final` and
 # `make ppgc` do not use it and keep working with no format present -- that matters because

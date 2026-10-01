@@ -88,7 +88,7 @@ DISS = Path(__file__).resolve().parent.parent
 #   tell      : a regex matching the SUBSTANTIVE telling. Deliberately narrow: a pointer such as
 #               "see the main.tex header" must NOT match, or every pointer would read as a
 #               duplicate and the gate would fight its own fix.
-#   scope     : files to examine. Frozen audit trails (_round*/, _review_v*/, _archive/,
+#   scope     : files to examine. Frozen audit trails (_round*/, _review_v*/, _history/_archive/,
 #               _specialists_v*/, CODEX_*.md, codex_reviewer.md, PENDENCIAS.md) are NOT in scope:
 #               they are historical records of what was true when written, and rewriting them to
 #               remove a duplicate would falsify the record. Same exclusion rule every rename in

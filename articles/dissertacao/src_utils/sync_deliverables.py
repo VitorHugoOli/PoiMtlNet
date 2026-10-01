@@ -36,7 +36,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # repo-relative source -> workspace filename
 DELIVERABLES = {
     "src_utils/PENDENCIAS.md": "PENDENCIAS.md",
-    "src_utils/_archive/PENDENCIAS_RESOLVIDOS.md": "PENDENCIAS_RESOLVIDOS.md",
+    "src_utils/_history/_archive/PENDENCIAS_RESOLVIDOS.md": "PENDENCIAS_RESOLVIDOS.md",
     "science/AGENT_HANDOFF.md": "AGENT_HANDOFF.md",
     "src/dissertacao.pdf": "dissertacao_v3_defense.pdf",
     # main_final.pdf -> main_academico.pdf on 2026-07-29 (LATEX_UPGRADE.md §4 A-1). The

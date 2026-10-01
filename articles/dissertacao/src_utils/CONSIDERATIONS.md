@@ -6,7 +6,7 @@
 > esta em [`PENDENCIAS.md`](PENDENCIAS.md) **§6**; o resto mora aqui.
 >
 > **A prosa original nao foi apagada.** Ela esta em
-> [`_round9/30_considerations_prosa_original.md`](_round9/30_considerations_prosa_original.md), byte por
+> [`_history/_round9/30_considerations_prosa_original.md`](_history/_round9/30_considerations_prosa_original.md), byte por
 > byte (com o sha256 e o comando que o reproduz no cabecalho), junto com a auditoria de 2026-07-28 e o
 > adendo dela. Este arquivo e a forma de trabalho; aquele e o registro.
 
@@ -25,7 +25,7 @@
 >
 > 1. **`make check` esteve em rc=2 por causa daquela edicao, e ja voltou a rc=0** — pela propria
 >    esteira, nao por mim. O gate `check_verify_list` reprovava numa anotacao de
->    `_round6/VERIFY_LIST.md` que dizia `# EXPECT: contains=Pareto-stationary 0`, tornada falsa no
+>    `_history/_round6/VERIFY_LIST.md` que dizia `# EXPECT: contains=Pareto-stationary 0`, tornada falsa no
 >    instante em que o termo foi registrado; ela foi corrigida para `2` no mesmo commit do registro.
 >    Um segundo vermelho (um `CD-FAIL`) vinha de um bloco cercado no mesmo arquivo que fazia o gate
 >    **rodar um build de verdade**, 108 s medidos; o bloco saiu da cerca as 03:01. Eu nao mexi em
@@ -110,7 +110,7 @@ As tres linhas obsoletas sao todas da Parte V, cujo argumento inteiro e sobre es
 
 | Balde | Itens | O que significa |
 |---|--:|---|
-| **VOCE APLICA** | 20 | Concordo, a correcao nao envolve juizo de conteudo seu, e nada trava. **7 edicoes ja estao aplicadas e conferidas no PDF renderizado nos dois sentidos** (texto novo presente, texto antigo ausente), e **1 — o FAB-01 — ja estava satisfeito e so foi conferido**, sem edicao: sao a Wave A do `_round9/33_apply_plan.md`. Os outros 12 esperam a outra esteira soltar o `2_fundamentals.tex` ou uma linha sua no `GLOSSARY`. |
+| **VOCE APLICA** | 20 | Concordo, a correcao nao envolve juizo de conteudo seu, e nada trava. **7 edicoes ja estao aplicadas e conferidas no PDF renderizado nos dois sentidos** (texto novo presente, texto antigo ausente), e **1 — o FAB-01 — ja estava satisfeito e so foi conferido**, sem edicao: sao a Wave A do `_history/_round9/33_apply_plan.md`. Os outros 12 esperam a outra esteira soltar o `2_fundamentals.tex` ou uma linha sua no `GLOSSARY`. |
 | **VOCE DECIDE** | 22 | Precisa da sua palavra: ou eu discordo do revisor, ou colide com uma regra de honestidade do proprio documento, ou tem mais de uma saida com custos diferentes. Opcoes em `PENDENCIAS.md` §6. |
 | **BLOQUEADO** | 1 | A verificacao falhou: FAB-28, nao consegui abrir o resumo do `wang2025hamtl`. |
 | **Total** | **43** | 31 FAB + 11 GER + 1 AUT |
@@ -830,7 +830,7 @@ texto. Uma referencia so entra em prosa quando as tres condicoes do `AGENT_GUARD
 *Medido em 2026-07-30 contra o commit `d4078c75` (`make check` rc=0, 22 gates, lidos direto e nao
 por pipe; `make selftest` rc=0). Nada foi aplicado a nenhum capitulo nesta passagem: este arquivo e a
 divisao, e §6 do `PENDENCIAS.md` e a fila da sua decisao. Os comandos que produziram cada numero de §1
-estao em [`_round9/31_stale_quote_pass.md`](_round9/31_stale_quote_pass.md).*
+estao em [`_history/_round9/31_stale_quote_pass.md`](_history/_round9/31_stale_quote_pass.md).*
 
 
 --- NEW WAVE ---

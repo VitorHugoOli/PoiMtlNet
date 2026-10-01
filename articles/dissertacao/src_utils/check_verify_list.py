@@ -48,7 +48,7 @@ from pathlib import Path
 
 DISS = Path(__file__).resolve().parent.parent
 ROOT = DISS.parent.parent
-DOCS = [DISS / "src_utils" / "_round6" / "VERIFY_LIST.md",
+DOCS = [DISS / "src_utils" / "_history" / "_round6" / "VERIFY_LIST.md",
         DISS / "src_utils" / "PENDENCIAS.md"]
 
 EXPECT = re.compile(r'#\s*EXPECT:\s*(lines|contains|equals)=(.*)$')

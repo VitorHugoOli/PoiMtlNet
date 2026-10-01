@@ -18,7 +18,7 @@ round and a quote can outlive its coordinate -- so a citation is EXEMPT when its
 by carrying "was <n>.<m>" or naming the date of the tracker it refers to. That keeps the gate from
 punishing an honest historical reference while still catching a silently orphaned one.
 
-DELIBERATELY NOT CHECKED: citations inside dated audit records (_round*/, _review_v*/, _archive/,
+DELIBERATELY NOT CHECKED: citations inside dated audit records (_round*/, _review_v*/, _history/_archive/,
 _gates/, _specialists*/). Those describe a tracker as it stood and must not be rewritten.
 """
 from __future__ import annotations
@@ -209,7 +209,7 @@ def orphaned_items() -> list[str]:
 
     THE DEFECT, found by the author on 2026-07-30 and then measured across all 63 revisions of the
     tracker: 91 distinct items have existed by title; 30 are live; 61 left. Nineteen went to
-    _archive/PENDENCIAS_RESOLVIDOS.md as intended. Of the rest, most were retitles of an item that is
+    _history/_archive/PENDENCIAS_RESOLVIDOS.md as intended. Of the rest, most were retitles of an item that is
     still live or archived (the sign-off marker item alone was retitled six times as its count changed,
     27 -> 31 -> 32 -> 46 -> 53 -> 55). Seven survived that filter as candidate losses, and the first
     version of this docstring said "TWO were real losses" -- a count taken before two of the seven had
@@ -251,7 +251,7 @@ def orphaned_items() -> list[str]:
 
     repo = TRACKER.resolve().parents[3]
     rel_t = str(TRACKER.resolve().relative_to(repo))
-    rel_a = rel_t.replace("PENDENCIAS.md", "_archive/PENDENCIAS_RESOLVIDOS.md")
+    rel_a = rel_t.replace("PENDENCIAS.md", "_history/_archive/PENDENCIAS_RESOLVIDOS.md")
     # COMPARE AGAINST HEAD, NOT HEAD~1. Validated by sabotage on 2026-07-30 and the first version was
     # WRONG: it read HEAD~1, so an item added in the most recent commit and then deleted in the working
     # tree was invisible (it never existed in HEAD~1, so "gone" could not be detected). Deleting a
@@ -308,7 +308,7 @@ def main() -> int:
         print(m)
     if orphaned:
         print(f"\nFAIL: {len(orphaned)} item(s) left the tracker without reaching "
-              f"_archive/PENDENCIAS_RESOLVIDOS.md. An item that vanishes is worse than one marked "
+              f"_history/_archive/PENDENCIAS_RESOLVIDOS.md. An item that vanishes is worse than one marked "
               f"wrongly: nothing points at it, so nobody looks. Either archive it with its outcome, "
               f"or restore it -- three items were lost this way (2.2, the Ch.4 italics item, and "
               f"REV-024) and the author found two of them by reading the file.")

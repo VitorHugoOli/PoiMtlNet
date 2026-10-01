@@ -153,7 +153,7 @@ assign different importance to routine and unusual visits while producing one
 % query would have shape (num_pois, hidden_channels). What varies per place is the key/value set, not
 % the query, and the sentence now says that. The two sentences around it are unchanged: the learned
 % summary versus a fixed mean, and the head split, were both verified correct.
-% Evidence: src_utils/_round14/80_apx_check2hgi_audit.md, defect D3.
+% Evidence: src_utils/_history/_round14/80_apx_check2hgi_audit.md, defect D3.
 The attention module uses one learned query vector, shared across all places. Keys
 and values come from the visits assigned to the place being summarized, so the query
 is common while the pooled content is specific to the place. Each head summarizes a 16-dimensional
@@ -328,7 +328,7 @@ The two region features are combined as
 % typeset as the six italic letters m-a-t-h-r-m, so the rendered equation printed W_{mathrmshr} (a
 % nine-character subscript) and contradicted
 % the legend three lines below it, which already writes the symbol correctly. Read in the render at
-% p. 113 of the defense build. Evidence: src_utils/_round14/80_apx_check2hgi_audit.md, defect D1.
+% p. 113 of the defense build. Evidence: src_utils/_history/_round14/80_apx_check2hgi_audit.md, defect D1.
 \begin{equation}
     \mathbf{f}_{R}
     =\mathbf{f}_{\mathrm{priv}}
@@ -364,7 +364,7 @@ the direct spatial sequence model.
 % The second mechanism is described in plain words and NOT called knowledge distillation: that term is
 % absent from GLOSSARY.md, and its §1 maintenance rule is fail-closed. Proposed for registration in
 % the handoff note if a later section needs the term.
-% Evidence: src_utils/_round14/80_apx_check2hgi_audit.md, defect D2.
+% Evidence: src_utils/_history/_round14/80_apx_check2hgi_audit.md, defect D2.
 The region head contains one further term that stays inactive in the reported
 configuration. A region-transition prior, a table of how often one region follows
 another, can be added to the region logits through a scalar weight. That weight is
@@ -454,7 +454,7 @@ Joint model & Region head & Private tower: 4 heads, dropout $0.3$; shared-contex
 % (science/mtl_v17_complete_picture.md:171-181; docs/studies/archive/mtl_improvement/CHAMPION.md:37).
 % The row follows the existing Stage / Component / Reported setting style and adds no column; the
 % three p{} widths of the longtable are unchanged.
-% Evidence: src_utils/_round14/80_apx_check2hgi_audit.md, defect D2.
+% Evidence: src_utils/_history/_round14/80_apx_check2hgi_audit.md, defect D2.
 Joint model & Inactive region paths & Additive region-transition prior with its scalar weight fixed at 0 and not trained; no transition-table training signal; no category-conditioned region output \\
 Joint model & Objective & Fixed $0.50/0.50$ weighting (Equation~\ref{eq:apx-joint-loss}); logit adjustment $\tau=0.5$ on the category term at train time only; region term unadjusted \\
 Joint model & Optimization & AdamW; weight decay $0.05$; batch size 8192 per task; 50 epochs; clip norm $1.0$; OneCycle schedule \\

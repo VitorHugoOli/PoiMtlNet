@@ -37,12 +37,12 @@ articles/dissertacao/
     README_SRC.md             this file
     check.sh                  lint hook (linted target is ../src)
     evidence/BIB_MERGE_REPORT.md       bibliography merge/key-mapping record
-    _archive/handoffs/HANDOFF_v1.md             author handoff note
-    _archive/reviews_v1/DECISOES_PENDENTES_ptBR.md  author decisions (pt-BR)
-    evidence/cbic_recompute_result.md  + _archive/handoffs/cbic_recompute_handoff.json  (CBIC dataset counts)
+    _history/_archive/handoffs/HANDOFF_v1.md             author handoff note
+    _history/_archive/reviews_v1/DECISOES_PENDENTES_ptBR.md  author decisions (pt-BR)
+    evidence/cbic_recompute_result.md  + _history/_archive/handoffs/cbic_recompute_handoff.json  (CBIC dataset counts)
     adaptation_ledgers/       3_cbic / 4_courb / 5_mobiwac ADAPTATION_LEDGER.md (feed Appendix B)
-    _archive/reports_2026-07/FRAME_INTEGRATION_REPORT.md
-    _gates/ _review_v1/ _specialists_v1/  gate + review + specialist reports
+    _history/_archive/reports_2026-07/FRAME_INTEGRATION_REPORT.md
+    _gates/ _history/_review_v1/ _specialists_v1/  gate + review + specialist reports
     handoff/                  working JSON
 ```
 

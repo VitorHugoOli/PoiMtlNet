@@ -35,7 +35,7 @@ Resumo exactly.
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 python3 - <<'PY'
 import importlib.util, re, pypdfium2 as pdfium
-spec = importlib.util.spec_from_file_location("ma", "src_utils/_round6/_measure_abs.py")
+spec = importlib.util.spec_from_file_location("ma", "src_utils/_history/_round6/_measure_abs.py")
 ma = importlib.util.module_from_spec(spec); spec.loader.exec_module(ma)
 doc = pdfium.PdfDocument("src/build/main.pdf")
 for label, pg in (("Resumo", 2), ("Abstract", 3)):
@@ -77,9 +77,9 @@ prose. The figures live in reports and in this file.
 
 ## What was corrected in a durable record
 
-`src_utils/_round6/VERIFY_LIST.md` item 4's annotation expected `Pareto-stationary 0` in the
+`src_utils/_history/_round6/VERIFY_LIST.md` item 4's annotation expected `Pareto-stationary 0` in the
 glossary and was corrected to `2` when the author's decision (a) registered the term. The
-word-count figures in `_round6/15_resumo_abstract.md` and `_round6/06_07_number_claim_audit.md` are
+word-count figures in `_history/_round6/15_resumo_abstract.md` and `_history/_round6/06_07_number_claim_audit.md` are
 **left as written**: they were correct against the tree they measured, and this file is the pointer
 that says which tree that was. Overwriting them would destroy the record rather than date it.
 

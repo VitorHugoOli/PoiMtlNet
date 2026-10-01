@@ -261,8 +261,8 @@ here as an approved-but-not-yet-applied item; implement together as one change.
 the build actually is — the AcademicoPG deposit body. Touches: `Makefile` (target name, `-jobname`,
 comments), `main.tex` header comment (the "THREE builds" table), and the live docs that name the
 `final` target (`CLAUDE.md`, `PLAN.md`, `science/AGENT_HANDOFF.md`, `reviewers/19_latex_source_reviewer.md`,
-`src_utils/README_SRC.md`) — NOT the frozen historical/audit reports (`_round6/`, `_review_v1/2/3`,
-`_archive/`, `PENDENCIAS.md`, `CODEX_AUDIT.md`, etc.), same rule as every prior rename in this doc.
+`src_utils/README_SRC.md`) — NOT the frozen historical/audit reports (`_history/_round6/`, `_history/_review_v1/2/3`,
+`_history/_archive/`, `PENDENCIAS.md`, `CODEX_AUDIT.md`, etc.), same rule as every prior rename in this doc.
 
 ### A-2 — adopt F-4: a thin `main_academico.tex` entry file, same pattern as `main_ppgc.tex`
 

@@ -262,7 +262,7 @@ otherwise directly evidenced.
 > comparison in the dissertation.
 
 *(Every count in this paragraph is traceable to §1–§3 and to
-`_archive/handoffs/handoff_tooling.json`. Adjectives are limited to ones the numbers support;
+`_history/_archive/handoffs/handoff_tooling.json`. Adjectives are limited to ones the numbers support;
 no performance or novelty claim is made here — those belong to the results
 chapters under the frame's number protocol.)*
 

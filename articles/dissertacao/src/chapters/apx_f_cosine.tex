@@ -16,7 +16,7 @@
 %     straddling the top-10 boundary, which aborts the SCORED REGION metric). The cosine is a
 %     TRAIN-path measurement and is unaffected by validation tie semantics.
 %
-% EVERY COMMENT BELOW THIS BLOCK THAT CITES src_utils/_round7/gradient_cosine_observations6.parquet,
+% EVERY COMMENT BELOW THIS BLOCK THAT CITES src_utils/_history/_round7/gradient_cosine_observations6.parquet,
 % 4,650 observations, seven datasets, Georgia, or Florida's twelve configurations describes the
 % SUPERSEDED evidence base. Those comments are kept because they record real editorial decisions
 % (what was cut and why, which probes exist, which review found what), and a decision does not stop
@@ -38,16 +38,16 @@
 % CHAPTER 5'S BODY IS UNTOUCHED and does not point here. It is under review, so an edit for no
 % reader benefit is not worth the divergence between the two texts.
 %
-% SOURCE OF RECORD FOR EVERY NUMBER: src_utils/_round7/gradient_cosine_observations6.parquet (4,650
-% rows; state, fold, epoch, cos, config), derived by _round7/cosine_stats6.py (RC=0), output quoted
-% in _round9/30_cosine_six.md. Re-derive, never increment: the count moved from three datasets to
+% SOURCE OF RECORD FOR EVERY NUMBER: src_utils/_history/_round7/gradient_cosine_observations6.parquet (4,650
+% rows; state, fold, epoch, cos, config), derived by _history/_round7/cosine_stats6.py (RC=0), output quoted
+% in _history/_round9/30_cosine_six.md. Re-derive, never increment: the count moved from three datasets to
 % four mid-writing in round 7 and from four to SEVEN in round 9, and every figure was recomputed at
 % each point. If an eighth lands, re-run the script and read its output.
 %
 % [round9, 2026-07-30] SEVEN DATASETS. California, Texas and Istanbul were measured on ssh:nespedgpu
 % (jobs 67585dff, 6faa6e22, 9f3da11f; each rc=0 read from its own _status.json), one dataset per job,
 % sequentially, with MTL_TRAIN_DIAGNOSTICS=1 exported explicitly. Every one of the fifteen new
-% per-fold CSVs passed the distinctness gate in _round7/cosine_harvest6.py (15 distinct md5, 50
+% per-fold CSVs passed the distinctness gate in _history/_round7/cosine_harvest6.py (15 distinct md5, 50
 % non-empty cosine cells over a complete epoch 1..50 series, GATE_RC=0), and the gate was validated
 % by sabotage in both directions first. The four pre-existing datasets are unchanged: a positional
 % comparison of the two parquets gives max |old - new| = 0.0 over all 3,900 rows.
@@ -56,7 +56,7 @@
 % california, florida, istanbul and texas. GEORGIA IS A SEVENTH and is not one of them --
 % tables/mobiwac/datasets.tex lists AL, AZ, FL, TX, CA, Istanbul and no Georgia. Do not write "six
 % datasets" about this appendix's evidence and do not let a sentence imply Georgia is one of the six.
-% The old four-dataset derivation, _round7/cosine_stats.py, is KEPT AND STILL RUNS (RC=0): it is the
+% The old four-dataset derivation, _history/_round7/cosine_stats.py, is KEPT AND STILL RUNS (RC=0): it is the
 % mechanical record that the four-dataset text was derived from four-dataset data.
 %
 % TRAP -- THAT SCRIPT ONCE DID NOT RUN WHILE THIS FILE POINTED AT IT. It still declared 3 states /
@@ -90,7 +90,7 @@
 %
 % [SIGNED OFF 2026-07-30, PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30): "I approve the appedix F you can remove the [NEEDS
 % SIGN-OFF]". The approval came with fifteen numbered points, all applied in round9c and each
-% recorded at its own site in this file; the round report is _round9/43_apxf_author.md. The marker
+% recorded at its own site in this file; the round report is _history/_round9/43_apxf_author.md. The marker
 % raised in round 7 covered THE WHOLE APPENDIX (new mechanistic and extension claims outside any
 % paper's whitelist, AGENT_GUARDRAILS §3 C2); the author's approval closes it.]
 % ============================================================================
@@ -276,7 +276,7 @@ training run.
 % [round9, 2026-07-30] REPETITION UNIT STATED (excellence persona EX-4). The appendix reported fold counts
 % and observation counts but never said how many random initializations stand behind each dataset, and a
 % reader could not tell whether the five fold means come from five restarts or one. Measured from
-% _round7/gradient_cosine_observations6.parquet before writing it: every dataset has exactly 5 folds and
+% _history/_round7/gradient_cosine_observations6.parquet before writing it: every dataset has exactly 5 folds and
 % ONE configuration (250 observations) except Florida, which has 12 configurations over the same 5 folds
 % (3,150). The parquet carries no seed column, so initialization is not a factor in this design at all --
 % which is the limitation now stated rather than left for the reader to infer.
@@ -639,7 +639,7 @@ Section~\ref{apx:cosine:mechanism} applies only to models shaped like this one.
 %   4. Its last sentence RESTATED the paragraph above it ("the boundary the paragraph above draws"),
 %      which WRITING_LAW §4 bans outright.
 % The measurement provenance that mattered is preserved in the comments below and in
-% _round9/30_cosine_six.md. WRITING_LAW §4 now carries the general rule (process narration).
+% _history/_round9/30_cosine_six.md. WRITING_LAW §4 now carries the general rule (process narration).
 % [SIGNED OFF 2026-07-30 with the whole appendix, PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 0; raised as NEEDS
 % SIGN-OFF under PENDENCIAS_RESOLVIDOS 2.9 (arquivado 2026-08-02) in round 8. The author read and approved the appendix whose prose
 % carries the replacement clause, and his 2.9 ruling separately accepted the seven-dataset
@@ -695,10 +695,10 @@ Section~\ref{apx:cosine:mechanism} applies only to models shaped like this one.
 % THE HARVEST RACE WAS AVOIDED BY CONSTRUCTION AND THEN GATED. --folds 5 (never five --only-fold k
 % jobs) so the runner writes real fold1..fold5 names, and the job script captures its own child pid
 % and resolves results/check2hgi/<state>/mtlnet_*_<pid>, since the rundir leaf ends in that pid.
-% _round7/cosine_harvest6.py then refuses to build the parquet unless every per-fold md5 is distinct,
+% _history/_round7/cosine_harvest6.py then refuses to build the parquet unless every per-fold md5 is distinct,
 % every cosine column is non-empty, and every epoch series is a complete 1..50; it was validated by
 % sabotage in both directions (clean rc=0; a duplicated pair, a blanked column and a 34-epoch
-% truncation each rc=1) before real data went through it. Full record: _round9/30_cosine_six.md.]
+% truncation each rc=1) before real data went through it. Full record: _history/_round9/30_cosine_six.md.]
 %
 % [VERIFY: the per-dataset extension to California, Texas, and Istanbul. STATUS at the time this
 % appendix was written, from the job's own _status.json and not from its log: job 805120f1 on
@@ -739,7 +739,7 @@ Section~\ref{apx:cosine:mechanism} applies only to models shaped like this one.
 % for 78 minutes and the GPU was idle, and the stale log was being read as progress. Check the
 % process, not the log.
 % THE RUNS LANDED, and this is what updating the counts actually took, recorded because the list
-% below was incomplete when it was written. Re-run src_utils/_round7/cosine_stats6.py (it asserts its
+% below was incomplete when it was written. Re-run src_utils/_history/_round7/cosine_stats6.py (it asserts its
 % own structure), rebuild the figure, then correct EVERY count. The sites, MEASURED with
 %   awk '!/^[[:space:]]*%/' chapters/apx_f_cosine.tex | grep -nE 'four|seven|3,900|4,650'
 % rather than trusted from a list: this header (twice), the observations paragraph, the

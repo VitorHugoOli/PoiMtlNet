@@ -18,7 +18,7 @@
 > decision stated as such. **The eight-step edit plan was written for the OTHER shape and does not
 > survive the inversion; it must be redone BEFORE any edit, not after.** He asked to apply only once
 > the definitions close: "depois dessas definicoes podemos aplicado". Nothing is authorized yet. Do not edit the chapter from this file; approve the decisions, then the edit plan in
-> `../src_utils/_round12/49_definitions_validation_and_plan.md` applies it.
+> `../src_utils/_history/_round12/49_definitions_validation_and_plan.md` applies it.
 
 ## Why this document exists
 
@@ -32,10 +32,10 @@ The author read the twelve numbered definitions and found four problems:
 > elsewhere in the text."
 
 All four were measured against the live source before anything was designed
-(`../src_utils/_round12/46_definition_dependency_audit.md`), the layering question was settled against
-four literature sources opened in session (`../src_utils/_round12/48_history_formulation_literature.md`),
+(`../src_utils/_history/_round12/46_definition_dependency_audit.md`), the layering question was settled against
+four literature sources opened in session (`../src_utils/_history/_round12/48_history_formulation_literature.md`),
 and the design below was then put through an adversarial validation pass by a second agent
-(`../src_utils/_round12/49_definitions_validation_and_plan.md`).
+(`../src_utils/_history/_round12/49_definitions_validation_and_plan.md`).
 
 ## What the validation changed, and why this copy is the one to read
 
@@ -43,7 +43,7 @@ The validation pass rebuilt the dependency graph independently, enumerated all 2
 the chapter against the PROPOSED text, and found **five defects, all of wording and none structural.**
 Every one was then re-verified in the live source before being corrected here. This file carries those
 corrections inline; the original draft is preserved unedited at
-`../src_utils/_round12/47_definitions_consolidated.md`.
+`../src_utils/_history/_round12/47_definitions_consolidated.md`.
 
 | id | what was wrong | the evidence that settled it |
 |---|---|---|
@@ -181,7 +181,7 @@ the visited POI. **Chapter 4's temporal component: the level is NOT established,
   withdrawn**: the ETL reads `time_embedding.parquet` (`create_inputs_hgi.py:415`), nothing in that
   repository writes that parquet, and no CSV-to-parquet conversion exists, so it may already be POI-level,
   in which case the dedup is a no-op. Full boundary in
-  `../src_utils/_round12/50_courb_temporal_level_investigation.md`.
+  `../src_utils/_history/_round12/50_courb_temporal_level_investigation.md`.
 
   **What IS established:** the temporal encoder emits one row per check-in (`Time_Encoder.ipynb` cell 13,
   stored output `(2535573, 64)` against 2{,}535{,}573 check-ins), and the category-task path dedups by
@@ -574,7 +574,7 @@ ordering and $\rho$ layer still stand, but findings 2 and 4 reopen at the wordin
 ## 10. The gating decisions: six closed, AD-2 reopened, plus one larger undecided item
 
 Nothing in this design is applied until AD-2 is settled and the structural question below is answered. **AD-1, AD-3, AD-4 (conditionally), AD-5 and AD-6 are CLOSED as of 2026-08-03.** AD-2 is open and its question changed shape: see
-`../src_utils/_round12/50_courb_temporal_level_investigation.md`, which is the code study he asked for
+`../src_utils/_history/_round12/50_courb_temporal_level_investigation.md`, which is the code study he asked for
 and which refutes the premise the decision was framed on. **AD-4, AD-5 and AD-6 are also closed** as of the
 same date: AD-4 conditionally, with a title he later had to reopen (he revoked `place representation` from
 the registry hours after naming it), and with the condition that the
@@ -585,7 +585,7 @@ above carry each ruling with its evidence.
 | id | the decision | where it is recorded |
 |---|---|---|
 | **AD-1** | ~~Twelve definitions or thirteen.~~ **RESOLVED 2026-08-03: THIRTEEN.** His words: "Vamos de treze." $\rho$ enters as a numbered Definition, so the chapter becomes 2.1-2.13 and the factorization carries the same visual weight as the objects it relates. The twelve-definition fallback in §3 is now dead and is kept only as the record of the alternative. Mechanical consequence, verified not assumed: renumbering shifts every definition after $\rho$, so each `\ref{def:fund:*}` must be re-checked at application; probe `R11-def27` pins `\label{def:fund:checkinlevel}`, a LABEL and not a number, so renumbering cannot break it (confirmed against the parsed probe tuple). | PENDENCIAS_RESOLVIDOS §6.14 (arquivado 2026-08-03) decision 1, closed |
-| **AD-2** | **STILL OPEN. My "answered" claim of 2026-08-03 was RETRACTED the same day, because it rested on an unverified link between two files.** I had asserted that the per-check-in matrix the temporal notebook writes (`time_embedding_novo.csv`) is the table the ETL reads, but the ETL reads `time_embedding.**parquet**` (`create_inputs_hgi.py:415`), **nothing in that repository writes that parquet**, no CSV-to-parquet conversion exists, and the file is not on disk, so its granularity is unknown. If it is already POI-level the `drop_duplicates("placeid")` at `:437` is a no-op and there is no selection step at all. **What holds:** the encoder emits one row per check-in (`Time_Encoder.ipynb` cell 13 stored output `(2535573, 64)`), the dedup is in the category-task path, and the temporal channel is in that input. **What would close it is one artifact** the author does not have: the CoUrb-era `time_embedding.parquet`, where `len(df)` against the state's POI and check-in counts decides it. **Closed as `[VERIFY]` at his instruction** ("Vamos de B, e matamos esse assunto") and documented as `LO-12` in `../../src_utils/LEFT_OUT.md`. Retraction and boundary in `../src_utils/_round12/50_courb_temporal_level_investigation.md`. | PENDENCIAS_RESOLVIDOS §6.15 (arquivado 2026-08-03), §6.21, §6.22 — reopened, then closed as LEFT_OUT |
+| **AD-2** | **STILL OPEN. My "answered" claim of 2026-08-03 was RETRACTED the same day, because it rested on an unverified link between two files.** I had asserted that the per-check-in matrix the temporal notebook writes (`time_embedding_novo.csv`) is the table the ETL reads, but the ETL reads `time_embedding.**parquet**` (`create_inputs_hgi.py:415`), **nothing in that repository writes that parquet**, no CSV-to-parquet conversion exists, and the file is not on disk, so its granularity is unknown. If it is already POI-level the `drop_duplicates("placeid")` at `:437` is a no-op and there is no selection step at all. **What holds:** the encoder emits one row per check-in (`Time_Encoder.ipynb` cell 13 stored output `(2535573, 64)`), the dedup is in the category-task path, and the temporal channel is in that input. **What would close it is one artifact** the author does not have: the CoUrb-era `time_embedding.parquet`, where `len(df)` against the state's POI and check-in counts decides it. **Closed as `[VERIFY]` at his instruction** ("Vamos de B, e matamos esse assunto") and documented as `LO-12` in `../../src_utils/LEFT_OUT.md`. Retraction and boundary in `../src_utils/_history/_round12/50_courb_temporal_level_investigation.md`. | PENDENCIAS_RESOLVIDOS §6.15 (arquivado 2026-08-03), §6.21, §6.22 — reopened, then closed as LEFT_OUT |
 | **AD-3** | ~~How Chapter 2 states Chapter 5's two-stream input.~~ **RESOLVED 2026-08-03: NAME BOTH STREAMS.** He confirmed the defect and supplied the mechanism: "o HGI produz dois embeddings finais um de regiao e outro de checking, e usamos essas duas entradas, respectivamentte, next-region e next-category" — two final embeddings of the same trained graph, feeding the two tasks respectively. That is what §5's D5 remark now says, with the `04_method.tex:27` quote. His "respectively" is what settles it in favor of naming both rather than deferring to Chapter 5. | PENDENCIAS_RESOLVIDOS §6.14 (arquivado 2026-08-03) decision 3, closed |
 | **AD-4** | **CONDITIONAL, and its title is now UNRESOLVED again through no fault of the ruling.** He gave "Check-in and place representation" on 2026-08-03; later the same day he revoked `place representation` from the registry ("vamos usar so place embedding para evitar conflitos e interpretacoes dubias"), so the second half of that title is no longer admissible under the fail-closed rule. **I am not spending a decision of his on it**, because the title may be moot: AD-4 was always conditional ("maybe with this inversion we even need this new section"), and if the §11 inversion proceeds the representation definitions are already in the right section and the subsubsection does not exist. Candidates when it is needed: (a) "Check-in and place embedding", both halves registered but not his wording; (b) "Place embedding and check-in-level representation", literally the two Definition titles, but that is the dual head round 11 deliberately split. **Nothing is created either way.** | PENDENCIAS_RESOLVIDOS §6.16 (arquivado 2026-08-03) and §6.22, conditional; title deferred to the inversion |
 | **AD-5** | ~~The two registry rows already pending.~~ **RESOLVED 2026-08-03: BOTH AUTHORIZED** ($\mathbf{e}_{x_i}$ and $f_{\mathrm{place}}(H_i)$). And a consequence of AD-1: with thirteen definitions the $\rho$ row is no longer optional but **REQUIRED**, because $\rho$ becomes a numbered object of the chapter rather than prose notation. | PENDENCIAS_RESOLVIDOS §6.13 (arquivado 2026-08-03) and §6.16, closed |
@@ -627,7 +627,7 @@ subsubsection of AD-4 is probably unnecessary, which is exactly what he anticipa
 | side effect | `fundamentals/` has directories `2.1_poi_prediction_tasks` and `2.2_representations_for_mobility`. The folder is frozen provenance and those names record how the chapter WAS built, so not an error, but they would describe a different order. | note only |
 
 **The consequence for the edit plan, and it is why this cannot be decided after application starts.** The
-eight-step plan in `../src_utils/_round12/49_definitions_validation_and_plan.md` was written on the
+eight-step plan in `../src_utils/_history/_round12/49_definitions_validation_and_plan.md` was written on the
 assumption that the representation definitions move UP into §2.1. Under the inversion that assumption is
 void: two whole sections trade places and the two prose passages above must be rewritten. **The plan must
 be redone before any edit, not adjusted after one.**
@@ -638,7 +638,7 @@ Nothing here is authorized. His work order: "depois dessas definicoes podemos ap
 
 | file | what it holds |
 |---|---|
-| `../src_utils/_round12/46_definition_dependency_audit.md` | the four findings measured against the live source, with the dependency graph and the one forward edge |
-| `../src_utils/_round12/48_history_formulation_literature.md` | the four literature sources (CSLSL, CTLE, HAMTL, and the dissertation's own MobiWac chapter) that settled the layering, and the credibility argument stated as narrowly as the evidence allows |
-| `../src_utils/_round12/47_definitions_consolidated.md` | the original design draft, preserved unedited, before the five corrections above |
-| `../src_utils/_round12/49_definitions_validation_and_plan.md` | the adversarial validation and the eight-step edit plan, including which steps must land in one commit and the sabotage-validation requirement for every probe |
+| `../src_utils/_history/_round12/46_definition_dependency_audit.md` | the four findings measured against the live source, with the dependency graph and the one forward edge |
+| `../src_utils/_history/_round12/48_history_formulation_literature.md` | the four literature sources (CSLSL, CTLE, HAMTL, and the dissertation's own MobiWac chapter) that settled the layering, and the credibility argument stated as narrowly as the evidence allows |
+| `../src_utils/_history/_round12/47_definitions_consolidated.md` | the original design draft, preserved unedited, before the five corrections above |
+| `../src_utils/_history/_round12/49_definitions_validation_and_plan.md` | the adversarial validation and the eight-step edit plan, including which steps must land in one commit and the sabotage-validation requirement for every probe |

@@ -11,7 +11,7 @@ Do NOT quote a per-pass split from this docstring. The "~32 s per pass, ~28 s of
 presented them as its own measurement. What this session measured is the whole-build
 before/after above; the per-pass decomposition is consistent with it but unverified here.
 Every number, with the command that produced it and a contention caveat that matters (the same
-build spanned 105-128 s across four runs): src_utils/_round7/20_build_speed.md §3.
+build spanned 105-128 s across four runs): src_utils/_history/_round7/20_build_speed.md §3.
 
 WHAT THIS SCRIPT DOES. It derives THREE files into build/fmt/ and never asks a human to keep
 anything in sync:
