@@ -30,7 +30,12 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
   int64, o que dá outra partição (0/5 folds iguais, reproduzido). Regenerar com
   `--group-dtype int` (patch no pacote) e confirmar com a verificação #5.
 
-## G2 · CTLE em AL/AZ/IST com a divisão certa — decidido (opção 1 se houver GPU)
+## G2 · CTLE em AL/AZ com a divisão certa — decidido (opção 1 se houver GPU)
+
+> **2026-10-01: Istambul provavelmente está limpo.** O CTLE de Istambul correu no M4 Pro, cujo
+> ficheiro canónico de Istambul já tinha as 271 666 linhas stride-1 (idênticas às do `dk_ovl`).
+> Isso não está provado, porque não há marcador `CTLE_FOLD.txt` de Istambul. AL e AZ mantêm-se
+> (74–82% e 78–82%, medidos contra os folds reais do `train.py`).
 
 - **Porquê.** O braço CTLE "congelado" foi pré-treinado com uma divisão escolhida sobre o ficheiro
   stride-9, enquanto a avaliação usa as linhas stride-1. Resultado: 75–83% dos utilizadores
@@ -52,7 +57,9 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
   (343 795 janelas, 16 348 utilizadores, 2026-06-26), e não sobre as janelas do v18 (271 666 /
   14 530). É ela que sustenta o +6,29 e o "32×". Os cinco estados dos EUA são pareados.
 - **O que correr.** Colocar os vetores HGI nas janelas do v18 de Istambul e correr a mesma receita
-  do braço por check-in. A viabilidade no M2 Pro (32 GB) está a ser avaliada.
+  do braço por check-in. **A correr neste Mac (M2 Pro), autorizado pelo autor a 2026-10-01:** os
+  dois braços em MPS, com a mesma receita e sem compile. A comparação só conta se o braço por
+  check-in reproduzir a célula CUDA impressa (35,35). ~5–6 GB e ~0,5–1,5 h por braço, estimado.
 - **Muda no texto.** A célula de Istambul, o +6,29 e o 32× (no resumo, no Cap. 1, no Cap. 5 e no
   Cap. 6), o VEREDITOS V7/V8 e uma linha na B.5.
 - **Se nunca correr.** Decisão do autor: o texto fica como está, porque a direção do ganho
