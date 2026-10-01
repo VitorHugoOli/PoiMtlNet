@@ -499,6 +499,11 @@ responder à pergunta do artigo.
 Não decidi nenhuma destas. Cada uma com opções e a minha recomendação.
 
 ### DA-1 · Duração alvo
+
+> ### ✅ DECIDIDA — DA-1
+> **~15 min de fala, ~15 de margem e perguntas — a opção (a), que era a recomendação.**
+> *Proveniência: decidida pelo autor na sessão `mobiwac-ppt` a 2026-10-01 e relatada a mim por essa sessão; não me foi dita directamente. Se não corresponder ao que decidiu, é esta linha que está errada, não a sua memória.*
+
 > ⚠ **Actualizado para a v2.** A v1 dizia "18 min" e "a §4 soma 18:00". Depois dos cortes da revisão
 > **a §4 soma ~15:15** (14:50 antes do reforço do S5), e eu deixei a recomendação para trás — um ponteiro podre dentro do meu próprio
 > documento, do mesmo tipo que ando a converter no resto do repositório.
@@ -511,12 +516,22 @@ Não decidi nenhuma destas. Cada uma com opções e a minha recomendação.
 - (c) 20+ min — não recomendo em nenhuma circunstância neste slot.
 
 ### DA-2 · Quanta estatística vai ao ecrã
+
+> ### ✅ DECIDIDA — DA-2
+> **Só vereditos na trilha principal. Holm, TOST e os intervalos ficam na Série B (B2 e B10) — a opção (a).**
+> *Proveniência: decidida pelo autor na sessão `mobiwac-ppt` a 2026-10-01 e relatada a mim por essa sessão; não me foi dita directamente. Se não corresponder ao que decidiu, é esta linha que está errada, não a sua memória.*
+
 - **(a) Vereditos e intervalos, sem nomear os testes** — ⭐ **recomendo.** "Supera", "fica dentro da
   margem registada", com o IC a 90 % visível. Holm e TOST ficam para a Série B (B2).
 - (b) Nomear Holm e TOST na trilha principal — é mais rigoroso e é o que a defesa fez, mas custa
   ~25 s a explicar a uma plateia que não os usa.
 
 ### DA-3 · Se perguntarem directamente porque é que os números diferem de uma versão anterior
+
+> ### ✅ DECIDIDA — DA-3
+> **Responder pelo mecanismo, via B4, sem história de processo — a opção (a).**
+> *Proveniência: decidida pelo autor na sessão `mobiwac-ppt` a 2026-10-01 e relatada a mim por essa sessão; não me foi dita directamente. Se não corresponder ao que decidiu, é esta linha que está errada, não a sua memória.*
+
 Isto **não reabre a D1** — D1 é sobre notificar os chairs, e está fechada. Isto é sobre o que se
 responde de pé, se alguém que tenha visto o manuscrito aceite perguntar.
 - **(a) Responder pelo mecanismo, sem história de processo** — ⭐ **recomendo.** A resposta é a B4:
@@ -527,6 +542,11 @@ responde de pé, se alguém que tenha visto o manuscrito aceite perguntar.
 - **É decisão sua porque é a sua voz no palco, não a minha.** O plano não põe nada disto num slide.
 
 ### DA-4 · O esboço de serviço entra ou sai — ⚠ **mudei de recomendação na v2**
+
+> ### ✅ DECIDIDA — DA-4
+> **O S9 "What a service would receive" fica, com 60 s — a opção (a), a recomendação revista.**
+> *Proveniência: decidida pelo autor na sessão `mobiwac-ppt` a 2026-10-01 e relatada a mim por essa sessão; não me foi dita directamente. Se não corresponder ao que decidiu, é esta linha que está errada, não a sua memória.*
+
 O artigo tem um esboço de serviço de ~90 palavras na §7 (a leitura de shortlist).
 - **(a) Slide próprio de 60 s — o S9** — ⭐ **recomendo agora.**
 - (b) Meia frase noutro slide, sem slide próprio — era a minha recomendação na v1.
