@@ -107,9 +107,13 @@ TX       & 6{,}553 & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & \underline
 \end{adjustbox}
 
 \vspace{2pt}
+% [2026-10-01, A5 batch, Table B.5 row] Footnote: "ReHDM (its own protocol)" -> "ReHDM (its own
+% chronological split)": docs/baselines/next_region/rehdm.md, chronological 80/10/10 by trajectory
+% start time. The "filtered region vocabulary" half was NOT added: not verified from the record this
+% session, and the author's rule is as few words as possible.
 {\footnotesize HMT-GRN (region-native, on
 our folds, scored on visits whose region appears in training, $>$99\% of test visits in every dataset
-and fold) is the primary external comparison; STAN (our re-implementation) and ReHDM (its own protocol)
+and fold) is the primary external comparison; STAN (our re-implementation) and ReHDM (its own chronological split)
 are references. Markov-K: strongest order per dataset. $^{\dagger}$STAN partial folds: TX 4/5, CA 2/5
 (seed 0). $^{\ddagger}$ReHDM at TX and CA: a single seed. Joint and dedicated entries: four seeds
 $\times$ five folds; $\pm$: sd across seeds. Batch size was searched for the dedicated

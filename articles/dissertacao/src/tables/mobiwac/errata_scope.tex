@@ -375,11 +375,14 @@ changes. \\
 % fold_protocol seed 42 (compute_markov_floor_stride1.py, SEED = 42); as celulas entregues usam as
 % seeds {0,1,7,100}. As janelas coincidem (stride 1, MIN_SEQ 10, emit_tail False). Sem nova execucao:
 % decisao do autor, pela baixa variancia do piso.
-The setup and results sections say that the first-order Markov
-region floor uses the same fold splits as our models. &
+% [2026-10-01] Terceira frase (06_results, "computed under our windows and folds") apanhada pela
+% auditoria de 01/10; a linha passa a cobri-la.
+The setup section and two sentences of the results section say
+that the first-order Markov region floor uses the same fold
+splits as our models. &
 The floor uses the same sliding windows and the same
 user-grouped fold construction, but a different partition of
-users, so both sentences now claim only the windows and the
+users, so all three sentences now claim only the windows and the
 grouping. The floor values are unchanged. \\
 \addlinespace
 % [2026-10-01] Achado pelo autor; confirmado por workflow (4 buscas + 2 verificadores adversariais) e
@@ -396,6 +399,46 @@ other three, with user-disjoint folds: $33.35$, $30.71$ and
 $32.08$ in place of $34.49$, $31.78$ and $33.03$. The joint
 model's smallest margin over POI-RGNN moves from $3.06$ to
 $4.11$ points, at Texas. No verdict changes. \\
+\addlinespace
+% [2026-10-01] Lote A5, aprovado pelo autor depois da auditoria de proveniencia dos modelos (workflow
+% de 9 agentes). Cada valor re-verificado pelo writer e por mim antes de editar.
+The results section puts CTLE at Florida about two points below
+the place embedding. &
+The difference is $3.7$ points, between the $37.13$ of the
+representation table and CTLE's $33.45$, both printed in the
+chapter. No verdict changes. \\
+\addlinespace
+% Pureza: l0_metrics chama knn_loo (geometry.py), leave-one-out com o proprio vector excluido. A
+% legenda ja o dizia; a glosa da prosa descrevia uma fraccao de vizinhos, nao uma classificacao.
+The results section glosses the nearest-neighbor purity as the
+share of neighbors with the vector's own category. &
+The measure is a leave-one-out classification: the share of
+vectors whose ten nearest neighbors, excluding the vector
+itself, vote for its own category. The gloss now says so, as the
+figure caption already did. No number changes. \\
+\addlinespace
+% Os externos usam embeddings e divisoes proprias (POI-RGNN e Markov-K: ETL proprio, seed 42; STAN:
+% linhas proprias; ReHDM: divisao cronologica; HMT-GRN: particao de Junho diferente da entregue).
+% A ordem do Markov-K e escolhida nos folds de avaliacao (compute_markov_kstep_cat.py).
+The setup and results sections describe the external
+comparisons without saying that they run on their own splits,
+and select the Markov order per dataset without saying on which
+data. &
+The externals are now said to run on their own embeddings and
+splits, ReHDM's split is named as chronological, and the Markov
+order is said to be chosen on the evaluation folds, which can
+only favor that floor. No number changes. \\
+\addlinespace
+% FL seed 0, check-in menos lugar por fold: +0,276 +0,434 +0,029 +0,001 +0,425; t pareado
+% bicaudal p = 0,067. O teste nao estava nomeado em 05_setup (que so nomeia o t sobre n=4 sementes).
+The representation table and the results section report a
+paired test over five matched folds without naming it, and say
+that all five folds favor the check-in-level representation at
+every dataset. &
+The test is named, a two-sided paired $t$-test over the five
+folds of one seed, and the Florida fold that favors the
+check-in-level representation by only $0.001$ points is stated.
+No number or verdict changes. \\
 \bottomrule
 \end{tabular}
 \end{table}

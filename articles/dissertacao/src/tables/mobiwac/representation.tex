@@ -22,7 +22,11 @@ TX & \textbf{36.32}\sd{0.51} & 35.33\sd{0.48} & $+0.99$ \\
 \end{tabular}
 
 \vspace{2pt}
-{\footnotesize All five folds favor the check-in-level representation at every dataset. A paired
-test over the five matched folds separates the two columns at every dataset except Florida
-($p=0.07$), where the direction is unanimous but the difference does not reach significance.}
+% [2026-10-01, AUTHOR-APPROVED A5 batch, Table B.5 row by the registry] Same two touches as the
+% chapter prose (06_results.tex): the test named as what it is, and the Florida fold at 0.001
+% (folds verified from v18_results.json / v18_place_level, see the 06_results.tex comment).
+{\footnotesize All five folds favor the check-in-level representation at every dataset, one fold at
+Florida by only $0.001$. A two-sided paired $t$-test over the five matched folds of one seed separates
+the two columns at every dataset except Florida ($p=0.07$), where the direction is unanimous but the
+difference does not reach significance.}
 \end{table}

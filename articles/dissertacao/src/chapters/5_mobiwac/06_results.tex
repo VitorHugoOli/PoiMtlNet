@@ -25,11 +25,20 @@
 
 \subsection{The check-in-level representation improves the category task}
 \label{sec:mobiwac:results-part1}
+% [2026-10-01, AUTHOR-APPROVED A5 batch, Table B.5 row(s) by the registry; style rule: as few words as
+% possible] (5) "A paired test over the five matched folds" -> "A two-sided paired $t$-test over the five
+% matched folds of one seed", the test this table actually uses (05_setup names only the n=4 seed-mean t);
+% "all five folds favor ... at every one of the six datasets" kept, qualified with ", one fold at Florida
+% by only $0.001$": verified from v18_results.json stl_cat_folds FL seed 0 [37.7463, 37.2184, 36.7075,
+% 37.6194, 37.5234] minus v18_place_level/florida_s0_cat_placelevel.json cat_per_fold [37.4702, 36.7846,
+% 36.6786, 37.6184, 37.0985] = +0.276, +0.434, +0.029, +0.001, +0.425; two-sided paired t p = 0.067
+% (printed 0.07).
 The check-in-level representation reaches a higher next-category macro-F1 than a standard place
 embedding (HGI~\cite{huang2023hgi}) at every dataset
 (Table~\ref{tab:mobiwac:representation}). The comparison is controlled: target, single-task model, training configuration, windowing, epoch budget, logit adjustment, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column is the same dedicated single-task category model reported in Table~\ref{tab:mobiwac:results}, read at seed 0 so that both arms of this comparison share one fold partition; the place-level arm is that model with its input swapped. The difference ranges from $+0.23$ macro-F1 at Florida to
 $+6.29$ at Istanbul, and all five folds favor the check-in-level representation at every one of the
-six datasets. A paired test over the five matched folds separates the two representations at every
+six datasets, one fold at Florida by only $0.001$. A two-sided paired $t$-test over the five matched
+folds of one seed separates the two representations at every
 dataset except Florida, where the direction is unanimous across folds but the difference does not
 reach significance ($p=0.07$). What the comparison establishes is therefore a consistent direction
 rather than a large effect: the input representation is one condition that affects performance
@@ -50,15 +59,37 @@ here, and it acts the same way everywhere it was measured.
 % build, with vectors aggregated per place. Scoped, not dropped (the article dropped the paragraph;
 % the author was not asked to). Numbers unchanged; the "representation family" sentence that follows
 % already says the constants are not those of the exact delivered configuration.
+% [2026-10-01, A5 batch] (4) Purity gloss corrected to what scripts/embedding_eval/geometry.py computes
+% for the L0 rows of the geometry CSV: l0_metrics -> knn_loo, a LEAVE-ONE-OUT cosine kNN (self excluded)
+% with a similarity-weighted vote, scored as accuracy. The old gloss ("share of nearest neighbors with
+% the vector's own category") described a neighbor share, not a classification. The registry's brief
+% said the metric came from knn_predict against a separate reference fold; that function exists in the
+% file but is NOT what produced knn10_acc (CSV rows are level L0 -> knn_loo), so the caption's
+% "leave-one-out" stands. "ten nearest neighbors" = k=10 (the caption's k).
 The geometry of the vectors indicates why the representation helps this task in
-particular: the silhouette score by category of the representation's vectors, with the vectors aggregated per place (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale), is about $0.51$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures characterize the representation family rather than the exact configuration
+particular: the silhouette score by category of the representation's vectors, with the vectors aggregated per place (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale), is about $0.51$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of vectors whose ten nearest neighbors, excluding the vector itself, vote for its own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures characterize the representation family rather than the exact configuration
 evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads pretrained region vectors, taken from a region table held fixed and shared by the joint and dedicated models, Section~\ref{sec:mobiwac:method-model}).
 % [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item, same in 04_method.tex] "of the same
 % graph" -> "of an earlier build of the same graph design". run_phase0_build.sh symlinks
 % region_embeddings.parquet from the v14 engine (six PASS rows in AUDIT.md): check-in vectors are the
 % v18 build, region vectors an earlier build of the same design. Wording is the article's; the CTLE
 % sentences that follow are unchanged.
-CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
+% [2026-10-01, A5 batch] (1) "about two points below" -> "about 3.7 points below": place FL = 37.13
+% (tables/mobiwac/representation.tex), CTLE best epoch = 33.45, difference 3.68. Only this number;
+% the wider CTLE rewrite is pending the author.
+% [2026-10-01, A5 batch] (3) "These externals run on their own embeddings, so" -> "These externals
+% run on their own embeddings and splits, so". POI-RGNN and Markov-K use their own ETL (seed-42
+% user-grouped folds), STAN its own rows, ReHDM its own chronological split, and HMT-GRN (June run)
+% a partition that is not ours: AL n_val [19269, 19265, 19264, 19264, 19264] vs delivered [19265, 19264,
+% 19265, 19267, 19265], not a permutation; its JSON keeps counts only and the June input file is gone.
+% A first version of this edit said "except HMT-GRN, their own windows and splits"; the exception fell
+% with that measurement, and "windows" was dropped because HMT-GRN does share our windows, so the
+% sentence has to be true of all five. "splits" rather than "user-grouped folds" because ReHDM's split
+% is chronological. The setup's HMT-GRN "same data, folds" sentences are untouched, pending the author.
+% [2026-10-01, A5 batch] (2) Markov-1 floor sentence: "under our windows and folds" -> "under our
+% windows, with user-grouped folds" (third site of the seed-42 partition fact; same ground as the
+% two sites corrected 2026-09-30).
+CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about 3.7 points below the place embedding under the same best-epoch rule. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
 % [2026-09-02, AUTHOR-APPROVED, errata Table B.5 of the supplement; Q13] Two defects in the
 % concatenation-control sentences. (1) NUMBER: "under a tenth of the place-to-check-in gap" is
 % contradicted by Table 9, printed right below: the gaps are +1.62 (AL), +2.58 (AZ), +0.23 (FL),
@@ -334,12 +365,11 @@ The joint model is also above every external baseline reported, on both tasks,
 across all six datasets (Table~\ref{tab:mobiwac:results}): on region, the primary
 region-native comparison HMT-GRN~\cite{Lim2022}, STAN~\cite{luo2021stan}
 trained from the raw check-ins, and a ReHDM reference~\cite{li2025rehdm}; on
-category, POI-RGNN~\cite{capanema2023poirgnn} and the Markov-K floor. These externals run on their own embeddings, so this comparison
-also includes the representation advantage of Section~\ref{sec:mobiwac:results-part1}; the
+category, POI-RGNN~\cite{capanema2023poirgnn} and the Markov-K floor. These externals run on their own embeddings and splits, so this comparison also includes the representation advantage of Section~\ref{sec:mobiwac:results-part1}; the
 controlled comparison for the joint model remains the Dedicated column of
 Table~\ref{tab:mobiwac:results}, which uses the same representation, windows, and
 folds. The first-order Markov region floor of Section~\ref{sec:mobiwac:setup-baselines},
-computed under our windows and folds, reaches $51$ to $72$ Acc@10 across the
+computed under our windows, with user-grouped folds, reaches $51$ to $72$ Acc@10 across the
 datasets; the joint model exceeds it by $4.1$ to $10.0$ points on all six
 datasets.
 

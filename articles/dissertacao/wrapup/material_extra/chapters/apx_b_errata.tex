@@ -395,7 +395,10 @@ sentences for its tables, since the submitted text already introduces each of th
 % 1 + 9 + 3 + 1 + 5 + 2 = 21.
 % [2026-10-01] twenty-one -> twenty-two; corrections of fact nine -> ten (the POI-RGNN column).
 % 1 + 10 + 3 + 1 + 5 + 2 = 22.
-Table~\ref{tab:apx:mobiwac-scope} lists twenty-two further departures in the reproduced prose.
+% [2026-10-01, A5 batch] twenty-two -> twenty-six; corrections of fact ten -> twelve (CTLE 3.7, purity
+% gloss); narrowings five -> seven (externals' own splits + ReHDM + Markov order; the named paired test +
+% the Florida fold); the Markov-floor clause now covers three sentences. 1 + 12 + 3 + 1 + 7 + 2 = 26.
+Table~\ref{tab:apx:mobiwac-scope} lists twenty-six further departures in the reproduced prose.
 None alters a result in the two results tables; one re-measures a diagnostic constant. One predates the article's acceptance: it narrows a
 universal negative to the channels its evidence covers. The
 % [2026-09-08, second pass] "one adds a cross-reference to the appendix that measures the same
@@ -404,7 +407,7 @@ universal negative to the channels its evidence covers. The
 % the eight Ch.5 files today. My restructure had re-authored the stale row's claim; the row is now
 % corrected by the registry and this clause follows it. Lesson recorded: a restructure is the time
 % to check the rows, not only to count them.
-other twenty-one were applied after the article was accepted, and they fall into five kinds. Ten
+other twenty-five were applied after the article was accepted, and they fall into five kinds. Twelve
 are corrections of fact: the promise of a Wilcoxon result that the text never reports is
 withdrawn; the two dedicated-model parameter sums are corrected against the measured counts;
 the concatenation control is restated against the table it cites; the logit-adjustment method
@@ -414,11 +417,14 @@ printed at the same precision as the interval it summarizes; the claim that all 
 differences lie within half a point at once rests on a Bonferroni adjustment across the six
 comparisons rather than on six separate intervals; the check-in range across the
 U.S. datasets ends at Texas, the state with the most check-ins, rather than at California; and the
-Markov floor is described as sharing the sliding windows and the user-grouped fold construction
-of the reported models, but not their partition of users, which is what the text now claims; and
-the three POI-RGNN cells at Florida, California, and Texas now come from the same user-disjoint
+Markov floor is described, in the setup and results sections, as sharing the sliding windows and the
+user-grouped fold construction of the reported models, but not their partition of users, which is
+what the text now claims; the three POI-RGNN cells at Florida, California, and Texas now come from the same user-disjoint
 reimplementation as the other three, so the smallest margin of the joint model over POI-RGNN is
-4.11 macro-F1 points, at Texas, rather than 3.06. Three
+4.11 macro-F1 points, at Texas, rather than 3.06; the gap between CTLE and the place embedding at
+Florida is printed as the 3.7 points the two numbers give, not two; and the nearest-neighbor purity is
+glossed as the share of vectors whose ten nearest neighbors vote for their own category, which is
+what the measurement computes. Three
 state the delivered method in place of development history: the gradient-cosine paragraph rests
 on the measurement taken on the reported joint model; the region vectors read by the
 spatial stream are described as a fixed region table shared by the joint and dedicated models;
@@ -426,7 +432,7 @@ and the class-separability constants are re-measured on the delivered representa
 moves the silhouette score from about 0.57 to about 0.51 and leaves the purity at about 0.98.
 One scopes a measurement to the build on which it was taken: the
 whole-dataset integrity check says that it comes from an earlier build of the
-representation. Five narrow a claim to what its evidence
+representation. Seven narrow a claim to what its evidence
 carries: the introduction names the model its two enhancements improve upon; the priority claim
 on fine-grained region as an end target is stated as the hedged form the related-work section
 already uses; the characterization of sharing on the check-in-level representation is replaced
@@ -435,7 +441,11 @@ results section is removed; and the explanation of the two region gains as the d
 an auxiliary signal has the most to add, given in the results section and in the conclusion, is
 replaced by the property it rested on, the number of classes to rank, because the chapter's
 discussion states that the evidence does not separate the contributions of the shared
-representation and the private spatial path. Two concern presentation: the emphasis in the results table is
+representation and the private spatial path; the external baselines are stated to run on their own
+embeddings and splits, ReHDM under its own chronological split, and the Markov order to be chosen
+on the evaluation folds; and the test behind the representation table is named as a two-sided paired
+$t$-test over the five folds of one seed, with the one Florida fold that differs by 0.001 stated. Two
+concern presentation: the emphasis in the results table is
 split into a magnitude channel and a statistical channel, and the sentence on the
 non-inferiority intervals scopes its superlative to the four datasets it discusses, since the
 cross-reference beside it leads to a section where a larger difference appears.
