@@ -4,7 +4,7 @@
 > **re-verified against the live pages on 2026-07-18**. Supersedes
 > `articles/[TESE]_MTL_POI/NORMAS_UFV.md` (June 2026 extraction) — one material change since
 > then: a **new PPGCC regimento interno approved 2026-07-09** (§3 below). The local copy of the
-> submission manual is [`docs/Manual-de-entrega-de-dissertacoes-e-teses-04_2026.pdf`](docs/).
+> submission manual is [the UFV PDF](https://www.ppg.ufv.br/wp-content/uploads/2026/04/Manual-de-entrega-de-dissertacoes-e-teses-04_2026.pdf) (the repository copy was removed 2026-08-28).
 
 ---
 
@@ -170,7 +170,7 @@ for the final build; SI units and legibility rules (§3.x) still apply.
 
 - Manual de entrega 04_2026 (PPG):
   https://www.ppg.ufv.br/wp-content/uploads/2026/04/Manual-de-entrega-de-dissertacoes-e-teses-04_2026.pdf
-  (local copy in [`docs/`](docs/))
+  (the repository copy was removed 2026-08-28; this URL is the source)
 - Normas gerais de Teses e Dissertações (rev. 11/10/2019):
   https://www.ppg.ufv.br/wp-content/uploads/2012/08/Normas-gerais-de-Teses-e-Dissertac%CC%A7o%CC%83es-12.pdf
 - PPGCC Regimento interno (aprovado 09/07/2026): https://ppgcc.ufv.br/regimento-interno/
