@@ -101,7 +101,7 @@ past, because I recorded the cosine as inherited rather than re-deriving it. Led
 > `articles/[mobiwac]/src/sections/02_related.tex:94-104`. `\pm0.003` appears in neither, in prose or
 > in comment:
 > ```bash
-> cd /Users/vitor/Desktop/mestrado/ingred
+> cd ../..
 > python3 -c "
 > import sys
 > from pathlib import Path
@@ -151,7 +151,7 @@ Expect **100, 97, 101 pages**.
 Unless a block says otherwise with its own `cd`, **run from `articles/dissertacao/`**:
 
 ```bash
-cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+cd articles/dissertacao
 ```
 
 Paths that reach outside the dissertation folder are written `../../` from there. Blocks that begin
@@ -281,7 +281,7 @@ the entry lands **before** p. 19 ships. Same question for **Pareto-stationary po
 > **ROUND 8, 2026-07-30 — TWO OF THREE LANDED; THE THIRD IS STILL AN OPEN FAIL-CLOSED BREACH.**
 > Credit the part, not the finding (§4b V14 consequence 2), so this row is split:
 > ```bash
-> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> cd articles/dissertacao
 > printf 'bilinear discriminator %s\nlogistic function %s\nPareto-stationary %s\n' \
 >   "$(grep -c 'bilinear discriminator' GLOSSARY.md)" \
 >   "$(grep -c 'logistic function' GLOSSARY.md)" \
@@ -361,7 +361,7 @@ next-region superiority, so the four next-region gains … are secondary results
 Resumo (p. 2), the Abstract (p. 3), Chapter 1 (p. 13) and Chapter 6 all say the joint model
 outperforms on region "at four of six" with no such qualifier.
 ```bash
-cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+cd articles/dissertacao
 # REPOINTED 2026-08-02, after the author's revised tree was merged. The finding this block
 # records -- that the frame prose asserted a region win at four of six WITHOUT the qualifier --
 # is now CLOSED, by his own decision 2.11 (option B, taken this round). Every surviving site
@@ -524,7 +524,7 @@ be exactly right about what changed. Ledger finding L-9.
 > prose and the EXPECT annotation below are both updated to 27 / 22; the command and its scope are
 > unchanged.
 > ```bash
-> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> cd articles/dissertacao
 > python3 -c "
 > import sys; sys.path.insert(0, 'src_utils')
 > from pathlib import Path
@@ -595,7 +595,7 @@ representation.
 > `Check2HGIModule.py:51-53` declares `alpha_c2p=0.4, alpha_p2r=0.3, alpha_r2c=0.3`, summed at
 > `:1192-1195`. Chapter 2's Equation (`eq:fund:check2hgi`) prints the same three coefficients.
 > ```bash
-> cd /Users/vitor/Desktop/mestrado/ingred
+> cd ../..
 > python3 -c "
 > import re
 > from pathlib import Path
@@ -638,7 +638,7 @@ dissertation.
 
 > **ROUND 8, 2026-07-30 — VERIFIED. All three lines read as documented, at the lines documented.**
 > ```bash
-> cd /Users/vitor/Desktop/mestrado/ingred
+> cd ../..
 > sed -n '42p'  src/models/mtl/mtlnet_crossattn_dualtower/model.py
 > sed -n '207p' src/models/mtl/mtlnet_crossattn/model.py
 > sed -n '368p' src/models/mtl/mtlnet_crossattn/model.py
@@ -701,7 +701,7 @@ moved three times since that fix.
 The round softened the attribution in **both** texts and declared one deliberate divergence:
 Chapter 5 states the disconfirming ablation with its numbers, the paper does not.
 ```bash
-cd /Users/vitor/Desktop/mestrado/ingred
+cd ../..
 for f in articles/dissertacao/src/chapters/5_mobiwac/07_discussion.tex \
          'articles/[mobiwac]/src/sections/07_discussion.tex'; do
   grep -vn '^[[:space:]]*%' "$f" | grep 'One model serves both tasks' | sed "s|^|$f:|"
@@ -824,7 +824,7 @@ and already cited for those claims elsewhere.
 > sweep over all 54 `.tex` files: `4_courb/methodology.tex` is the only file, and the registered term
 > "fine class" is what the appendix uses instead.
 > ```bash
-> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> cd articles/dissertacao
 > python3 -c "
 > import sys; sys.path.insert(0, 'src_utils')
 > from pathlib import Path
@@ -897,7 +897,7 @@ are **0 overfull boxes and 0 oversized floats** in all three builds — which I 
 > bare key printed, so the fix that removed the overfull box is intact. Boxes re-counted from the logs
 > of all three defense-family builds:
 > ```bash
-> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> cd articles/dissertacao
 > # `grep -c` exits 1 when the count is ZERO, which is the passing case here, so the count is
 > # taken in python: a shell block that exits nonzero is a FAIL to the harness regardless of
 > # what it printed. (My first version of this probe exited 1 with an empty stderr and was
@@ -1093,7 +1093,7 @@ sentence. Appendix A cites **thirteen** paths; four are already public.
 **How.** Check all thirteen at once, so the four that are already there are visible too:
 
 ```bash
-cd /Users/vitor/Desktop/mestrado/ingred
+cd ../..
 S=docs/studies/closing_data/v17_completion/stats_n20
 for p in src/data/folds.py \
          scripts/closing_data/score_joint_best.py \
@@ -1280,7 +1280,7 @@ where the round changed what the document claims rather than how it says it.
 > **ROUND 8, 2026-07-30 — the count is not 46, the command as written over-counts, and the number is
 > NOT STABLE ENOUGH TO ASSERT. What is assertable is the over-count.**
 > ```bash
-> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> cd articles/dissertacao
 > python3 -c "
 > import subprocess
 > def n(args):

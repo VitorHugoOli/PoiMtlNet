@@ -70,7 +70,7 @@ resolvido la, ele sai daquele arquivo e o `[NEEDS SIGN-OFF]` correspondente sai 
 titulo:
 
 ```bash
-cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+cd articles/dissertacao
 grep -rc "\[NEEDS SIGN-OFF" src --include="*.tex" --exclude-dir=build | grep -v ":0$" | sort -t: -k2 -rn
 ```
 
