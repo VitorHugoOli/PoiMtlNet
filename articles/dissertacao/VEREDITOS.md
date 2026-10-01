@@ -5,7 +5,7 @@
 > Se ela estiver nesta lista, **a questão está encerrada** e a prova está na linha.
 >
 > **Ordem de leitura obrigatória:** este ficheiro → `CLAUDE.md` §0 → os documentos vivos →
-> `src_utils/_round*`, `_review*`, `_specialists*` **só se alguém pedir explicitamente**.
+> `src_utils/_history/` (as rondas `_round*`, `_review*`, `_specialists*`) **só se alguém pedir explicitamente**.
 > Tudo sob um directório com `_` à frente é **rodada encerrada e sem autoridade**: serve como
 > registo de proveniência do que foi discutido, nunca como fonte de um facto corrente.
 >
@@ -77,7 +77,7 @@ gerações, portanto um número de região **não** se denuncia pelo valor: conf
 
 ---
 
-## V4 · Posso apagar `src_utils/_round6` … `_round14`?
+## V4 · Posso apagar `src_utils/_round6` … `_round14`? (hoje em `src_utils/_history/`)
 
 *Também chega como:* estas pastas parecem trabalho velho, dá para limpar as rodadas, o `src_utils`
 está cheio de lixo.
@@ -93,7 +93,7 @@ está cheio de lixo.
 Também não tocar: `_fixtures/check_verify_list/{clean,dirty}/src_utils/_history/_round6/VERIFY_LIST.md` são
 cópias-fixture que o próprio `check.sh` compara.
 
-**Prova:** `ACHADOS.md` §A5 · `README.md` §"parecem pastas de trabalho velhas e não são" ·
+**Prova:** `wrapup/ACHADOS.md` §A5 · `README.md` §"parecem pastas de trabalho velhas e não são" ·
 `CLAUDE.md` linha 150.
 
 ---
@@ -147,7 +147,7 @@ A região é o eixo que se sustenta: **não-inferior nos seis**, com TX +1,21 e 
 O `+28…+40` é número de substrato **pré-v18**. Não é uma tese anterior que foi revista: é uma
 geração que foi **invalidada**. Não há leitura em que seja citável.
 
-**Prova:** `NORTH_STAR.md` linha 67, marcador `[SUPERADO 2026-08-20]` · `ACHADOS.md` §A4.
+**Prova:** `NORTH_STAR.md` linha 67, marcador `[SUPERADO 2026-08-20]` · `wrapup/ACHADOS.md` §A4.
 
 ---
 
@@ -245,7 +245,7 @@ Tudo continua recuperável: `git show <sha>^:<caminho>`.
 | Um par mediu e reportou-te um número. Aceito? | **Não sem reproduzir.** A 2026-09-08 uma medição correcta em cada passo levava a uma conclusão errada; só a re-execução abriu o buraco. Custa minutos, e a correcção errada teria entrado **assinada por dois** |
 | Procurei a alegação exacta e não está lá. Não está? | **Não conclua.** Uma alegação não tem forma canónica: o mesmo facto aparecia como `category everywhere`, `category outperforms everywhere`, `at 4 of 6` e `outperforms both dedicated`. Enumere as formas antes de dizer "ausente" |
 
-**Prova:** `ACHADOS.md` §A6 · `ARMADILHAS_DE_MEDICAO.md` §13-14.
+**Prova:** `wrapup/ACHADOS.md` §A6 · `ARMADILHAS_DE_MEDICAO.md` §13-14.
 
 ---
 
@@ -365,7 +365,7 @@ mexido por baixo.
 **Portanto: não automatize a auditoria de guardas.** Uma varredura estrutural dá dois achados
 triviais e uma sensação de cobertura, que é pior do que não ter nenhuma — falha exactamente a
 espécie que motiva a auditoria. O remédio é de **construção, não de detecção**: ancorar por
-**conteúdo**, nunca por número de linha (`ACHADOS.md` §A4 — *"aponta por conteúdo, que não apodrece
+**conteúdo**, nunca por número de linha (`wrapup/ACHADOS.md` §A4 — *"aponta por conteúdo, que não apodrece
 quando o ficheiro se mexe"*). A conversão dos oito ficheiros-guarda fechou 2026-09-08 com zero
 ponteiros de linha.
 

@@ -14,8 +14,8 @@ PPGCC/UFV · formato coletânea de artigos (CBIC → CoUrb → MobiWac)
 > Se a sua dúvida está lá, não se reabre.
 >
 > **Ordem de leitura:** `VEREDITOS.md` → `CLAUDE.md` §0 → os documentos vivos →
-> `src_utils/_round*`, `_review*`, `_specialists*` **só se pedirem**. Toda pasta com `_` à frente
-> é **rodada encerrada**: vale como proveniência do que se discutiu, nunca como fonte de um facto.
+> `src_utils/_history/` **só se pedirem**. Toda pasta com `_` à frente é **bastidor**: as rondas de
+> revisão fechadas vivem em `src_utils/_history/`, e valem como proveniência, nunca como fonte de um facto.
 
 ---
 
@@ -33,12 +33,14 @@ PPGCC/UFV · formato coletânea de artigos (CBIC → CoUrb → MobiWac)
 | **os slides da defesa** | `presentation/slides/` — o deck congelado é `slide_final.pdf` |
 | **as chapas de arquitetura** (TikZ) | `presentation/figures/` — fontes em `src/`, PDFs em `plates/`, método no README de lá |
 | **o roteiro da fala** | `presentation/SPEECH.pdf`, gerado de `presentation/SLIDES.md` |
+| **os bastidores da defesa** | `presentation/_preparacao/` — o plano, as decisões do autor (AUT-1…36), os handoffs |
 | **as notas de pesquisa e a proveniência dos números** | `science/` |
-| **as ferramentas de conferência** | `src_utils/` — `check.sh` é a porta de entrada |
-| **o que ficou por fazer** | `ACHADOS.md` (raiz) e `wrapup/open_points/LACUNAS.md` |
+| **as ferramentas de conferência** | `src_utils/` — `check.sh` é a porta de entrada; `evidence/` guarda os relatórios de proveniência que o texto cita |
+| **o que ficou por fazer** | `wrapup/open_points/LACUNAS.md` (o registo vivo); o inventário da reorganização pós-defesa em `wrapup/ACHADOS.md` |
 
 Fora do caminho principal: `reviewers/` (19 perfis de revisão usados na redação),
-`archive/`, `reviewers/research/` (as notas de pesquisa que fundamentam as personas), `exemples/` (dissertações de exemplo, fora do git).
+`archive/` e `reviewers/research/` (as notas de pesquisa que fundamentam as personas). As dissertações de exemplo
+usadas como referência de qualidade não estão no repositório.
 
 ---
 
@@ -59,7 +61,7 @@ a resposta?** A resposta entregue, medida com CV por usuário disjunto, n=20, co
 > 🛑 **Circula pelo repositório uma escada de veredito SUPERADA** — *"category everywhere,
 > region at four of six"* e *"+28…+40 macro-F1"*. **Não é o resultado entregue.** O `NORTH_STAR.md`
 > abre com um banner que aponta essas frases **por conteúdo** e marca cada ocorrência com
-> `[SUPERADO 2026-08-20]`. Não copiar nenhuma delas para prosa nova (ver `ACHADOS.md §A4`).
+> `[SUPERADO 2026-08-20]`. Não copiar nenhuma delas para prosa nova (ver `wrapup/ACHADOS.md §A4`).
 > Fonte do número entregue: `src/tables/mobiwac/results.tex` e `wrapup/evidence/ladder_recompute.json`.
 
 ---
@@ -73,7 +75,7 @@ a resposta?** A resposta entregue, medida com CV por usuário disjunto, n=20, co
 2. **Um `make` pelado sobrescreve o PDF do depósito.** Cinco alvos copiam para `dissertacao.pdf`:
    `defense`, `all`, `all3`, `fast`/`fast-defense`, `fast3`. Para conferir sem buildar: `make check`.
 
-3. **`src_utils/_round6` … `_round14` parecem pastas de trabalho velhas e não são.**
+3. **`src_utils/_history/_round6` … `_round14` parecem pastas de trabalho velhas e não são.**
    `check.sh` **executa** `_history/_round9/35_wave_a_render_check.py`, e `check_audit_claims.py` lê os
    `.md` do `_round9` **como dados** (uma tabela de regexes). Apagar um deles faz o gate falhar.
 
@@ -90,7 +92,7 @@ a resposta?** A resposta entregue, medida com CV por usuário disjunto, n=20, co
 ## Reconstruir
 
 ```bash
-cd src && ../src_utils/latexbuild.sh main main.tex   # builda build/ SEM tocar no dissertacao.pdf
+cd src && . ../src_utils/texenv.sh && ../src_utils/latexbuild.sh main main.tex   # builda build/ SEM tocar no dissertacao.pdf; o texenv.sh e obrigatorio (o Makefile carrega-o, a chamada directa nao)
 cd src && make check                                 # a esteira dos 25 portões
 cd presentation/figures && ./build.sh                # regenera as chapas TikZ
 cd presentation/slides && make                       # regenera o main.pdf que as canárias leem

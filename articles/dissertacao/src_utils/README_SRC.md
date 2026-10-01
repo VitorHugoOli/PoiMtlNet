@@ -15,7 +15,7 @@ articles/dissertacao/
   src/                        <-- paste THIS into Overleaf; compiles standalone
     main.tex                  entry point for the DEFENSE build (and, with \FINALBUILD, the deposit)
     main_ppgc.tex             entry point for defense + approval sheet; TWO lines of content
-    0_main.tex                the document body (preamble + front matter + \include list)
+    content.tex               the document body (front matter + \include list); main*.tex wrap it
     abntex2-UFV.sty           UFV machinery (Germano tree)
     abntex2-num.bst           numeric bibliography style
     references.bib            single global bibliography
@@ -42,8 +42,8 @@ articles/dissertacao/
     evidence/cbic_recompute_result.md  + _history/_archive/handoffs/cbic_recompute_handoff.json  (CBIC dataset counts)
     adaptation_ledgers/       3_cbic / 4_courb / 5_mobiwac ADAPTATION_LEDGER.md (feed Appendix B)
     _history/_archive/reports_2026-07/FRAME_INTEGRATION_REPORT.md
-    _gates/ _history/_review_v1/ _specialists_v1/  gate + review + specialist reports
-    handoff/                  working JSON
+    _history/                 closed audit rounds (_round6.._round14), reviews, specialists, _archive/
+    evidence/                 provenance reports the delivered text cites (BIB, licensing, CBIC, ETL)
 ```
 
 Nothing in `src/` `\input`s or references anything in `src_utils/` (the ledger/report references

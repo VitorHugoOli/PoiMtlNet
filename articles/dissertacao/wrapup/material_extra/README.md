@@ -36,6 +36,6 @@ razao contra ele seria maior ainda. Os escores do apendice sao da preparacao atu
 que descreve o modelo anterior. Isso nao muda a conclusao, porque a conclusao e que largura piora o
 resultado de categoria, e um alvo maior so aumentaria a largura.
 
-**As dependencias.** As tabelas, a classe e a bibliografia continuam vindo de `../../src_fix`, por
+**As dependencias.** As tabelas, a classe e a bibliografia continuam vindo de `../../src` (era `../../src_fix` ate a reorganizacao de 2026-08-20), por
 `TEXINPUTS` e por um link em `references.bib`. Duplicar esses arquivos criaria duas copias que
 divergem sem aviso.

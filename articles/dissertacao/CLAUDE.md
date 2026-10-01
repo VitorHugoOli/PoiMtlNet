@@ -267,13 +267,13 @@ rebuild it with `make defense`).
 |---|---|---|
 | [`src/`](src/) | **THE delivered dissertation.** LaTeX source + `chapters/` + `figures/` + `tables/` + two tracked PDFs: `banca.pdf` (frozen record) and `dissertacao.pdf` (current build, erratas applied) | **yes.** Prose changes reach it only as a registered errata — see §1.2 for the applied ledger |
 | [`wrapup/`](wrapup/) | everything that happened **after** the submission: the supplement, the erratas, the open points, the post-submission studies, the rescued evidence | **yes — this is the front line.** Start here for anything defense-related |
-| [`src_utils/`](src_utils/) | the build + gate toolchain, and the round-by-round audit trail | **yes, load-bearing.** `check.sh` executes `_round9` code and delivered `.tex` files cite `_round6…_round14` by path. **Do not prune the underscore dirs** |
-| [`science/`](science/) | internal scientific records (integrity studies, trunk-gain attribution, the technical appendix) + cited article PDFs | yes. The delivered source cites `science/` paths 19× |
+| [`src_utils/`](src_utils/) | the build + gate toolchain at the top; `evidence/` holds the provenance reports the delivered text cites; `_history/` holds the closed audit rounds (`_round6`..`_round14`, reviews, specialists, `_archive/`) | **yes, load-bearing.** `check.sh` executes `_history/_round9/35_wave_a_render_check.py` and the probes in `check_audit_claims.py` pin content inside `_history/` -- move nothing there without running the gates |
+| [`science/`](science/) | internal scientific records (integrity studies, trunk-gain attribution, the technical appendix, the record of the label leak) | yes. The delivered source cites it as provenance, in comments; nothing builds from it |
 | [`reviewers/research/`](reviewers/research/) | the 2026-07 research records behind the reviewer personas and the banca guide (were `docs/research/` until 2026-09-30); `wrapup/CONFERENCE_VENUES.md` came from the same folder | reference |
 | [`reviewers/`](reviewers/) | 19 invocable reviewer personas | yes — several fire again before the defense and the deposit |
-| [`science/fundamentals/`](science/fundamentals/), [`science/storyline/`](science/storyline/) | frozen chapter drafts | **frozen, but do not move them.** The delivered text cites paths inside both (21 `science/fundamentals/_bib` provenance hits in `references.bib`; `science/storyline/audit/` from `preamble.tex` (o comentario de proveniencia que cita `AVAL_NECESSARIA_3_ptBR.md`) and three chapters) |
+| [`science/fundamentals/`](science/fundamentals/), [`science/storyline/`](science/storyline/) | the citation ledgers, `DEFINITIONS.md` and the storyline record of chapters 1, 2 and 6 (the superseded `.tex` drafts left on 2026-09-30) | yes. `DEFINITIONS.md` is pinned by probes |
 | [`archive/`](archive/) | spent planning + single-use scaffolding | **no — nothing here is a source.** See its README |
-| [`exemples/`](exemples/) | exemplar dissertations (Viegas, Germano, …) used as the quality bar | yes as reference. ⚠ **gitignored — 49 MB that exist only on disk.** Backed up 2026-08-20 to `~/Backups/dissertacao_exemples_2026-08-20.tgz` |
+| `exemples/` | exemplar dissertations (Viegas, Germano, …) used as the quality bar | **not in the repository** -- removed from disk 2026-08-28; the author keeps a local backup |
 
 **The boundary rule**, which is what makes this folder navigable:
 
@@ -359,7 +359,7 @@ Two more registries: [`wrapup/NEW_VERSION.md`](wrapup/NEW_VERSION.md) (the `mtlc
    of this very repository** (its `.git` is `gitdir: …/ingred/.git/worktrees/mtlcheck`, branch
    `rewrite/mtlcheck`), so it shares refs, tags and config. That was corrected 2026-10-01: it had been
    recorded here as "another clone". The department repo will be a NEW repo from the final commit,
-   without history (author, 2026-10-01). See `ACHADOS.md §A12`.) The rewrite uses a different
+   without history (author, 2026-10-01). See `wrapup/ACHADOS.md §A12`.) The rewrite uses a different
    evaluation protocol (nested 70/10/20 user splits, out-of-fold pooled metrics, a derived 0.4 pp
    margin instead of the registered 2 pp). Under it, **Alabama/region flips to inferior.** Those
    numbers answer defense questions; they do not correct Chapter 5. Read `wrapup/NEW_VERSION.md`

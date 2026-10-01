@@ -1,5 +1,7 @@
 # ACHADOS — pasta da dissertação
 
+> **Movido da raiz para `wrapup/` em 2026-10-01.** E o inventario da organizacao pos-defesa (28/08 a 01/10), nao lei: o que decidiu esta no `VEREDITOS.md`.
+
 > **Escopo:** `articles/dissertacao/` e **só**. O resto do repositório fica para a fase seguinte;
 > o que apareceu de fora está na **Parte B**, apenas anotado, sem ação.
 >
@@ -504,7 +506,7 @@ sobre como os agentes se enganam a medir**:
 |---|---|---|
 | 1 | `presentation/_preparacao/HANDOFF.md (anexo, sec. `HANDOFF_GATE.md`)` | 12 classes de erro + 6 regras de medição |
 | 2 | (em curso, pedido à `ppt`) | as regras de medição dela — custo em linhas e não em caracteres, altura de `columns` ser o máximo, instrumento que reporta sucesso parcial |
-| 3 | `ACHADOS.md §A6` + a tabela do rodapé | as armadilhas que apanharam esta passagem |
+| 3 | `wrapup/ACHADOS.md §A6` + a tabela do rodapé | as armadilhas que apanharam esta passagem |
 
 **Os três dizem a mesma coisa por três caminhos — e isso é exatamente *"documento sobre
 documento"*, o hábito que o autor nomeou.** Se ficarem os três, o próximo agente lê um e ignora
@@ -514,7 +516,7 @@ dois.
 regras de medição — elas **não são sobre a defesa**, são sobre medir e concluir, e sobrevivem a
 tudo o que se apague. Os outros dois apontam para ele ou desaparecem dentro dele.
 
-> ⚠ **Separação que importa e que não se deve perder na fusão:** o `ACHADOS.md` é sobre o **estado
+> ⚠ **Separação que importa e que não se deve perder na fusão:** o `wrapup/ACHADOS.md` é sobre o **estado
 > desta pasta**, que é outra coisa e tem outra validade no tempo. As classes de erro duram; um
 > inventário não.
 >
