@@ -21,12 +21,11 @@ arbitrárias são deliberadas e estão justificadas ali.
 
 ## O que está morto
 
-Nada aqui é usado pelo deck. Guardado para poder voltar atrás, não referenciado:
+**As quatro fontes mortas saíram a 2026-10-01, por decisão do autor**: `dgi_flow_v1_semdelaunay`,
+`c2h_deep_v1_conexo`, `c2h_flow` (variante de fluxo de dados, preterida) e `_hgi_flow_264pt_INCOMPLETO`
+(a tentativa falhada da *Dívida* abaixo). Nenhuma era usada pelo deck. Recuperam-se no histórico do
+PoiMtlNet, na tag `dissertacao-pre-organizacao`. Os PDFs de `superseded/` nunca estiveram no git.
 
-- `src/dgi_flow_v1_semdelaunay.tex` + `superseded/_dgi_flow_v1_semdelaunay.pdf`
-- `src/c2h_deep_v1_conexo.tex` + `superseded/_c2h_deep_v1_conexo.pdf`
-- `src/c2h_flow.tex` + `superseded/c2h_flow.pdf` — variante de fluxo de dados do Check2HGI, preterida
-- `src/_hgi_flow_264pt_INCOMPLETO.tex` — tentativa falhada, ver *Dívida* abaixo
 - ⚠ `superseded/_hgi_flow_v1_376pt.pdf` — **o conteúdo é o mesmo do `plates/hgi_flow.pdf` vivo.**
   Ficou de um rollback: guardei-o antes de tentar regenerar a chapa, e depois reverti.
   Evidência: mesma página (377,87 × 164,53 pt) e render **idêntico pixel a pixel a 600 dpi**
@@ -98,7 +97,7 @@ saem ~20 % mais finos. O certo seria regenerar no tamanho final (~302 pt de larg
 mecânica (escalar coordenadas, dimensões absolutas × fator, `line width` intocado) **não**
 regenera esta chapa: os pictogramas não encolhem na proporção das caixas, e os rótulos
 `Delaunay` e `Geographic adjacency`, posicionados à mão, encostam nos grafos. Falta uma
-rodada de composição, não um `sed`. O trabalho parado está em `src/_hgi_flow_264pt_INCOMPLETO.tex`.
+rodada de composição, não um `sed`. O trabalho parado (`src/_hgi_flow_264pt_INCOMPLETO.tex`) saiu a 2026-10-01; está no histórico do PoiMtlNet, tag `dissertacao-pre-organizacao`.
 
 E há um limite estrutural: varrendo `scale` × fonte, a razão largura/altura fica presa em
 ~2,26 e nunca volta aos 2,299 do original — **os traços em peso cheio *são* a altura extra**.
