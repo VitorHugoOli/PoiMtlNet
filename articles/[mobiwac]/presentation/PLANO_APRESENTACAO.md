@@ -290,7 +290,8 @@ Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segun
 
 > "Two questions, one model. Why is that not obviously a good idea? Because the parameters in the
 > middle have to serve both jobs at once, and they can settle on a compromise that is worse for each
-> than a dedicated model would have been. You get one artifact to deploy and you pay for it twice.
+> than a dedicated model would have been. You get one artifact to deploy, and you may pay for it on
+> both answers.
 > *[figura]* So the model is built to limit that. The two inputs go into a shared trunk where each
 > task can read the other's context — that is the part we want. But the region task also keeps a
 > **private** spatial path that the category task never touches, because where someone goes and what
@@ -299,10 +300,12 @@ Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segun
 > slides."
 
 - **Do deck:** **fundir e cortar** — os dois frames "sharing by exchange (1/2)" e "(2/2)" passam a um, de 170 s para 75.
+- **⚠ É o minuto 7 e é aqui que a sala se vai embora se houver detalhe a mais.** Os 25 s
+  acrescentados são para o **risco**, não para a arquitectura. Ninguém nesta sala precisa de saber
+  quantos blocos tem o tronco.
 - **⚠ Não dizer "multi-task learning" como conceito a definir.** A frase "parâmetros no meio têm de
   servir os dois trabalhos" ensina tudo o que esta sala precisa, em linguagem que já é a deles. O
-  nome do campo pode aparecer uma vez, de passagem, e nunca como coisa a explicar.
-- **Do deck:** **fundir e cortar** — os dois frames "sharing by exchange (1/2)" e "(2/2)" passam a um, de 170 s para 50. É o minuto 8; é aqui que a sala se vai embora se houver detalhe a mais. Ninguém nesta sala precisa de saber quantos blocos tem o tronco.
+  nome do campo pode aparecer uma vez, de passagem, e nunca como coisa a explicar..
 
 ---
 
@@ -614,7 +617,7 @@ nem em backup nenhum. **Aceite:** entra como caveat falado no S4 e como **B9**. 
 época dos dados, privacidade, os quilómetros, a margem mais estreita sobre o Markov, "só quatro
 corridas?", e quem consome isto. **Aceite:** entraram todas na tabela de perguntas sem slide, na §5.
 
-**F8 · Cortes de arco** — trabalhos relacionados fora, arquitectura de 170 s para 50, protocolo de
+**F8 · Cortes de arco** — trabalhos relacionados fora, arquitectura de 170 s para 50 (a v2.2 repõe 75, pelo risco do MTL), protocolo de
 quatro frames para um, custo e limites fundidos, IC fora do ecrã. **Aceite.**
 
 ### Aceite com emenda
