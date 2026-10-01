@@ -128,6 +128,13 @@ prompted it. No value, verdict or interval changes. \\
 % RE-RUN NUMBERS DELIBERATELY EXCLUDED. That errata quotes a re-execution (+1.73 / +1.70 / +1.02
 % against gaps of 1.56 / 2.50 / 0.21) that does not reproduce Table 9 fold by fold, cause
 % unidentified. The delivered pair is internally consistent and is what the printed text uses.
+% ⚠ [2026-10-01] THE EXCLUSION ABOVE IS SUPERSEDED, by the author's decision after the model
+% provenance audit. The "delivered pair" (+2.0/+1.7/+0.8) came from the A2 pre-freeze screen (p1
+% harness, stride-9, max_lr 0.003, 30 ep, no logit adjustment; AL/AZ mean of 4 seeds), which is not
+% the protocol of Table 9. The Q13 re-run uses Table 9's recipe: its AL place arm reproduces the
+% table fold by fold, AZ is within 0.19 per fold, FL 37.15 vs 37.13. "Does not reproduce fold by
+% fold" was true only in the hundredths, at two datasets. The chapter now prints the Q13 gains;
+% source docs/results/closing_data/v18/concat_control_q13/. The gaps beside them stay the table's.
 % NO DATASET IS NAMED. The direction is derivable from the delivered pair (Arizona is the one state
 % where the check-in representation still leads, by 0.88), but no paired test exists on the
 % delivered generation, no artifact carries that arm, and the cited gains are printed at one
@@ -151,7 +158,10 @@ short at the third. The conclusion is narrowed to what the control measures, tha
 the category difference is already available in the raw per-visit features and that what
 the representation adds beyond them on this axis is small and unseparated by this control,
 and it is scoped to the category axis. No claim is made about the hierarchy in either
-direction. No value changes. \\
+direction. The three gains are now the paired re-run under the table's own recipe, $+1.73$,
+$+1.70$ and $+1.02$, in place of $+2.0$, $+1.7$ and $+0.8$ from an earlier screen with a
+different protocol; the control still exceeds the gap at two datasets and falls short at the
+third. \\
 \addlinespace
 % [2026-09-02, B-23] "com relacao ao primeiro ne?" -- the reader could not tell what the two
 % enhancements were enhancements OF. The antecedent is in the previous paragraph (the earlier work
@@ -439,6 +449,21 @@ The test is named, a two-sided paired $t$-test over the five
 folds of one seed, and the Florida fold that favors the
 check-in-level representation by only $0.001$ points is stated.
 No number or verdict changes. \\
+\addlinespace
+% [2026-10-01] A4, aprovado pelo autor: so subtraccao. HMT-GRN correu com uma semente e a particao
+% de Junho (AL n_val 19269/... contra 19265/... entregue); STAN constroi linhas e particao proprias
+% (seed 0; 72-79% dos utilizadores de validacao entregues caem no treino dele). A contagem
+% sistema-a-sistema contra o piso saiu por decisao do autor; a explicacao de porque o piso e forte fica.
+The setup, results and conclusion sections and the results
+table say that HMT-GRN runs on our data, folds and random
+initializations and that STAN runs on our folds, and the
+results section counts the datasets at which each external
+system falls below the Markov floor. &
+HMT-GRN is said to use the same data, and all external systems
+to run on their own embeddings and splits; neither claim of
+shared folds remains. The per-system count is removed; the
+explanation of why the floor is strong stays. No number
+changes. \\
 \bottomrule
 \end{tabular}
 \end{table}

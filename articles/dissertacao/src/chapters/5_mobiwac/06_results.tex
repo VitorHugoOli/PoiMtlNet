@@ -110,7 +110,7 @@ difference against the values in Table~\ref{tab:mobiwac:representation}. A featu
 per-visit features that our graph reads (the category one-hot plus hour and
 day-of-week encodings) and feeds the result to the same single-task model. On
 the category axis, at Alabama, Arizona, and Florida this control raises the
-place embedding by $+2.0$, $+1.7$, and $+0.8$ macro-F1, against
+place embedding by $+1.73$, $+1.70$, and $+1.02$ macro-F1, against
 place-to-check-in gaps of $+1.62$, $+2.58$, and $+0.23$ at the same states
 (Table~\ref{tab:mobiwac:representation}). Most of the category difference is
 therefore already available in the raw per-visit features; what the
@@ -379,7 +379,16 @@ comparison deserves a direct word rather than being left for the reader to assem
 % sliding-window protocol and fold splits" -> "under our own sliding-window protocol, with
 % user-grouped folds": the floor's folds are user-grouped (StratifiedGroupKFold) but drawn at seed
 % 42, not the delivered seeds, so "fold splits" implied a shared partition that does not exist.
-HMT-GRN falls below it at all six, the ReHDM reference at three, and STAN at four. Two
+% [2026-10-01, AUTHOR-APPROVED A4 (subtraction only), Table B.5 row] (2) Removed: "HMT-GRN falls
+% below it at all six, the ReHDM reference at three, and STAN at four." (3) "HMT-GRN is evaluated
+% on the same data, folds, and initialization as our models. STAN runs on the same folds, but builds
+% its own embeddings and its own sequences from the raw check-ins." -> "The external systems run on
+% their own embeddings and splits." Ground: the printed HMT-GRN run (June) used a partition that
+% is not the delivered one (AL n_val [19269, 19265, 19264, 19264, 19264] vs delivered [19265,
+% 19264, 19265, 19267, 19265]; counts-only JSON, input file gone), so no external is said to run on
+% our folds. The lead sentence, the floor explanation (stride-1 windows; 32.9% at Alabama), the
+% "two facts" frame and the ReHDM sentence are untouched; the paragraph was re-read whole.
+Two
 facts about how these numbers were produced bear on that comparison. The first concerns
 the floor: it is computed under our own sliding-window protocol, with user-grouped folds. Those
 windows advance one visit at a time, so the region of the last visit is a strong predictor
@@ -393,9 +402,8 @@ windows.
 % A first attempt at this replacement quoted acc1_mean 0.32064 instead, which is a fitted table's
 % top-1 ACCURACY rather than a share of windows -- the same wrong-quantity class, caught in review.
 The second
-fact concerns the three systems, which do not meet the floor on equal terms. HMT-GRN is
-evaluated on the same data, folds, and initialization as our models. STAN runs on the same
-folds, but builds its own embeddings and its own sequences from the raw check-ins. The
+fact concerns the three systems, which do not meet the floor on equal terms. The external
+systems run on their own embeddings and splits. The
 ReHDM reference runs under its own published protocol, so its result is not measured on our
 windows or folds at all.
 
