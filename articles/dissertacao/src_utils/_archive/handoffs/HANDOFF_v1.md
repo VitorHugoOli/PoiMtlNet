@@ -88,7 +88,7 @@ Every planned component, its Phase-0 status, and where it landed in v1.
   `src_utils/_specialists_v1/` (the three configured-profile runs on the corrected v1).
 - **Exemplars:** `exemples/` now holds five calibration dissertations (germano, viegas, +
   round-2: canesche, passe, lapsusvgi with PROVENANCE.md each); the deepened analysis is
-  `docs/research/calibration_recheck_2026-07-24.md`. `exemples/` is gitignored (large PDFs).
+  `reviewers/research/calibration_recheck_2026-07-24.md`. `exemples/` is gitignored (large PDFs).
 - **Freeze:** `storyline/` and `fundamentals/` are FROZEN (READMEs carry the pointer); `src/`
   is the single working copy. Edit `src/chapters/` and rebuild — never the draft folders.
 - **Commits (this build, `draft(ai):` prefix):** phase0b `415c5cd3`, skeleton `a735b8f3`,

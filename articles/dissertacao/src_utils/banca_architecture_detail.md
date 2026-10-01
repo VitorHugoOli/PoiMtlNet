@@ -87,7 +87,7 @@ detail is load-bearing for an argument the chapter *does* make.
 
 ### 1c · One more thing the examiner is empowered to do
 
-`docs/research/banca_evaluation_research_2026-07-20.md`:28 records that under the UFV Normas "the
+`reviewers/research/banca_evaluation_research_2026-07-20.md`:28 records that under the UFV Normas "the
 banca is explicitly empowered to demand changes in **'forma, linguagem e conteúdo'**". Published
 status does not immunize a chapter from a *requested* correction — and it certainly does not
 immunize the frame. A committee that wants a method appendix can simply require one as a correção

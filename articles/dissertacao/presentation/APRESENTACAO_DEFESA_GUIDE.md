@@ -89,7 +89,7 @@ para o artigo — mensagem de 28/07 no WhatsApp).
 ## 3 · Como a banca de fato avalia (já pesquisado no repositório)
 
 Um levantamento completo já existe em
-[`../docs/research/banca_evaluation_research_2026-07-20.md`](../docs/research/banca_evaluation_research_2026-07-20.md)
+[`../reviewers/research/banca_evaluation_research_2026-07-20.md`](../reviewers/research/banca_evaluation_research_2026-07-20.md)
 (pesquisa anterior, 8 fontes citadas, brasileiras + rubricas internacionais). Não duplico aqui —
 pontos que se aplicam **especificamente à apresentação** (não à arguição em si):
 
@@ -179,7 +179,7 @@ para a banca de onde a fala está, e quanto falta, sem precisar perguntar.
 Note que a coletânea dessa defesa tem **quatro** blocos de conteúdo entre a introdução e a conclusão
 (um mapeamento sistemático + três sistemas/estudos: OD4CoT, Micélio, Aplicação FL) — um a mais que os
 seus três artigos (CBIC, CoUrb, MobiWac). Isso é coerente com o padrão que a pesquisa de banca já
-registrada em `../docs/research/banca_evaluation_research_2026-07-20.md` também aponta: cada bloco
+registrada em `../reviewers/research/banca_evaluation_research_2026-07-20.md` também aponta: cada bloco
 vira uma seção própria de tamanho proporcional ao seu conteúdo, não um resumo igualado.
 
 **Uma diferença de formato a notar:** o apresentador dessa defesa apresentou **em pé, numa sala física com projetor**
@@ -195,7 +195,7 @@ narrado na transição entre seções, não deixado implícito. **O que muda:** 
 *reaproveitar um resultado* (o classificador de lixo reaparece dentro do estudo de caso final). O seu
 elo é *uma evolução de entendimento* — cada artigo corrige ou refina o anterior — que é exatamente o
 padrão que a pesquisa de banca já registrada elogia como "honesto" e pune quando fica implícito
-(`../docs/research/banca_evaluation_research_2026-07-20.md` §7: *"an honest evolution narrative...
+(`../reviewers/research/banca_evaluation_research_2026-07-20.md` §7: *"an honest evolution narrative...
 turns the coletânea's weakness into evidence of scientific process"*; §6: *"frame chapters that only
 summarize papers"* é o principal jeito de errar isso). **Isto é um rascunho seu para calibrar no
 ensaio (§7) e validar com o Fabrício — não é uma prescrição fechada.**
@@ -319,7 +319,7 @@ Nada aqui bloqueia a preparação dos slides, mas ficaram sem resposta encontrá
 | Ausência de template de slides / site fora do ar | `ppgcc.ufv.br/?page_id=1032`, `sites.google.com/site/mestradodpi/` (404), busca web | Verificado nesta sessão |
 | Formato de convite de defesa (referência) | `[mestrado-cc-dpi:6101]`, defesa de Paula T. M. Gibrim, 10/08/2026 | Lido nesta sessão |
 | Estrutura real, timing real, seção-por-artigo (a defesa de referência Santana) | `/Volumes/linux/VIDEO/Screen Recording 2026-07-08 at 10.02.56.mov` | Analisado nesta sessão (ffmpeg, frames extraídos e lidos no horário do Meet); trechos da gravação sem o Meet em foco (conteúdo pessoal do usuário) foram identificados e **não** usados |
-| Dinâmica e critérios da banca | `../docs/research/banca_evaluation_research_2026-07-20.md` | Já no repo (pesquisa anterior, não refeita) |
+| Dinâmica e critérios da banca | `../reviewers/research/banca_evaluation_research_2026-07-20.md` | Já no repo (pesquisa anterior, não refeita) |
 | Perguntas prováveis + respostas | `../wrapup/open_points/ARGUICAO.md`, `../wrapup/erratas/RESPOSTAS_ORAIS.md` | Já no repo |
 | Estrutura/timing de slides, regras de forma | Shan Barkataki (CSUN), *Rough Guidelines for Masters Defense Preparation and Presentation* | Web, lido nesta sessão — única fonte encontrada com esse nível de detalhe; não é da UFV, tratado como orientação genérica adaptada |
 | Preferências do orientador (título, tom, IA) | WhatsApp, grupo "Pesquisa - MTL", 2026-07-27/28 | Lido nesta sessão |

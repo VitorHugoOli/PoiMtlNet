@@ -3954,8 +3954,8 @@ document" without editing a single protected claim or number.
 > Persona: `reviewers/16_ai_credibility.md`. Runs AFTER persona 03 (style gate). Two readers in
 > one report: (1) the **screener** (a 2026-grade detector pass, Pangram-class, with the
 > hybrid-text windowing caveat) and (2) the **suspicious expert** (a well-read CS examiner
-> keying on gestalt). Evidence base: `docs/research/ai_detection_landscape_2026-07-20.md` +
-> `docs/research/ai_writing_evidence_2026-07-18.md`, refreshed this session (§7). Read-only.
+> keying on gestalt). Evidence base: `reviewers/research/ai_detection_landscape_2026-07-20.md` +
+> `reviewers/research/ai_writing_evidence_2026-07-18.md`, refreshed this session (§7). Read-only.
 > Does NOT re-run 03's counted sweeps (banned words, -ly density) — references 03's report.
 > Scope: full defense build (`src/main_defense.pdf`, 87 pp) + sources (`src/chapters/*.tex`,
 > `src/0_main.tex`). Snapshot 2026-07-23.

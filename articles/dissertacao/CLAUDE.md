@@ -269,7 +269,7 @@ rebuild it with `make defense`).
 | [`wrapup/`](wrapup/) | everything that happened **after** the submission: the supplement, the erratas, the open points, the post-submission studies, the rescued evidence | **yes — this is the front line.** Start here for anything defense-related |
 | [`src_utils/`](src_utils/) | the build + gate toolchain, and the round-by-round audit trail | **yes, load-bearing.** `check.sh` executes `_round9` code and delivered `.tex` files cite `_round6…_round14` by path. **Do not prune the underscore dirs** |
 | [`science/`](science/) | internal scientific records (integrity studies, trunk-gain attribution, the technical appendix) + cited article PDFs | yes. The delivered source cites `science/` paths 19× |
-| [`docs/`](docs/) | official UFV PDFs (submission manual) + the 2026-07-18 research records | yes — the deposit is still ahead |
+| [`reviewers/research/`](reviewers/research/) | the 2026-07 research records behind the reviewer personas and the banca guide (were `docs/research/` until 2026-09-30); `wrapup/CONFERENCE_VENUES.md` came from the same folder | reference |
 | [`reviewers/`](reviewers/) | 19 invocable reviewer personas | yes — several fire again before the defense and the deposit |
 | [`science/fundamentals/`](science/fundamentals/), [`science/storyline/`](science/storyline/) | frozen chapter drafts | **frozen, but do not move them.** The delivered text cites paths inside both (21 `science/fundamentals/_bib` provenance hits in `references.bib`; `science/storyline/audit/` from `preamble.tex` (o comentario de proveniencia que cita `AVAL_NECESSARIA_3_ptBR.md`) and three chapters) |
 | [`archive/`](archive/) | spent planning + single-use scaffolding | **no — nothing here is a source.** See its README |

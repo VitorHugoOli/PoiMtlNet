@@ -289,7 +289,7 @@ Measured from the source:
 - `src/preamble.tex:44` loads `abntex2-UFV.sty`; `src/abntex2-num.bst` is the ABNT numeric
   bibliography style, header `abntex2-num.bst, v<VERSION> laurocesar … abnTeX2 group`.
 - `src/content.tex:333` and `src/main_extra.tex:338` call `\bibliography{references}`.
-- The deposit norms, recorded in `docs/research/norms_verification_2026-07-18.md` (each URL there
+- The deposit norms, recorded in `reviewers/research/norms_verification_2026-07-18.md` (each URL there
   verified in that session, not this one): UFV/PPGCC requires conformance to **ABNT NBR 14724:2011**
   and **NBR 6023:2018**, plus the PPGCC pre-textual checklist and the UFV Word models.
 - `WRITING_LAW.md:35` already contains a ruling that turns on exactly this precedence: terminal
@@ -361,7 +361,7 @@ venue but the manuscript in `articles/[mobiwac]/src/` uses `\IEEEauthorblockN`).
 - **ACM:** **[VERIFY]** `www.acm.org` is outside the sandbox allowlist and I did not request it, on
   the ground that the IEEE finding plus the ABNT precedence finding already decide the item; opening
   a third style guide would not change the disposition. **No ACM claim is made in this report.**
-- **ABNT:** nothing in the norms record (`docs/research/norms_verification_2026-07-18.md`) addresses
+- **ABNT:** nothing in the norms record (`reviewers/research/norms_verification_2026-07-18.md`) addresses
   English-language compound hyphenation, and it would be surprising if it did: NBR 14724 and NBR
   6023 govern structure and references, not English orthography. **[VERIFY]** I did not open the
   NBR texts themselves this session (they are paywalled ABNT standards); the statement here is
@@ -667,7 +667,7 @@ mismatch is grammatically right.
 | 10 | Yu et al., PCGrad | arXiv:2001.06782 | **NOT OPENED** — four consecutive HTTP 429 from the arXiv API | **[VERIFY]** no title claim made |
 | 11 | IEEE Editorial Style Manual for Authors | `journals.ieeeauthorcenter.ieee.org/…/IEEE-Editorial-Style-Manual-for-Authors.pdf` | Downloaded HTTP 200, 809,723 bytes; pages 21, 22, 26, 27 read | §3.3: compound-modifier rule; "most important hyphenation guideline is… consistent within a particular article" |
 | 12 | APA Style, *Hyphenation principles* | `apastyle.apa.org/style-grammar-guidelines/spelling-hyphenation/hyphenation` | **Bot-challenged, page NOT rendered.** Content from the indexed version of that page | **[VERIFY]** §3.2: compound-adjective rule before/after the noun; prefixes usually unhyphenated |
-| 13 | UFV/PPGCC deposit norms | — | `docs/research/norms_verification_2026-07-18.md`, read in-repo (its URLs were verified in that session, not this one) | §3.1: NBR 14724:2011 + NBR 6023:2018 govern; no APA |
+| 13 | UFV/PPGCC deposit norms | — | `reviewers/research/norms_verification_2026-07-18.md`, read in-repo (its URLs were verified in that session, not this one) | §3.1: NBR 14724:2011 + NBR 6023:2018 govern; no APA |
 | 14 | This document's own build | — | `src/preamble.tex:40,44,120`; `src/abntex2-num.bst` header; `src/content.tex:333` | §3.1: abntex2 class, `abntex2cite[num]`, ABNT numeric `.bst` |
 | 15 | CBIC submitted source | — | `articles/CBIC___MTL/main.tex:31`, `sections/conclusion.tex:17`, `sections/intro.tex:34`, `sections/results.tex:15`, `sections/basis.tex:23` | §5.1, §5.3, §5.5, §8 |
 | 16 | MobiWac submitted source | — | `articles/[mobiwac]/src/main.tex:51-52` | §5.2 |

@@ -38,7 +38,7 @@ PPGCC/UFV · formato coletânea de artigos (CBIC → CoUrb → MobiWac)
 | **o que ficou por fazer** | `ACHADOS.md` (raiz) e `wrapup/open_points/LACUNAS.md` |
 
 Fora do caminho principal: `reviewers/` (19 perfis de revisão usados na redação),
-`archive/`, `docs/` (manuais da UFV), `exemples/` (dissertações de exemplo, fora do git).
+`archive/`, `reviewers/research/` (as notas de pesquisa que fundamentam as personas), `exemples/` (dissertações de exemplo, fora do git).
 
 ---
 

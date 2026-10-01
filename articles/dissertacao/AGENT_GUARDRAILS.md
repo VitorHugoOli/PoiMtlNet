@@ -617,7 +617,7 @@ Science Advances 2025 (excess vocabulary, ≥13.5% of 2024 abstracts); Matsui 20
 already measurable); Terčon & Dobrovoljc 2025 survey (POS-profile tells); refsmmat per-model word
 rates (Claude "genuinely" ~10×). Paragraph-level and long-form additions (2026-08-21, individually
 source-verified, not taken from a sub-agent's paraphrase — see the addendum in
-`docs/research/ai_writing_evidence_2026-07-18.md`): Kim, Chang, Pham & Iyyer, *Argument Collapse*
+`reviewers/research/ai_writing_evidence_2026-07-18.md`): Kim, Chang, Pham & Iyyer, *Argument Collapse*
 (arXiv 2606.01736, 2026 — claim-first "fixed arc," 65.3% vs 3.4% argument-uniqueness gap); Bao,
 Zhao, Mao & Zhang (arXiv 2505.12218, 2025 — connective-word loss, largest shift in CS abstracts of
 any discipline measured); Gude, Santos-Ríos, Bond, Flickinger, Gómez-Rodríguez & Zamaraeva, *More
@@ -626,5 +626,5 @@ Aligned, Less Diverse?* (arXiv 2605.06030, 2026 — 15–30% longer sentences th
 GT 2025 (+ NT 3/2025 via secondary sources — verify before citing verbatim); ICMJE 04/2025;
 publisher policies (Elsevier/Springer/IEEE/ACM); U. Georgia / U. Toronto thesis policies; Unifesp
 Res. 17/2025; Unicamp PRPG 2025. **Full findings with every URL:**
-[`docs/research/ai_writing_evidence_2026-07-18.md`](docs/research/ai_writing_evidence_2026-07-18.md)
+[`reviewers/research/ai_writing_evidence_2026-07-18.md`](reviewers/research/ai_writing_evidence_2026-07-18.md)
 (kept verbatim; also the source pool for the dissertation's own disclosure appendix if needed).

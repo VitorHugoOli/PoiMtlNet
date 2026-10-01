@@ -1,7 +1,7 @@
 # CONFERENCE_VENUES.md — candidate venues for post-defense publications
 
-> Curated from the raw research records `docs/research/qualis_classification_2026-07-20.md`,
-> `docs/research/qualis_a4_venue_candidates_2026-07-20.md`, and three follow-up verification
+> Curated from the raw research records `reviewers/research/qualis_classification_2026-07-20.md`,
+> `reviewers/research/qualis_a4_venue_candidates_2026-07-20.md`, and three follow-up verification
 > passes (2026-07-20). Scope: Qualis A4 (CAPES, área Computação) events thematically close to the
 > dissertation (mobilidade humana, POI/LBSN, redes neurais, aprendizado de máquina/MTL, big data,
 > redes de computadores), checked for **whether they are still an active series** and **whether a
@@ -82,8 +82,8 @@ Dado que a submissão-alvo é pós-defesa (~set/2026+), a jogada mais defensáve
 
 ## sources
 
-Raw research: `docs/research/qualis_classification_2026-07-20.md`,
-`docs/research/qualis_a4_venue_candidates_2026-07-20.md`. Follow-up verification agents
+Raw research: `reviewers/research/qualis_classification_2026-07-20.md`,
+`reviewers/research/qualis_a4_venue_candidates_2026-07-20.md`. Follow-up verification agents
 (2026-07-20): NTMS/WD deep-dive (DBLP, IFIP calendar, DNAC portfolio, IEEE Xplore/Crossref, EDAS);
 ENIAC/CIARP (bracis.sbc.org.br/2026/eniac, ciarp2026.ibero.mx + IAPR/WikiCFP/sciltp aggregators);
 MASCOTS/EDGE/NCA/WEBIST/HIS (mascots26.iitis.pl, services.conferences.computer.org/2026/edge,

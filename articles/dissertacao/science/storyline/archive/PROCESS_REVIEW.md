@@ -1208,7 +1208,7 @@ any number promoted into chapter prose must re-verify at adaptation (N1). Key tr
   `../../../../fundamentals/2.5_relevance/2.5_relevance.tex`, `model_lineage_table.md`,
   `fundamentals.tex`; intended spine → `NORTH_STAR.md` §1–§3, §6.
 - Honesty bounds → `WRITING_LAW.md` §3, §5; `AGENT_GUARDRAILS.md` §1–§3, §7; `GLOSSARY.md`.
-- Excellence/coletânea calibration → `docs/research/dissertation_excellence_2026-07-20.md` (opened
+- Excellence/coletânea calibration → `reviewers/research/dissertation_excellence_2026-07-20.md` (opened
   this session, firsthand) + `exemples/viegas/VIEGAS_ANALYSIS.md`; external searches below.
 
 ### External calibration note (§E references) — provenance corrected
@@ -1218,7 +1218,7 @@ any number promoted into chapter prose must re-verify at adaptation (N1). Key tr
 Both returned **titles and URLs only; no page body was retrieved and no page was opened**. They
 therefore provide **no firsthand external grounding**, and I do not cite them as support. Every
 load-bearing external claim in §E below is re-anchored on the **internal excellence doc**
-(`docs/research/dissertation_excellence_2026-07-20.md`), which *was* opened firsthand this session and
+(`reviewers/research/dissertation_excellence_2026-07-20.md`), which *was* opened firsthand this session and
 already contains the relevant examiner-research findings with their identifiers. Convention claims
 that appear in neither the internal doc nor an opened page are marked **[VERIFY]** (general domain
 knowledge, to confirm against a source before any of it enters chapter prose).
@@ -2192,6 +2192,6 @@ topology. Files 02 and 08 address this in full. Two pass-1 claims were corrected
 Two web searches run this session ("negative-result framing"; "compilation-thesis unity") returned
 titles/URLs only; no page was opened, so they provide no firsthand external grounding. External
 calibration in these files is re-anchored on the internal excellence doc
-(`docs/research/dissertation_excellence_2026-07-20.md`), opened firsthand; un-opened specifics are
+(`reviewers/research/dissertation_excellence_2026-07-20.md`), opened firsthand; un-opened specifics are
 [VERIFY]. An OpenAlex sweep for a cleaner task-choice anchor returned only noise and produced no new
 citable reference (fail-closed: no new citation proposed).

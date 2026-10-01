@@ -56,7 +56,7 @@ resultado. A apresentação é o primeiro contato ao vivo, não a peça que muda
 custo de uma imperfeição pontual e **eleva muito o custo de parecer não dominar o próprio trabalho**
 — um número que não bate com a Tabela 9/10, uma notação que diverge do documento, um termo que muda
 de nome entre slides. O levantamento completo está em
-[`../docs/research/banca_evaluation_research_2026-07-20.md`](../docs/research/banca_evaluation_research_2026-07-20.md).
+[`../reviewers/research/banca_evaluation_research_2026-07-20.md`](../reviewers/research/banca_evaluation_research_2026-07-20.md).
 
 ---
 

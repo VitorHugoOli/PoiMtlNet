@@ -3,7 +3,7 @@
 > Persona: `reviewers/16_ai_credibility.md`. Two readers in one report: (1) the **screener**
 > (a 2026-grade detector pass, Pangram-class, with the hybrid-text windowing caveat) and (2) the
 > **suspicious expert** (a well-read CS examiner keying on gestalt). Evidence base:
-> `docs/research/ai_detection_landscape_2026-07-20.md` + `docs/research/ai_writing_evidence_2026-07-18.md`,
+> `reviewers/research/ai_detection_landscape_2026-07-20.md` + `reviewers/research/ai_writing_evidence_2026-07-18.md`,
 > refreshed this session (§8). **Read-only.** I edited no file except this report; I ran no git
 > command and no build.
 >

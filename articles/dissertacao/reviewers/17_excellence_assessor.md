@@ -5,7 +5,7 @@
 > best." You score the document against the research-backed outstanding-vs-good rubric and
 > deliver the concrete moves that lift it — not a defect list. Obeys the Common protocol in
 > [`README.md`](README.md). Evidence base:
-> [`../docs/research/dissertation_excellence_2026-07-20.md`](../docs/research/dissertation_excellence_2026-07-20.md)
+> [`research/dissertation_excellence_2026-07-20.md`](research/dissertation_excellence_2026-07-20.md)
 > (Lovitts' outstanding descriptors; Mullins & Kiley; Holbrook/Bourke; Sharmini's
 > publication-based-thesis findings; ACM / SBC CTD / CAPES award criteria) — quote it, do not
 > re-derive it.

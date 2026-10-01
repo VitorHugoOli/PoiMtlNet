@@ -199,6 +199,6 @@ most recent complete nominal listing found; whether it still governs 2025/2026 (
 "Qualis Eventos 2025" Sucupira cycle, unconfirmed per-venue) and whether B4/B2 actually clear
 the Art. 21 "resolução interna" bar (not itself located) is **still the open question for the
 secretariat** — full findings + sources in
-[`docs/research/qualis_classification_2026-07-20.md`](docs/research/qualis_classification_2026-07-20.md);
+[`reviewers/research/qualis_classification_2026-07-20.md`](reviewers/research/qualis_classification_2026-07-20.md);
 (b) ~~CBIC proceedings entry/DOI~~ RESOLVED 2026-07-18 (`10.21528/CBIC2025-1191324` verified);
 (c) CAPES NT 3/2025 primary text.

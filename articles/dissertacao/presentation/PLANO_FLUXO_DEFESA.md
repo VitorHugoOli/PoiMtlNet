@@ -55,7 +55,7 @@ Essa espinha **não foi inventada para a apresentação**. É a do próprio docu
 > terceiro testa a solução resultante. Essa progressão é ela própria parte da contribuição,
 > porque cada estudo estreita a explicação sustentada pela evidência."*
 
-Isso importa porque é exatamente o que a pesquisa de banca (`../docs/research/banca_evaluation_research_2026-07-20.md`)
+Isso importa porque é exatamente o que a pesquisa de banca (`../reviewers/research/banca_evaluation_research_2026-07-20.md`)
 identifica como a diferença entre uma coletânea que funciona e uma que falha: §6 diz que "capítulos de moldura que
 apenas resumem os artigos" é o principal modo de errar; §7 diz que "uma narrativa de evolução honesta transforma a
 fraqueza do formato em evidência de processo científico".

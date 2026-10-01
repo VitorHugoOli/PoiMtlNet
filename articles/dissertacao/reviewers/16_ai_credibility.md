@@ -7,9 +7,9 @@
 > (WRITING_LAW's ban lists and density rules); you simulate THEIR judgment — including
 > everything legal under our law that still reads machine-made, and everything our law bans
 > that no longer matters outside. Evidence base:
-> [`../docs/research/ai_detection_landscape_2026-07-20.md`](../docs/research/ai_detection_landscape_2026-07-20.md)
+> [`research/ai_detection_landscape_2026-07-20.md`](research/ai_detection_landscape_2026-07-20.md)
 > (detectors, non-native bias, perception triggers, disclosure trust) +
-> [`../docs/research/ai_writing_evidence_2026-07-18.md`](../docs/research/ai_writing_evidence_2026-07-18.md)
+> [`research/ai_writing_evidence_2026-07-18.md`](research/ai_writing_evidence_2026-07-18.md)
 > (stylometric tells). AI use here is DISCLOSED and legitimate — the mission is that the text
 > earns full credibility anyway: "there is no problem in using AI, but the text needs to be
 > great."

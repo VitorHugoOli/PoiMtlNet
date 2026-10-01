@@ -1,7 +1,7 @@
 # Review — 17 · Excellence assessor (gap-to-outstanding)
 
 - **Persona:** `reviewers/17_excellence_assessor.md` (strategy persona; scores against the
-  positive descriptors of `docs/research/dissertation_excellence_2026-07-20.md` §ACTIONABLE_RUBRIC
+  positive descriptors of `reviewers/research/dissertation_excellence_2026-07-20.md` §ACTIONABLE_RUBRIC
   and screens §ANTI_PATTERNS).
 - **Build commit:** `901a0408`
 - **Date:** 2026-07-30 (started 11:41 UTC, report written at the 30-minute checkpoint).
@@ -19,13 +19,13 @@
     `src/content.tex`, `src/main_extra.tex`.
   - Law/rubric: `AGENT_GUARDRAILS.md` §0–§4b, `WRITING_LAW.md` §1–§3 (headers of §4–§7),
     `GLOSSARY.md` §1–§4, `NORTH_STAR.md` §1–§6, `reviewers/README.md`,
-    `docs/research/dissertation_excellence_2026-07-20.md` §ACTIONABLE_RUBRIC + §ANTI_PATTERNS.
+    `reviewers/research/dissertation_excellence_2026-07-20.md` §ACTIONABLE_RUBRIC + §ANTI_PATTERNS.
 - **Exact commands run** (working directory `/Users/vitor/Desktop/mestrado/ingred/articles/dissertacao`):
   ```
   git log -1 --format="%H %ad %s"
   python3 -c "import pypdfium2 as pdfium; pdf=pdfium.PdfDocument('src/build/main.pdf'); ..."   # per-page text -> r9x/pages.json
   wc -l src/chapters/*.tex src/content.tex
-  sed -n '84,116p' docs/research/dissertation_excellence_2026-07-20.md
+  sed -n '84,116p' reviewers/research/dissertation_excellence_2026-07-20.md
   sed -n '/^## 3/,/^## 4/p' WRITING_LAW.md
   grep -in "deploy" GLOSSARY.md
   grep -vn '^[[:space:]]*%' src/chapters/6_conclusion.tex | grep -nE '[0-9]+\.[0-9]'
