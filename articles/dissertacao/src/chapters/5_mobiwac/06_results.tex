@@ -93,10 +93,23 @@ CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each
 % [2026-09-02, AUTHOR-APPROVED, errata Table B.5 of the supplement; Q13] Two defects in the
 % concatenation-control sentences. (1) NUMBER: "under a tenth of the place-to-check-in gap" is
 % contradicted by Table 9, printed right below: the gaps are +1.62 (AL), +2.58 (AZ), +0.23 (FL),
-% so the cited gains of +2.0 / +1.7 / +0.8 are 123% / 66% / 348% of them, not under a tenth. The
-% delivered gains and the delivered Table 9 gaps are kept as the pair (internally consistent);
-% the re-run in wrapup/erratas/errata_Q13_concatenation_scope.tex (+1.73/+1.70/+1.02 vs
-% 1.56/2.50/0.21) is NOT quoted: it does not reproduce Table 9 fold by fold and the cause is open.
+% so the cited gains of +2.0 / +1.7 / +0.8 are 123% / 66% / 348% of them, not under a tenth.
+% [2026-10-01, AUTHOR-APPROVED A2, Table B.5 row] The gains now printed are the paired re-run's
+% +1.73 / +1.70 / +1.02 (AL / AZ / FL), replacing +2.0 / +1.7 / +0.8, which came from an earlier
+% screen under a different protocol. On 2026-09-02 the re-run was excluded here as "not reproducing
+% Table 9 fold by fold, cause open"; that was an overreach, withdrawn against the artifact
+% docs/results/closing_data/v18/concat_control_q13/runs/kept/<state>_{place,feat,checkin}/ (driver
+% drivers/driver_q13_final.sh: next_gru, bs 8192, max_lr 0.0025, logit-adjust tau 0.5, seed 0, five
+% folds, 50 epochs, fp32; feat = place embedding + the 11 per-visit features, engine hgi_ovl_feat,
+% embed_dim 75). Writer's re-measurement from metrics/fold{k}_next_val.csv, best-epoch f1 per fold:
+% place 29.15 / 32.00 / 37.15, feat 30.88 / 33.70 / 38.17, checkin 30.71 / 34.50 / 37.36, so
+% feat - place = +1.73 / +1.70 / +1.02 and checkin - place = +1.56 / +2.50 / +0.21. Against Table 9's
+% place folds (v18_place_level/<state>_s0_cat_placelevel.json): AL identical in all five folds
+% (29.73, 29.74, 28.05, 28.44, 29.78), AZ within 0.19 per fold, FL within 0.09 (37.15 vs 37.13 mean).
+% Precision: two decimals, as the gaps beside them. The paragraph's conclusion was re-read against
+% the new values: the control exceeds the Table 9 gap at AL (1.73 > 1.62) and FL (1.02 > 0.23) and
+% reaches 66% of it at AZ (1.70 of 2.58), so "most of the category difference is already available
+% in the raw per-visit features" stands unchanged.
 % (2) INFERENCE: "the gain therefore comes from the hierarchical per-visit representation, not
 % from ... feature injection" was the reverse of what the numbers show, and the drafted errata's
 % inversion ("comes mostly from the per-visit features ... not from the hierarchical structure")
