@@ -799,6 +799,49 @@ ponteiros de linha.
 
 ---
 
+## A13 · A reorganização para o repositório do departamento (2026-09-30 a 10-01)
+
+Aprovada pelo autor a 2026-09-30, com o teste de duas faces (§A12) e a resposta à pergunta da
+migração: o repositório do departamento nasce **sem histórico**, a partir do commit final.
+Executada no ramo `dissertacao/organizacao-final`, em 8 commits separados, seguindo o plano do Fable.
+
+| | antes | depois |
+|---|---|---|
+| ficheiros rastreados | 592 | **508** |
+| pastas no topo de `src_utils/` | 16 | **4** (`_fixtures`, `_history`, `adaptation_ledgers`, `evidence`) |
+| `.md` soltos na raiz | 9 | **8** (o `ACHADOS.md` veio para aqui) |
+| links relativos partidos | 42 | **27** |
+
+85 removidos (binários e dados brutos que ninguém lia, cópias derivadas, rascunhos superados), 164
+movidos (`docs/` → `reviewers/research/` + `wrapup/`; `presentation/_preparacao/`;
+`src_utils/evidence/`; `src_utils/_history/`), 70 editados no lugar (só caminhos e mapas).
+
+**Como se verificou.** Linha de base dos 18 portões tirada com `build/` feito, num ambiente fixo, e
+testada por sabotagem antes de lhe confiar. Depois de cada passo, saída idêntica. A única diferença
+de texto em todo o trabalho é o próprio caminho `_history/` (passo 7), e uma linha que o
+`check_verify_list` ecoa cortada a largura fixa. Nenhuma sonda deu SKIP. No texto entregue só
+mudaram comentários, sempre uma linha por uma linha.
+
+**O que nenhum diff mostrava, e foi apanhado:** dois scripts movidos encontram ficheiros por
+aritmética sobre `__file__` e partiam ao descer um nível (`35_wave_a_render_check.py`,
+`_check_pair_parity.py`). E a tag de segurança foi apagada **duas vezes** por `git fetch` de outras
+sessões (`fetch.pruneTags=true` no `~/.gitconfig`); a âncora durável é
+`refs/backup/dissertacao-pre-organizacao`.
+
+**Registo ficheiro a ficheiro:** reconstrói-se com
+`git diff -M --name-status "$(git log --format=%H --grep='^organizacao 1/8' -1)^" <fim> -- articles/dissertacao`; a razão de
+cada ficheiro está na mensagem do commit do passo.
+
+**Fica para o autor decidir:**
+- fundir o ramo no `main`, e empurrar a tag (local, cai a cada `fetch`);
+- as quatro fontes TikZ mortas em `presentation/figures/src/` (o README delas diz "só o autor decide");
+- **portabilidade:** o `VERIFY_LIST.md` e o `PENDENCIAS.md` têm blocos que o `check_verify_list`
+  executa com `cd /Users/vitor/...`; no clone do departamento esses `cd` falham;
+- dois ponteiros de fora da pasta que esta reorganização tornou falsos:
+  `articles/[mobiwac]/ERRATA.md` e `handoff/STORY_REVIEW.md` (fora do âmbito, não editados).
+
+---
+
 ## Procedência deste documento
 
 Verificado por mim `[V]`: A1, A2, A3, A4, A5, A6 (exceto o exit code do `make check`), A7, A9, B2, B3.
