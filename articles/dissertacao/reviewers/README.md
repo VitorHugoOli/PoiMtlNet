@@ -9,7 +9,7 @@
 > main table, a conclusion sentence that contradicted the baselines section, an unsourced "not
 > shown" measurement, and a mismatched random-baseline comparator. Personas 15–18 were added
 > 2026-07-20 (author spec + fresh web research, records in
-> [`../docs/research/`](../docs/research/)): the readability editor, the AI-credibility
+> [`research/`](research/)): the readability editor, the AI-credibility
 > reviewer, the excellence assessor, and the visual-presentation reviewer. Persona 19 (the
 > LaTeX source reviewer) was added 2026-07-27 (author spec + fresh web research on LaTeX best
 > practice, abnTeX2, and federal-university thesis sources): the source and build-engineering
