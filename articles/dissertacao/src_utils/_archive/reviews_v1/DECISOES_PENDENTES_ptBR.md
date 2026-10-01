@@ -5,7 +5,7 @@
 > reparo pronto, o caminho de aplicacao esta indicado. Nada aqui foi auto-aprovado; voce decide.
 >
 > Referencias uteis: `src_utils/HANDOFF_v1.md` (mapa completo + ordem), `src_utils/_review_v1/`
-> (relatorios das 18 personas), `src_utils/cbic_recompute_result.md` (numeros do CBIC).
+> (relatorios das 18 personas), `src_utils/evidence/cbic_recompute_result.md` (numeros do CBIC).
 > O PDF de defesa atual e `src/dissertacao.pdf` (87 pp).
 
 ---
@@ -70,7 +70,7 @@ ferramentas de MTL+POI como contribuicao, com um agente fazendo o scrape e forma
 com evidencias solidas.
 
 **FEITO nesta rodada.** Rodei um agente de levantamento (read-only) sobre a codebase. Evidencia
-completa (cada numero rastreavel a um comando) em `src_utils/etl_tooling_contribution_evidence.md`
+completa (cada numero rastreavel a um comando) em `src_utils/evidence/etl_tooling_contribution_evidence.md`
 + `handoff_tooling.json`. Numeros verificados: **192 modulos / 28.644 linhas** no `src/`; suite de
 embeddings separada; camada de testes de tamanho comparavel; ~1.700 commits; **3 familias de
 dataset** (Gowalla, Massive-STEPS, Foursquare), **8 engines de embedding** (DGI, HGI, Check2HGI...),

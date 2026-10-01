@@ -175,7 +175,7 @@ in v2. Judged against the four things I would have wanted:
    single name, and not by the party that collected the data… What is supportable is therefore a statement
    about the copy in hand… that Gowalla data as such is in the public domain is a broader claim, and
    nothing that could be opened supports it." I traced this to
-   `src_utils/DATASET_LICENSING_FINDINGS.md §1.2–1.3` and it reproduces faithfully, including the
+   `src_utils/evidence/DATASET_LICENSING_FINDINGS.md §1.2–1.3` and it reproduces faithfully, including the
    unreachable upstream. The one outstanding check the record names — that the Foursquare product terms
    were not read — **is printed to the reader** (p. 101). An appendix that names its own unfinished check
    is doing the job.

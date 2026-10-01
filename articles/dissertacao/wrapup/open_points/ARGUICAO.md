@@ -451,7 +451,7 @@ different extractions of that state, not different datasets and not a discrepanc
 mecanismo declarado e a tabela de mapeamento de categorias, estendida cerca de onze meses depois da
 extracao anterior, com os lugares acrescentados caindo majoritariamente em Entertainment, Outdoors e
 Travel; uma comparacao controlada confirma que cada POI, usuario e check-in da extracao anterior
-reaparece na atual, que adiciona outros. O registro esta em `src_utils/cbic_recompute_result.md`.
+reaparece na atual, que adiciona outros. O registro esta em `src_utils/evidence/cbic_recompute_result.md`.
 Os tres numeros do Cap. 3 sao, eles proprios, uma errata declarada: o artigo publicado deixou
 placeholders e os valores vieram da tabela publicada do CoUrb (suplemento, p. 7).
 **RESPOSTA FINAL:** Sao duas extracoes do mesmo estado do mesmo dataset publico, nao um conflito: a

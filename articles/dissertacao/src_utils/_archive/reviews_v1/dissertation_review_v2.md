@@ -500,7 +500,7 @@ input required. Ranked by exposure at the defense:
 1. **The data-ethics and governance statement (REV-026).** Zero rendered sentences on privacy,
    re-identification, licensing, or consent, in a dissertation whose object is per-user movement
    traces. The committee simulator asks about it directly. The licence research is done and sits in
-   `src_utils/DATASET_LICENSING_FINDINGS.md`; three facts are missing and only the author can supply
+   `src_utils/evidence/DATASET_LICENSING_FINDINGS.md`; three facts are missing and only the author can supply
    them.
 2. **The Chapter 4 static-task scope (REV-002).** Measured, unfavourable, and needing a co-author
    courtesy notice before anything is written.

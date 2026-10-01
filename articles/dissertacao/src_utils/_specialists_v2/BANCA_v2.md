@@ -191,7 +191,7 @@ A regex over all 94 pages for `privac|re-identif|anonym|consent|LGPD|GDPR|ethic|
 returns **zero matches**. The object of study is 9.5 million individual movement traces, split by
 user, with per-user sequences reconstructed and users treated as the unit of generalization. The
 repository already holds the verified evidence needed to write the paragraph
-(`src_utils/DATASET_LICENSING_FINDINGS.md`: the consumed copy is Figshare
+(`src_utils/evidence/DATASET_LICENSING_FINDINGS.md`: the consumed copy is Figshare
 DOI 10.6084/m9.figshare.22126586.v2 under CC0, a licence applied by the depositor, with the upstream
 source unreachable and rights provenance unestablished). The finding note itself says: "The
 dissertation currently renders zero sentences on data licensing." *Direction:* a short subsection
@@ -539,7 +539,7 @@ ten census tracts for a user's next visit is a re-identification surface, and th
 protocol makes that concrete, since the whole point is that predictions generalize to users the model
 never saw.
 **What the text supports — nothing at all.** Zero matches across the full text. The evidence to write
-the answer exists in the repository (`src_utils/DATASET_LICENSING_FINDINGS.md`, verified against the
+the answer exists in the repository (`src_utils/evidence/DATASET_LICENSING_FINDINGS.md`, verified against the
 Figshare API this session) but reaches no page. **This is the one question where the document offers
 the candidate no cover whatsoever, and it is a question a Brazilian banca in 2026 will ask.**
 See MAJOR-4.

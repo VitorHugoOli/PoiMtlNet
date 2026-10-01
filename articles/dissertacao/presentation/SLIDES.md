@@ -1384,7 +1384,7 @@ na tela, nos dois slides.
   - A controlled comparison confirms that **every POI, user and check-in of the earlier extraction reappears in the current one**, which adds others.
   - The three Chapter 3 figures are themselves a declared errata: the published article left placeholders, and the values come from the published CoUrb table.
 - **Fala (PT):** "São duas extrações do mesmo estado do mesmo conjunto público, não um conflito. A tabela de mapeamento de categorias foi estendida cerca de onze meses depois da extração anterior, e os lugares acrescentados caem majoritariamente em Entertainment, Outdoors e Travel. Uma comparação controlada confirma que cada POI, usuário e check-in da extração anterior reaparece na atual, que adiciona outros. Cada capítulo reporta o corpus como o pipeline da sua época o produziu, e os três números do Capítulo 3 são, eles próprios, uma errata declarada."
-- **Proveniência:** suplemento, §B.4, pp. 13-14; registro em `src_utils/cbic_recompute_result.md`.
+- **Proveniência:** suplemento, §B.4, pp. 13-14; registro em `src_utils/evidence/cbic_recompute_result.md`.
 - **Nunca dizer:** "superconjunto". Não há evidência de contenção declarada nesses termos no texto; o que há é a reaparição verificada de cada registro.
 
 ---

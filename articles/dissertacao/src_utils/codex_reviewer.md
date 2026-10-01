@@ -618,7 +618,7 @@ best configuration's mean with dispersion, and retain the narrower search/one-wi
 
 - **Severity:** Major
 - **Status:** Needs author input
-- **Files:** Dissertation-wide; `src_utils/DATASET_LICENSING_FINDINGS.md`
+- **Files:** Dissertation-wide; `src_utils/evidence/DATASET_LICENSING_FINDINGS.md`
 - **Section:** Missing reader-facing ethics/governance statement
 - **Reported by:** Reviewers 01, 07, 12, and 13
 - **Classification:** Confirmed omission; institutional facts required

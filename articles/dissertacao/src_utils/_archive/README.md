@@ -23,7 +23,7 @@ author) and `src_utils/codex_reviewer.md` (the external review, annotated with p
 |---|---|
 | `FRAME_INTEGRATION_REPORT.md` | How the three papers were stitched into one document |
 | `APPENDIX_D_EXPLAINED.md` | A working explanation of the benchmark appendix, written before the appendix was rewritten |
-| `cbic_recompute_result.md` | NOT archived. Still cited as provenance from `3_cbic.tex`, `apx_b_errata.tex` and `NORTH_STAR.md` |
+| `evidence/cbic_recompute_result.md` | NOT archived. Still cited as provenance from `3_cbic.tex`, `apx_b_errata.tex` and `NORTH_STAR.md` |
 
 ## `handoffs/` — machine handoff payloads
 
@@ -37,10 +37,10 @@ in the document; these are the raw payloads behind them.
 |---|---|
 | `PENDENCIAS.md` | The register of what needs the author |
 | `codex_reviewer.md`, `CODEX_VS_PERSONAS.md` | The external review and the seam against the persona suite. **`CODEX_AUDIT.md` is no longer live** — see the round-7 section below |
-| `DATASET_LICENSING_FINDINGS.md` | Every licence claim in Appendix E traces here |
-| `etl_tooling_contribution_evidence.md` | The evidence behind Appendix A's software-contribution claim |
-| `cbic_recompute_result.md` | Cited as provenance from three source files |
-| `BIB_MERGE_REPORT.md` | Cited from `apx_b_errata.tex` and `references.bib` |
+| `evidence/DATASET_LICENSING_FINDINGS.md` | Every licence claim in Appendix E traces here |
+| `evidence/etl_tooling_contribution_evidence.md` | The evidence behind Appendix A's software-contribution claim |
+| `evidence/cbic_recompute_result.md` | Cited as provenance from three source files |
+| `evidence/BIB_MERGE_REPORT.md` | Cited from `apx_b_errata.tex` and `references.bib` |
 | `build.sh`, `check.sh`, `check_trapped_prose.py`, `test_trapped_prose.py` | The build and gate toolchain |
 | `README_SRC.md` | The build recipe and TeX-tree notes |
 | `_review_v1/`, `_review_v2/`, `_specialists_v1/`, `_specialists_v2/`, `_gates/` | Reviewer reports, referenced by both registers |

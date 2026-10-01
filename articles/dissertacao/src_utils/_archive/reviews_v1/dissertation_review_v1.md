@@ -1392,7 +1392,7 @@ Synchronize or deprecate stale governance files after author confirmation.
 inaccurate sentence.**
 
 The counts are as reported: Ch.3 `:246` and Ch.4 `:238` give Florida 990,518 / 65,009 / 20,301; Ch.5 `:324` gives
-1,407,034 / 21,052 / 76,544. The author ruling of 24 July (`src_utils/cbic_recompute_result.md:1-10`,
+1,407,034 / 21,052 / 76,544. The author ruling of 24 July (`src_utils/evidence/cbic_recompute_result.md:1-10`,
 `DECISOES_PENDENTES_ptBR.md:59-60`) is recorded and applied, and the `[VERIFY]` on the dataset numbers is closed
 (`3_cbic.tex:255` is a cleared marker inside a comment; the only open `[VERIFY]` in the LaTeX is `main.tex:32`, an
 unrelated pagination parameter).

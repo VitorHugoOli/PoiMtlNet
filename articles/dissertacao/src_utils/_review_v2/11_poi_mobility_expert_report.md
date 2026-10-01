@@ -298,7 +298,7 @@ states from it \cite{cho2011gowalla}."*
 
 The consumed corpus is a different artifact. I measured the committed parquets: the union range is
 2009-01-21 to 2011-08-16 (Texas 2009-01-21 → 2011-08-16; California 2009-01-24 → 2011-08-14). The
-repo's own licensing audit says so explicitly — `src_utils/DATASET_LICENSING_FINDINGS.md:21-22`:
+repo's own licensing audit says so explicitly — `src_utils/evidence/DATASET_LICENSING_FINDINGS.md:21-22`:
 *"The SNAP/cho2011 dump (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the
 LBSN reference only."* Chapter 5's data footnote does name the actual deposit (rendered p59: *"the
 category-annotated Gowalla dump"* with the Figshare URL), so §2.4 contradicts the chapter it

@@ -36,7 +36,7 @@ rule (never absorb silently).
 1. **Title** — now set to a working option (*Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: …*);
    still needs the **final call with the advisor** (three alternates are commented in `0_main.tex`).
 2. **CBIC dataset counts** — recomputed this round via the sanctioned Gowalla ETL (Florida
-   subset); the result is in `src/src_utils/cbic_recompute_result.md` for the author to confirm
+   subset); the result is in `src/src_utils/evidence/cbic_recompute_result.md` for the author to confirm
    and wire into Ch.3 (still `[VERIFY]` until confirmed).
 3. Queued `[NEEDS SIGN-OFF]` items: Resumo/Abstract, AI-disclosure, several claim-scope rewordings.
 4. Author's remaining tier decisions — collected in `src/src_utils/_archive/reviews_v1/DECISOES_PENDENTES_ptBR.md`.

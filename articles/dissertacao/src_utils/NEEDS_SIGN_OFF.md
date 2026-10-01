@@ -2125,13 +2125,13 @@ enquanto Ch.3 e Ch.5 apontam para VitorHugoOli/PoiMtlNet (3_cbic/intro.tex:30; 5
 o Ch.4 é afirmado na nova prosa, pois é o único que os próprios capítulos evidenciam. O que a substituição passa a
 afirmar: os componentes do protocolo são do estudo final (5_mobiwac/05_setup.tex:32 para os testes pareados, a margem do
 TOST e o desenho de seed/fold; :359 para o prior de transição de região por fold construído a partir dos dados de
-treino) e estão implementados na plataforma (src_utils/etl_tooling_contribution_evidence.md §2.6: src/data/folds.py,
+treino) e estão implementados na plataforma (src_utils/evidence/etl_tooling_contribution_evidence.md §2.6: src/data/folds.py,
 StratifiedGroupKFold, 'leak-free per-fold region-transition prior'; Wilcoxon pareado e TOST sob scripts/). Nenhum número
 de contagem ou de desempenho foi adicionado.
 
 **O que decidir:** Confirmar se a nova redação -- que atribui os componentes de protocolo (testes pareados, margem TOST,
 desenho de seed/fold, prior de transição de região por fold) apenas ao estudo do Ch.5 (5_mobiwac/05_setup.tex:32 e :359)
-e a implementação à plataforma (src_utils/etl_tooling_contribution_evidence.md §2.6, src/data/folds.py,
+e a implementação à plataforma (src_utils/evidence/etl_tooling_contribution_evidence.md §2.6, src/data/folds.py,
 StratifiedGroupKFold, scripts/) -- está correta e pode ser mantida no lugar da frase original sobre codebase comum e
 procedimento de medição sem leakage.
 

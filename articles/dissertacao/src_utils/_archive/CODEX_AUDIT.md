@@ -516,7 +516,7 @@ Appendix E, "Data Ethics and Governance", renders on pp. 101–102 (listed in th
   stated from the record itself (the dedication was applied by the depositor, not the collector; the named origin site
   now redirects elsewhere, so its terms could not be read). Massive-STEPS under Apache 2.0 on Hugging Face, with the
   Foursquare upstream noted as access-gated and its product terms explicitly recorded as not read.
-  `src_utils/DATASET_LICENSING_FINDINGS.md` and the chapter's own comment record live re-verification on 2026-07-27,
+  `src_utils/evidence/DATASET_LICENSING_FINDINGS.md` and the chapter's own comment record live re-verification on 2026-07-27,
   including `gated="auto"` for the Foursquare distribution against `gated=false` for the Massive-STEPS copy.
 - Re-identification: "A user identifier in these files is a pseudonym and not a name, but a sequence of timestamped
   visits is still a description of one person's movements. Pseudonymity is not anonymity", cited to

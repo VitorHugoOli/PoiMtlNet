@@ -170,7 +170,7 @@ superseded number or claim read as the project's current state.
   (`N_users`, `N_poi`, `N_checkins` never inserted). **RESOLVED (author ruling 2026-07-24):** the
   CoUrb published Florida row is now the **source of record** for Ch.3 as well as Ch.4:
   **20,301 users / 65,009 POIs / 990,518 check-ins** (`tabela_dataset.tex`). Rationale recorded in
-  `src_utils/cbic_recompute_result.md`:1-10. The `filtrado.csv` artifact behind the earlier
+  `src_utils/evidence/cbic_recompute_result.md`:1-10. The `filtrado.csv` artifact behind the earlier
   recompute (10,460 / 64,454 / 960,520) comes from a prior ETL no longer in use; the CBIC paper
   never published these three statistics, so no published value is overridden, and one corpus
   figure now serves both chapters. The `[VERIFY]` flag is cleared, and the shipped text carries the
@@ -276,7 +276,7 @@ constraint rather than a scope limit. Cheap to extend, and it is frame prose, so
 > working option (*Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: …*) live at all echo points, with
 > the three alternates commented in `src/0_main.tex`; the final call rests with the advisor, so it
 > is "decided for now," not closed. **CBIC dataset counts** — recomputed this round via the
-> sanctioned Gowalla ETL (`src/src_utils/cbic_recompute_result.md`), pending author confirmation.
+> sanctioned Gowalla ETL (`src/src_utils/evidence/cbic_recompute_result.md`), pending author confirmation.
 > Nothing here was reopened.
 
 1. **Order** — ✅ SETTLED (author, 2026-07-18): CBIC → CoUrb → MobiWac (§2 above).
