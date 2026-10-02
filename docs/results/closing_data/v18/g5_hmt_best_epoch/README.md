@@ -39,8 +39,14 @@ on MPS. Per-state logs: `logs/full_<st>/` (AL/AZ/IST) and `logs/g5_fl_5f_r2/` (F
   folds 5/5 before training.
 - **FL:** the same code path. Its per-fold `n_val` (254,884 ×3 / 254,883 ×2) equals the June record's,
   and fold 0's train/val sizes (1,019,534 / 254,884) equal G1 FL fold 0's frozen split. That split
-  was independently reproduced from the same rows (A5-lite, `../g1_integrity_*`). **A full 5/5
-  user-set equality was not separately asserted for FL.**
+  was independently reproduced from the same rows (A5-lite, `../g1_integrity_*`).
+  **5/5 equality asserted on 2026-10-02 07:46.** `b3_hmt_grn.build_fold_split` was run on the
+  slim copy `b3` read and compared with the `train.py` rule (`load_next_data`'s label path:
+  `_map_categories`, `astype(int)`, NaN drop (0 NaN), int64 StratifiedGroupKFold, seed 0) run on
+  the full `dk_ovl` file. Result:
+  - train and val index shas are equal in every fold, and so are the val user sets;
+  - each fold's `n_val` equals the run JSON's;
+  - fold 0's `val_idx_sha256` equals G1 FL's frozen split.
 - **FL inputs are a slim copy.** Only the label columns `b3` reads were copied, plus the full
   `sequences_next`, with content hashes equal on both sides. See `FL_SLIM_COPY.md`. The 576 embedding
   columns are never read by `b3`.
