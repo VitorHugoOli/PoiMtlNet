@@ -464,6 +464,21 @@ to run on their own embeddings and splits; neither claim of
 shared folds remains. The per-system count is removed; the
 explanation of why the floor is strong stays. No number
 changes. \\
+\addlinespace
+% [2026-10-01] G3. O braco por lugar de Istambul (29,07) corria sobre um conjunto de janelas anterior
+% (343 795 linhas, contra 271 666 do v18) e nao era pareado. Refeito neste Mac (MPS, sem compile): o
+% braco por check-in reproduz a celula CUDA impressa (diferenca maxima por fold 0,03), e o par da
+% 32,54 e +2,81, com os 5 folds a favor. 1,05% dos alvos de IST alinhados aos rotulos do v18. Prova:
+% docs/results/closing_data/v18/istanbul_pair/. Ratio: 2,808 / 0,1947 (FL, ladder_recompute) = 14,4.
+The representation table gives Istanbul's place-level cell as
+$29.07$ and the check-in-level advantage there as $+6.29$, and
+the introduction, results and conclusion carry a range up to
+$+6.29$ and a ratio of thirty-two. &
+That place-level cell was not paired with the check-in cell; it
+ran on an earlier set of windows. Re-run paired, it is $32.54$,
+the advantage is $+2.81$ with all five folds favoring the
+check-in-level representation, the range ends at $+2.81$, and
+the ratio is about fourteen. The direction is unchanged. \\
 \bottomrule
 \end{tabular}
 \end{table}

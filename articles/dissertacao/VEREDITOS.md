@@ -142,7 +142,14 @@ A região é o eixo que se sustenta: **não-inferior nos seis**, com TX +1,21 e 
 
 *Também chega como:* o salto da representação, check-in-level bate place-level por quanto.
 
-**Veredito: NÃO. A faixa real é +0,23…+6,29.** Superado em **2026-08-20**.
+**Veredito: NÃO. A faixa real é +0,23…+2,81.** Superado em **2026-08-20**.
+
+> ⚠ **Corrigido a 2026-10-01: esta entrada dizia "+0,23…+6,29", e o +6,29 não era um par.** O braço
+> por lugar de Istambul (29,07) correu sobre um conjunto de janelas anterior (343 795 janelas,
+> 16 348 utilizadores, contra 271 666 e 14 530 do v18). Refeito pareado neste Mac (MPS; o braço por
+> check-in reproduz a célula CUDA impressa com diferença ≤ 0,03 por fold), dá **32,54** e um
+> delta de **+2,81 ± 0,51**, com os cinco folds a favor. A direção mantém-se e a magnitude caiu para
+> menos de metade. Prova: `docs/results/closing_data/v18/istanbul_pair/`.
 
 O `+28…+40` é número de substrato **pré-v18**. Não é uma tese anterior que foi revista: é uma
 geração que foi **invalidada**. Não há leitura em que seja citável.
@@ -165,7 +172,7 @@ stream de check-ins, ou o mapa POI-para-região não passa por convolução nenh
 | `capacity_matched_stl_cat` | **EXPOSTO** — e a razão do Apêndice G é de outra geração |
 | `apxi_v18` | **VÁLIDO** (medido na preparação actual) |
 | `baseline_compare` | **VÁLIDO** (o texto declara que rodam nos próprios embeddings) |
-| `v18_place_level` | **VÁLIDO por desenho** (é o braço de comparação, e o texto nomeia-o) |
+| `v18_place_level` | **VÁLIDO nos EUA; Istambul NÃO era pareado** (corrigido 2026-10-01: o par de Istambul está agora em `istanbul_pair/`. AL/AZ/FL confirmados pareados; CA/TX já não são verificáveis, porque as entradas desapareceram da máquina) |
 
 **Prova:** `wrapup/open_points/AUDITORIA_PRE_LEAK.md`.
 

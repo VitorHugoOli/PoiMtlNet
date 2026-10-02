@@ -9,6 +9,8 @@
 \section{Conclusion}
 \label{sec:mobiwac:conclusion}
 
+% [2026-10-01, AUTHOR-RULED, Table B.5 row] "to six points" -> "to nearly three points": the Istanbul
+% delta is +2.81 after the paired run (tables/mobiwac/representation.tex, comment there).
 We tested whether one model can predict both the category and region of a user's next visit. The central concern was
 that sharing could help one task while hurting the other. However, the evidence shows that sharing alone does not
 explain the outcome because the result also depends on what the model represents. A standard place-level representation
@@ -16,7 +18,7 @@ assigns the same vector to every visit to a place, so it cannot distinguish visi
 assigning one vector to each visit, the check-in-level representation can include the visit time, nearby places, and
 recent visits. The controlled comparison then shows a consistent advantage for that representation on the category
 task: every fold favors it at every dataset, though the size of the advantage varies from a quarter of a point to
-six points. Once this information is available, the joint model can share
+nearly three points. Once this information is available, the joint model can share
 semantic context between the tasks while keeping a private spatial path for region prediction.
 
 With both changes in place, the region cost of joint training stays inside the registered two-point

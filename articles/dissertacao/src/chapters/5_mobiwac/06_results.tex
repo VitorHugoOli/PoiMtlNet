@@ -33,10 +33,13 @@
 % 37.6194, 37.5234] minus v18_place_level/florida_s0_cat_placelevel.json cat_per_fold [37.4702, 36.7846,
 % 36.6786, 37.6184, 37.0985] = +0.276, +0.434, +0.029, +0.001, +0.425; two-sided paired t p = 0.067
 % (printed 0.07).
+% [2026-10-01, AUTHOR-RULED, Table B.5 row] "$+6.29$ at Istanbul" -> "$+2.81$ at Istanbul": paired
+% Istanbul place arm (tables/mobiwac/representation.tex, comment there). All five folds still favor
+% the check-in representation at Istanbul (+2.33 .. +3.55) and the paired t separates (p = 0.00025).
 The check-in-level representation reaches a higher next-category macro-F1 than a standard place
 embedding (HGI~\cite{huang2023hgi}) at every dataset
 (Table~\ref{tab:mobiwac:representation}). The comparison is controlled: target, single-task model, training configuration, windowing, epoch budget, logit adjustment, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column is the same dedicated single-task category model reported in Table~\ref{tab:mobiwac:results}, read at seed 0 so that both arms of this comparison share one fold partition; the place-level arm is that model with its input swapped. The difference ranges from $+0.23$ macro-F1 at Florida to
-$+6.29$ at Istanbul, and all five folds favor the check-in-level representation at every one of the
+$+2.81$ at Istanbul, and all five folds favor the check-in-level representation at every one of the
 six datasets, one fold at Florida by only $0.001$. A two-sided paired $t$-test over the five matched
 folds of one seed separates the two representations at every
 dataset except Florida, where the direction is unanimous across folds but the difference does not
@@ -199,8 +202,13 @@ within half a point, simultaneously across all six.
 % printed table: joint minus POI-RGNN = IST 5.30, AL 6.79, AZ 6.93, FL 4.20, CA 4.92, TX 4.11;
 % minimum 4.11 at Texas. POI-RGNN stays above Markov-K at every dataset, so it remains the
 % strongest external baseline on category. Same change in 08_conclusion.tex.
+% [2026-10-01, AUTHOR-RULED, Table B.5 row] "$+0.23$ to $+6.29$ points, up to thirty-two times" ->
+% "$+0.23$ to $+2.81$ points, about fourteen times". Denominator, never written down before: the largest
+% joint-minus-dedicated category difference, Florida +0.1947 (Alabama -0.1882), from
+% wrapup/evidence/ladder_recompute.json; 6.29/0.1947 = 32.3 explained "thirty-two"; now 2.808/0.1947 =
+% 14.4, "about" because both operands are rounded in print.
 Half a point is worth placing against the two comparisons that give the category axis its scale. The
-input representation moves the same metric by $+0.23$ to $+6.29$ points, up to thirty-two times the
+input representation moves the same metric by $+0.23$ to $+2.81$ points, about fourteen times the
 largest difference the choice of architecture makes, and the joint model stands at least $4.11$ points
 above the strongest external baseline at every dataset. Whether one model or two produce the category
 prediction is therefore the smallest of the three effects at work here, which is the sense in which

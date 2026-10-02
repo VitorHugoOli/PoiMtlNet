@@ -30,8 +30,11 @@ predicts the next category and the next region in a single forward pass, with a 
 semantic context) and a private spatial path for the region task (Figure~\ref{fig:mobiwac:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:mobiwac:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
 
 Our contributions are as follows.
+% [2026-10-01, AUTHOR-RULED, Table B.5 row] "$+0.23$ to $+6.29$" -> "$+0.23$ to $+2.81$": the Istanbul
+% place cell is now the paired run (tables/mobiwac/representation.tex, comment there). Range
+% endpoints remain Florida (+0.23) and Istanbul (+2.81, now above Arizona's +2.58).
 \begin{itemize}
-  \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding across all six datasets, by $+0.23$ to $+6.29$ points of macro-F1 (a balanced score that counts every
+  \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding across all six datasets, by $+0.23$ to $+2.81$ points of macro-F1 (a balanced score that counts every
     category equally) (Table~\ref{tab:mobiwac:representation}). The direction is
     consistent even where the size is small, because a single fixed vector
     per place cannot separate places that serve several purposes, which
