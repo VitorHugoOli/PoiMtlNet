@@ -457,10 +457,25 @@ Um slide, uma resposta, sem construção. Chamam-se pelo número.
 | **B4** | *"Como sabem que o vector não vê o alvo?"* | O grafo é **forward-only**: um nó lê só as visitas que o precedem, no treino e na leitura. **Publicado, terceiro limite da §7.** | `07_discussion.tex` |
 | **B5** | *"Quanto custa um modelo em vez de dois?"* | 4,2 M vs 1,9 M (AL), 5,2 M vs 2,8 M (CA), contra **os dois somados** | `04_method.tex` |
 | **B6** | *"Se a representação faz quase tudo, para que serve o MTL?"* | A resposta honesta do artigo: na categoria a representação move mais do que a escolha entre um modelo e dois; se a troca acrescenta algo **não é separado pela evidência aqui** | `08_conclusion.tex` |
-| **B7** | *"Porquê estas referências externas?"* | A tabela completa com as duas notas honestas: STAN com folds parciais (TX 4/5, CA 2/5), ReHDM com uma só semente em TX e CA | `CAMERA_READY §3.4` |
+| **B7** | *"Porquê estas referências externas?"* | A tabela completa com as duas notas honestas: STAN com folds parciais (TX 4/5, CA 2/5), ReHDM com uma só semente em TX e CA. **⛔ NÃO dizer "HMT-GRN corre nos nossos dados, folds e inicialização"** nem "mesmos folds e sementes" — ver o aviso abaixo. | `CAMERA_READY §3.4` |
 | **B8** | *"O ganho cresce com o número de regiões?"* | **Não.** Observação, não lei: CA tem mais regiões do que TX e ganho **menor** (+1,06 vs +1,21) | `CAMERA_READY §5 C4` |
 | **B9** | *"Isto não é só juntar o timestamp ao vector de lugar?"* | **NOVO, e é a pergunta mais perigosa da sala.** O controlo de concatenação: +2,0 / +1,7 / +0,8 (AL/AZ/FL) contra os nossos +1,62 / +2,58 / +0,23. **Em AL e FL o atalho ganha mais.** A frase do artigo, textual. | `06_results.tex:63-72` |
 | **B10** | *"E os intervalos de confiança?"* | A tabela de 12 células com IC a 90 % — os que saíram do S7 para ser legível do fundo da sala | `CAMERA_READY §3.1, §3.2` |
+
+> ### ⛔ ALERTA ABERTO — 2026-10-02: a alegação dos folds das externas é falsa, e isto NÃO espera por decisão
+>
+> O artigo publicado diz, em `06_results.tex:251`, *"HMT-GRN on our data, folds, and initialization,
+> STAN on our folds with its own…"*. **O autor aprovou uma errata na dissertação que diz o contrário**
+> (`e6ac03c0`, 2026-10-01, marcada AUTHOR-APPROVED): *"no external is said to run on our folds."*
+>
+> **Porque é que esta não espera pela decisão dos números.** As outras divergências são uma escolha
+> entre dois conjuntos de valores, e essa escolha é do autor. Esta não: é uma afirmação que o autor
+> **já retirou**. Dizê-la no palco seria repetir, de viva voz, algo que ele próprio deu por falso há
+> dois dias. Não dizer nada não custa nada — se ninguém perguntar, não falta; se perguntarem, a
+> resposta honesta é que as externas correm com os seus próprios *splits*.
+>
+> **O S8 herda o problema:** *"every system we re-ran"* sugere o mesmo protocolo. Preferir *"every
+> system we compared against"*.
 
 **Perguntas sem slide, com a frase preparada.** Esta tabela é tão importante como os slides: são as
 perguntas desta sala em concreto, e nenhuma tinha resposta na v1.
