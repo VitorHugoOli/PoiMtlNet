@@ -8,6 +8,23 @@
 
 Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca correr.
 
+> ## Estado a 2026-10-02 de manhã (noite de execuções no M2 Pro)
+>
+> - **G1 integridade:** Alabama e Arizona FEITOS, 5 folds cada (`5cd62589`, `cb35cd62`). Categoria,
+>   só-treino − todos: AL −0,11 ± 0,10, AZ −0,17 ± 0,11 (p 0,024). Região: AL −0,01, AZ +0,13 (n.s.).
+>   **Florida:** a parte de CPU está feita (construções, leitura, materialização), mas os braços de
+>   treino não cabem no Mac (+6 GB de swap em 16 s ao carregar 1,27M × 576). Opções para o autor:
+>   (a) máquina com mais RAM, (b) carregador mais leve, que é uma mudança de código, (c) ficar com
+>   AL + AZ e o texto passa a "dois conjuntos de dados". Recomendado: (c).
+> - **G2 CTLE:** FEITO (`ded26e96`). Com a divisão certa: AL 16,31 (junho 17,77), AZ 17,67 (junho
+>   19,30); todos os folds mais baixos. A ordem a nosso favor fica reforçada. Istambul provavelmente
+>   limpo, não provado.
+> - **G5 HMT-GRN melhor época:** AL/AZ/IST/FL FEITOS (`073a7e73`, FL 5/5 folds verificados). CA e TX
+>   pendentes: ~2,5 h + ~3 h no Mac, sozinhos; precisam de uma janela do autor. A coluna só muda com
+>   os seis.
+> - **G3:** feito. **G4:** só em GPU remota com compile; se não houver, fica como está.
+
+
 ## G1 · Verificação de integridade no modelo entregue — BLOQUEIA O DEPÓSITO
 
 > **Estado a 2026-10-02: Alabama FEITO, Florida a correr, Arizona preparado.** Os três patches foram
