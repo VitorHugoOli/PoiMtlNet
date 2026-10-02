@@ -10,6 +10,15 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
 
 ## G1 · Verificação de integridade no modelo entregue — BLOQUEIA O DEPÓSITO
 
+> **Estado a 2026-10-02: Alabama FEITO, Florida a correr, Arizona preparado.** Os três patches foram
+> aplicados no commit `d01cd2a8` (com uma guarda que exige `group_dtype == 'int'`). Alabama, seed 0,
+> 5 folds, neste Mac: treinar a representação só com os utilizadores de treino contra a mesma
+> construção com todos dá categoria **−0,108 ± 0,099** (p = 0,07) e região **−0,014 ± 0,376**
+> (p = 0,94); o braço entregue, re-corrido, reproduz as médias impressas a +0,003 e +0,05. Evidência:
+> `docs/results/closing_data/v18/g1_integrity_al/` (commit `5cd62589`). A Florida está a correr no
+> SSD externo (`ingred_g1fl`, fold 0 desde 2026-10-02 00:50), e o Arizona tem as entradas conferidas
+> por md5 (`gpu_queue_scratch/logs/AZ_G1_INPUT_MD5S.txt`, 2026-10-01). O texto ainda não mudou.
+
 - **Porquê.** A verificação "treinar a representação com todos os utilizadores dá vantagem?" do
   Cap. 5 vem do A4 dos pre-freeze gates. Esse A4 usou outra versão da representação e outro
   protocolo: janelas stride-9, prior de transição ligado, 30 épocas em CPU e outra divisão de
@@ -25,7 +34,7 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
 - **Se nunca correr.** Repor a menção à versão anterior como exceção declarada. O estado atual não
   pode ir para o depósito.
 - **Material.** `docs/studies/closing_data/v18/integrity_rerun/`: plano, 8 verificações e três
-  patches por aplicar. ⚠ **As 15 divisões em `/dados/poimtlnet/integrity_v18/splits/` NÃO são os
+  patches, aplicados a 2026-10-01 (`d01cd2a8`; dizia "por aplicar" até 2026-10-02). ⚠ **As 15 divisões em `/dados/poimtlnet/integrity_v18/splits/` NÃO são os
   folds entregues.** O `freeze_split.py` passava os userids como texto, e o `train.py` passa-os como
   int64, o que dá outra partição (0/5 folds iguais, reproduzido). Regenerar com
   `--group-dtype int` (patch no pacote) e confirmar com a verificação #5.
@@ -51,7 +60,15 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
   `src/configs/paths.py` (enum novo) e `scripts/closing_data/mac_baseline_compare.py`. Escrever
   num engine novo e nunca por cima de `output/check2hgi_ctle/`.
 
-## G3 · HGI de Istambul pareado — talvez neste Mac
+## G3 · HGI de Istambul pareado — FEITO (2026-10-01)
+
+> **Feito.** Corrido neste Mac (`398b904f`) e aplicado ao Cap. 5 (`915a0199`): a célula por lugar
+> passa a **32,54 ± 1,03**, a vantagem a **+2,81 ± 0,51**, os cinco folds a favor, p = 0,00025, e o
+> braço por check-in em MPS reproduz a célula CUDA impressa a 0,03 por fold. A faixa fica **+0,23 a
+> +2,81** e a razão "cerca de catorze vezes" (era trinta e duas). Nenhum sítio da moldura (Resumo,
+> Abstract, Caps. 1, 2 e 6) carregava a magnitude de Istambul. Linha nova na B.5; VEREDITOS V7/V8
+> atualizados. Evidência: `docs/results/closing_data/v18/istanbul_pair/`. O resto desta secção é o
+> registo de quando estava por correr.
 
 - **Porquê.** A célula por lugar de Istambul (29,07) correu sobre `output/hgi_dk_ovl/istanbul`
   (343 795 janelas, 16 348 utilizadores, 2026-06-26), e não sobre as janelas do v18 (271 666 /
@@ -75,6 +92,14 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
 - **Material.** `docs/results/baselines/faithful_stan_arizona*` e `research/baselines/stan/`.
 
 ## G5 · HMT-GRN lido na melhor época — se não houver registos por época
+
+> **Estado a 2026-10-02: AL, AZ e IST feitos; FL, CA e TX por correr.** Corrido neste Mac (MPS) com
+> `b3_hmt_grn.py --epoch-select per_task`, a opção do commit `82dbe843`, nos folds entregues
+> (verificado 5/5). Região na melhor época: **AL 63,19 / AZ 52,11 / IST 68,06** (impresso, época 50:
+> 57,05 / 43,70 / 60,42); categoria na melhor época: 20,99 / 22,09 / 24,85. A época 50 de hoje
+> reproduz as células impressas, portanto as impressas leram uma época sobretreinada. Registo:
+> `/Volumes/Vitor's SSD/gpu_queue_scratch/G5_SUMMARY.md` (ainda fora do repositório). O texto ainda não
+> mudou.
 
 - **Porquê.** As células impressas foram lidas na época 50, sem seleção, e só na seed 0. O autor
   quer os melhores resultados do HMT-GRN, o que não muda a conclusão sobre os nossos modelos.

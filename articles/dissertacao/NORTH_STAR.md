@@ -35,8 +35,9 @@
 > | next-region | **nao-inferior nos seis** (TOST, margem registrada de 2 pontos), com **Texas +1,21** e **California +1,06** superando |
 >
 > **Onde aparecer** `+28…+40 macro-F1`, `category everywhere` ou `region at four of six`, e a tese
-> de quando o arco foi desenhado — **nao o resultado entregue** (a faixa real e **+0,23…+6,29**, e a
-> categoria supera **so em Florida**). Fica marcado `[SUPERADO 2026-08-20]` onde aparece, porque
+> de quando o arco foi desenhado — **nao o resultado entregue** (a faixa real e **+0,23…+2,81**, e a
+> categoria supera **so em Florida**; corrigido 2026-10-02, dizia +6,29, de uma celula de Istambul
+> nao pareada — `docs/results/closing_data/v18/istanbul_pair/`). Fica marcado `[SUPERADO 2026-08-20]` onde aparece, porque
 > reescrever o corpo apagaria o registro de qual era a tese na altura — mas **nenhuma dessas frases
 > pode ser copiada para prosa nova**.
 >
@@ -87,7 +88,7 @@ papers).
 |---|---|---|---|---|---|---|
 | 1 | **CBIC** — *An Investigation into Multi-Task Learning for Point-of-Interest Category Classification and Next-POI Prediction* | CBIC 2025 | EN | **Vitor** | **Published** — DOI `10.21528/CBIC2025-1191324` (verified 2026-07-18; **satisfies Art. 21**) | **The starting point.** First unified MTL model (MTLnet: DGI embeddings + FiLM + hard sharing + Nash-MTL). Honest null result: MTL ≈ STL at higher cost. Closes hypothesizing that the shared **representation may not be rich enough** — the thread the rest pulls. |
 | 2 | **CoUrb** — *ST-MTLNet: Representações Espaço-Temporais de Pontos de Interesse para Aprendizado Multitarefa* | CoUrb/SBRC 2026 (presented 2026-05-25) | PT | Tarik S. Paiva (**Vitor 2nd**, presenter) | **Published** — DOI `10.5753/courb.2026.22960`, Anais do CoUrb 2026, pp. 323–336 (verified 2026-07-18) | **The diagnosis.** Keeps MTLnet unchanged; replaces the monolithic 64-d DGI input with decomposed spatial+temporal+categorical encoders (192-d). Category F1 up +20.2…+22.0 pp per state (FL/CA/TX; audited means, `slides/judge_feedback.md`) — **the representation, not the architecture, is the bottleneck.** |
-| 3 | **MobiWac** — *Predicting the Next Category and Region of a Visit: A Check-in-Level Multi-Task Study on Mobility Data* | MobiWac 2026 | EN | **Vitor** | **Submitted, under review** (EDAS #1571313639, uploaded 2026-07-09) | **The resolution.** Check2HGI check-in-level representation (+28…+40 macro-F1 over place-level on next-category) `[SUPERADO 2026-08-20 — faixa real +0,23…+6,29; numero pre-v18, com vazamento]` + cross-attention joint model: category outperforms the dedicated model at all six datasets (+5.3…+9.4) `[SUPERADO 2026-08-20 — categoria supera so em Florida (+0,19, Holm p 0,011); as outras cinco sao nao resolvidas]`, region outperforms at Istanbul/FL/TX/CA and matches (TOST ±2 pp) at AL/AZ. n=20, Holm, user-disjoint CV, leak audit null. |
+| 3 | **MobiWac** — *Predicting the Next Category and Region of a Visit: A Check-in-Level Multi-Task Study on Mobility Data* | MobiWac 2026 | EN | **Vitor** | **Accepted for publication** (2026-08-26; EDAS #1571313639, uploaded 2026-07-09) `[corrigido 2026-10-02: dizia "Submitted, under review"]` | **The resolution.** Check2HGI check-in-level representation (+28…+40 macro-F1 over place-level on next-category) `[SUPERADO 2026-08-20 — faixa real +0,23…+2,81; numero pre-v18, com vazamento]` + cross-attention joint model: category outperforms the dedicated model at all six datasets (+5.3…+9.4) `[SUPERADO 2026-08-20 — categoria supera so em Florida (+0,19, Holm p 0,011); as outras cinco sao nao resolvidas]`, region outperforms at Istanbul/FL/TX/CA and matches (TOST ±2 pp) at AL/AZ. n=20, Holm, user-disjoint CV, leak audit null. |
 
 **BRACIS 2026** (*Substrate Carries, Architecture Pays*, rejected 2026-06-08) is **not a
 chapter**: unpublished, absorbed into MobiWac, and its headline claim (MTL pays 7–17 pp on
@@ -224,6 +225,7 @@ superseded number or claim read as the project's current state.
   "matches" AL/AZ, never upgrade AZ); scaling claim scoped to the five U.S. states; cascade is
   "a tie at equal cost"; never-cite lists (STAN v4-collapse numbers, ReHDM v2 row, VOID cells).
 - Status wording: "submitted to MobiWac 2026, under review" — never "published/accepted".
+  `[SUPERADO 2026-10-02 — aceito a 2026-08-26; a redacao entregue e "accepted for publication" (AUT-35, commit e1f9b8c0)]`
 - The dissertation gains space the paper lacked: restore the compressed leak-audit prose (§5.2
   floor; the A4 record lives at `docs/studies/pre_freeze_gates/A4_RESULTS.md` +
   `docs/results/pre_freeze_gates/a4/`), the statistical protocol detail, and the fp16→fp32
@@ -432,7 +434,7 @@ model-lineage table (GLOSSARY.md is the source).
   ALSO REQUIRED here (approved Item 6, one-sentence floor): "this chapter isolates the
   representation effect with MTLNet as its only baseline; it does not revisit the
   MTL-versus-single-task question, which Chapter 5 reopens."
-- Ch.5: submitted to MobiWac 2026, under review; the arc's resolution; numbers governed by the
+- Ch.5: submitted to MobiWac 2026, under review `[SUPERADO 2026-10-02 — aceito a 2026-08-26]`; the arc's resolution; numbers governed by the
   paper's claim whitelist.
 
 ### Ch.6 Conclusion — beats

@@ -186,6 +186,12 @@ Depois do apagar, `presentation/` passou de **6,6 G para 17 M**; o espaço livre
 
 ### ERR-1 … ERR-7 — sete erratas, todas abertas `[V]`
 
+> ✅ **Fechadas todas a 2026-09-06** (actualizado 2026-10-02): ERR-1 não era defeito, ERR-2
+> ratificada sem mudança, ERR-3/6/7 aplicadas, ERR-4 decidida, ERR-5 fechada em falha-segura no
+> `holm1979`. O estado de cada uma está no bloco "ESTADO A 2026-09-04" do §3 de
+> `wrapup/open_points/LACUNAS.md` e na linha ERRATA da tabela do §4 do `CLAUDE.md`. O resto desta subsecção é o
+> registo de 28/08, quando estavam abertas.
+
 Em `wrapup/open_points/LACUNAS.md`, todas marcadas `[ABERTO]`, com rascunhos `.tex` em
 `wrapup/erratas/`. A `AUT-35` decidiu adiá-las para depois da defesa — **é agora**.
 
@@ -203,6 +209,10 @@ Em `wrapup/open_points/LACUNAS.md`, todas marcadas `[ABERTO]`, com rascunhos `.t
 auditoria. Vale ler antes de fechar os outros cinco.
 
 ### Apêndice G do suplemento imprime colunas de parâmetros erradas `[V]`
+
+> ✅ **Corrigido** (recontagem de 2026-09-02; verificado a 2026-10-02 no fonte sem comentários): a
+> tabela do `apx_i_parameter_count_control.tex` imprime hoje 1,433,863 / 9,634,471 / 12,044,791, e
+> 644,359 já só aparece nos comentários de proveniência. O resto é o registo de quando estava errado.
 
 `wrapup/material_extra/chapters/apx_i_parameter_count_control.tex:101-102` ainda imprime:
 
@@ -255,7 +265,8 @@ copiar uma alegação de lá". **Duas correções:**
 
 1. **O ficheiro não mente em silêncio.** Tem um banner nas linhas 15-27 com o veredito entregue
    (categoria: **só Florida**, +0,19, Holm p 0,011; região: **não-inferior nos seis**, TX +1,21,
-   CA +1,06) e diz explicitamente que a faixa real é **+0,23…+6,29**, não "+28…+40".
+   CA +1,06) e diz explicitamente que a faixa real é **+0,23…+2,81**, não "+28…+40" (dizia +6,29
+   até 2026-10-02; a célula de Istambul não era pareada).
 2. **As linhas que ele deu não são onde o texto está hoje.** Os sítios vivos são **21, 22**
    (o próprio banner), **49** (marcada `[SUPERADO 2026-08-20]`) e **67**.
 
@@ -322,6 +333,9 @@ Correção mecânica e segura (é tudo comentário `%`; não toca em campo nenhu
 edição no source entregue — **fica para depois de D3**.
 
 ### `AGENT_GUARDRAILS.md §N1` aponta para fora `[R, não verificado]`
+
+> ✅ **Verificado a 2026-10-02: já não aponta.** O §N1 foi repontado a 2026-08-20 (commit `401c45ab`)
+> para as tabelas do Cap. 5, e hoje cita o `RESULTS_BOARD.md` só para dizer que não se lá vai.
 
 O ponteiro é da pasta; o alvo (`docs/studies/closing_data/RESULTS_BOARD.md`) é da raiz do repo e
 está **fora do escopo**. Ver **B1**.
@@ -718,8 +732,11 @@ deste trabalho.
 
 ---
 
-## A12 · Revisão do V12 — pesquisa e posição, À ESPERA DO AUTOR
+## A12 · Revisão do V12 — pesquisa e posição, DECIDIDA PELO AUTOR (2026-09-30/10-01)
 
+> **Estado a 2026-10-02: decidido e executado** — ver "O que o autor decide", mais abaixo, e a §A13.
+> O título dizia "À ESPERA DO AUTOR" até essa data. O parágrafo seguinte é o estado de 29/09.
+>
 > **Estado:** nada executado. O autor pediu (2026-09-08) que a revisão do critério de limpeza
 > fosse investigada e passasse pelo Fable **antes** de decidir. Isto é a investigação. A decisão é
 > dele. Feita a 2026-09-08, **remedida a 2026-09-29** antes de ser escrita — e a remedição apanhou
@@ -846,8 +863,11 @@ cada ficheiro está na mensagem do commit do passo.
   podia mostrar: **até aqui, estes blocos verificavam o checkout principal em `/Users/vitor/...`, não a
   árvore onde o portão corria** — incluindo as minhas 18/18 por passo;
 - **os dois ponteiros de fora** (`[mobiwac]/ERRATA.md`, `handoff/STORY_REVIEW.md`) apontam para os
-  caminhos novos. Ficou um terceiro, não aprovado e não editado: um comentário em
-  `articles/[mobiwac]/src/figs/fig1_dataflow_new.tex:57` cita `c2h_flow.tex`, que saiu com as TikZ.
+  caminhos novos. Ficou um terceiro, que este registo dava como não aprovado e não editado: um
+  comentário em `articles/[mobiwac]/src/figs/fig1_dataflow_new.tex` que cita `c2h_flow.tex`, que saiu
+  com as TikZ. **Foi editado no mesmo dia** (commit `dcafac8a`, 2026-10-01): o comentário passa a dar
+  o caminho completo e a tag de recuperação `dissertacao-pre-organizacao`. Corrigido aqui a
+  2026-10-02.
 
 ---
 

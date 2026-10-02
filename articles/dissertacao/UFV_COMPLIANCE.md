@@ -23,7 +23,9 @@ There are TWO deliverable shapes, and they differ:
    first body page; the SYSTEM's emitted PDF (RASCUNHO watermark) is the authoritative numbering
    reference.
 
-The LaTeX setup must produce both from one source ([`TEMPLATE.md`](TEMPLATE.md) §3).
+The LaTeX setup must produce both from one source ([`archive/TEMPLATE.md`](archive/TEMPLATE.md) §2,
+checklist item 4, "Two build modes"; the link and the section were stale until 2026-10-02 — the file
+moved to `archive/` in the 2026-10-01 reorganisation).
 
 ## 2 · Mandatory formatting (Manual 04_2026 §7–§8)
 
@@ -95,7 +97,8 @@ for the final build; SI units and legibility rules (§3.x) still apply.
   substance is covered — CBIC is published with DOI `10.21528/CBIC2025-1191324` (verified;
   CoUrb `10.5753/courb.2026.22960` is a second published article as backup). Remaining action:
   file the comprovante with the secretariat (ppgcc@ufv.br) and confirm the operative checklist
-  bar.**
+  bar.** *(Moot since 2026-08-28: the defense took place and was approved, so the apt-to-defend
+  question is closed.)*
 - **Art. 22:** dissertation text to the secretariat **≥20 days before the defense date**.
 - **Art. 23:** public defense, presentation up to 50 min, then arguição.
 - **Anti-plagiarism certificate** (UFV institutional tools) is mandatory — "a defesa não será
@@ -153,7 +156,8 @@ for the final build; SI units and legibility rules (§3.x) still apply.
 
 - Defense in the window **Aug 18–29** ⇒ **text + banca locked between Jul 29 and Aug 9**
   (Art. 22's 20 days + banca formed in AcademicoPG + members informed).
-- Before the defense is approved: anti-plagiarism certificate + Art. 21 proof on file.
+- Before the defense is approved: anti-plagiarism certificate + Art. 21 proof on file. *(Moot: defended
+  and approved 2026-08-28.)*
 - After an August defense: final AcademicoPG deposit due by **~late November 2026**.
 - Full schedule and fallback: [`archive/PLAN.md`](archive/PLAN.md).
 
@@ -188,6 +192,10 @@ for the final build; SI units and legibility rules (§3.x) still apply.
   https://tecido.dpe.ufv.br/wp-content/uploads/2026/03/IA-em-Pesquisa-Educacional_-Recomendacoes-1.pdf ·
   CNPq Portaria 2.664/2026 announcement
   https://www.gov.br/cnpq/pt-br/assuntos/noticias/cnpq-em-acao/cnpq-publica-portaria-que-institui-politica-de-integridade-na-atividade-cientifica
+
+> **2026-10-02: item (a), the Art. 21 / Qualis question, is moot.** It asked what the secretariat
+> would accept before the defense; the defense took place on 2026-08-28 and was approved. It stays
+> below as the record of what was open. Item (c) is not about the defense and is left as it was.
 
 **Open items (carried into `archive/PLAN.md`):** (a) operative Art. 21 quality bar + which regimento
 governs pre-2026 enrollees — ask the secretariat (substance already covered, §3); **Qualis

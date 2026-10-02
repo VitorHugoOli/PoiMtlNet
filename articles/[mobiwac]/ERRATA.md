@@ -509,3 +509,63 @@ inversão erraria com a mesma força do original.
 - **`\IEEEpubid` e agradecimentos**, que consomem espaço na página 1 e têm de entrar **antes** de medir.
 - **Os pareceres dos revisores do MobiWac não existem neste repositório.** Tudo o que está registado
   acima é auto-iniciado. Se os revisores pediram alguma coisa, está por fazer.
+
+---
+
+# 2026-10-02 · As correcções de 2026-09-29 a 10-02: onde o Capítulo 5 passa a divergir do camera-ready
+
+> **O sentido inverte-se outra vez.** A secção de 2026-09-06 regista o que o camera-ready tem e o
+> capítulo não. Entre 2026-09-29 e 2026-10-02 o **capítulo** recebeu correcções que o camera-ready
+> **não** tem. O camera-ready é a fonte em `src/` (último commit de texto `9cc5dad9`, 2026-09-09) e o
+> `2026322426.pdf` certificado pelo IEEE PDF Express a 2026-09-10. Pela regra do cabeçalho deste
+> ficheiro, toda a divergência é declarável nos dois sentidos. **Esta secção é o lado do artigo.** O
+> lado da dissertação são as linhas da Tabela B.5 do suplemento
+> (`articles/dissertacao/src/tables/mobiwac/errata_scope.tex`, 31 linhas a 2026-10-02), que não se
+> copiam para aqui. Nenhuma das correcções altera um veredito.
+>
+> **Como se verificou.** Cada linha foi comparada com a fonte do camera-ready (`src/sections/`,
+> `src/tables/`, sem comentários) e, onde a frase sobrevive à extracção, com o texto do
+> `2026322426.pdf`. O lado do capítulo foi comparado com `articles/dissertacao/src/chapters/5_mobiwac/` sem
+> comentários. Medido a 2026-10-02.
+
+## 1 · Divergências: o capítulo corrige, o artigo não
+
+| # | O quê | O camera-ready diz | O capítulo diz | Commit |
+|---|---|---|---|---|
+| 1 | POI-RGNN em FL/CA/TX | 34,49 / 31,78 / 33,03, de uma implementação anterior com folds que dividiam as janelas de cada utilizador | 33,35 / 30,71 / 32,08, da reimplementação, com folds disjuntos por utilizador. A menor margem do conjunto sobre o POI-RGNN passa de 3,06 para **4,11** (Texas) | `dafde31d` |
+| 2 | Istambul, representação | célula por lugar 29,07 e vantagem +6,29; faixa "+0.23 to +6.29"; "thirty-two times" | célula pareada **32,54**, vantagem **+2,81**, os cinco folds a favor; faixa até +2,81; "about fourteen times" | `398b904f`, `915a0199` |
+| 3 | Controlo de concatenação | +2,0 / +1,7 / +0,8, de uma triagem anterior com outro protocolo | +1,73 / +1,70 / +1,02, o par da Q13 na configuração de treino da própria tabela. A leitura do parágrafo mantém-se | `e6ac03c0` |
+| 4 | Geometria da representação | o parágrafo saiu no camera-ready (corte C11) e a Fig. 3 não entra | o parágrafo fica, re-medido na representação entregue com os vectores agregados por lugar: silhueta **0,51** (era 0,57), pureza 0,98; a pureza passa a ser descrita como classificação *leave-one-out* | `3796723b`, `c1971e3f` |
+| 5 | Sistemas externos e as suas partições | *"Every external system is run on our data … HMT-GRN, STAN, and POI-RGNN on our user-disjoint folds"*; *"HMT-GRN on our data, folds, and initialization, STAN on our folds"*; conta quantos sistemas ficam abaixo do piso de Markov | os externos correm *"on their own embeddings and splits"*; o HMT-GRN *"on the same data"*; a divisão do ReHDM é nomeada cronológica; a contagem por sistema sai, e a explicação de porque o piso é forte fica | `c1971e3f`, `e6ac03c0` |
+| 6 | Piso de Markov | região *"computed under our windows and folds"*; a ordem do Markov-K escolhida por conjunto, sem dizer sobre que dados | as mesmas janelas e o mesmo agrupamento por utilizador, mas outra partição; a ordem é escolhida nos folds de avaliação, o que só pode favorecer o piso | `c1e94992`, `c1971e3f` |
+| 7 | Menções a construções anteriores | integridade: *"on an earlier build of the representation"*; balanceadores: *"during development, on an earlier preparation of the data"* | nenhuma das duas existe no capítulo. A da integridade saiu por decisão do autor (2026-09-30) à espera do G1, e a linha da B.5 sobre ela está desactualizada de propósito (`articles/dissertacao/wrapup/FILA_GPU.md`, G1) | `224ed1e4`, `3796723b` |
+| 8 | Vectores de região | *"the trained vector of its region node"* | vectores de região pré-treinados, de uma tabela de regiões fixa e partilhada pelos modelos conjunto e dedicados | `224ed1e4` |
+| 9 | CTLE na Florida | sem comparação de magnitude (o *"about two points"* saiu no camera-ready) | *"about 3.7 points below the place embedding"* (37,13 contra 33,45, os dois impressos no capítulo) | `c1971e3f` |
+| 10 | Teste da tabela de representação | *"significant under a paired t-test over the five folds at every dataset except FL"* | o teste é nomeado (*t* pareado bilateral sobre os cinco folds de uma seed) e o fold da Florida que favorece por 0,001 é declarado | `c1971e3f` |
+
+## 2 · Não são divergências: o capítulo alcançou o artigo
+
+Estas quatro estão na B.5 porque a B.5 compara o capítulo com o manuscrito **submetido**. O
+camera-ready já as tinha, por isso não pedem linha deste lado.
+
+- **O limite de Bonferroni** (capítulo: `b16e1767`, 2026-09-29). O camera-ready já diz *"with a
+  Bonferroni adjustment across the six comparisons the widest reaches 0.49"* (fonte e PDF), e o próprio
+  commit regista que o valor é *"the same as the version of record"*.
+- **ERR-6/7, a cobertura da busca de configuração.** O camera-ready já diz *"on single folds at Texas.
+  Florida and California carry the large-dataset value, which only the single-fold Texas screen
+  tested"* (fonte e PDF).
+- **A legenda da tabela de datasets** (contagens antes do filtro de dez visitas, janelas depois). O
+  camera-ready já tem *"full corpus; Windows is computed after the ten-visit user filter"*
+  (`src/tables/tbl1_datasets.tex`).
+- **"arm" e "recipe".** O camera-ready não tem nenhuma das duas palavras (zero na fonte sem
+  comentários e no PDF, e ver a linha 11 da tabela de 2026-09-06). ⚠ **No capítulo, a linha da B.5 e a
+  mudança do texto estavam a 2026-10-02 só na árvore de trabalho, por commitar** (nesse dia o
+  capítulo sem comentários já não tinha nenhuma das duas palavras). Converge quando entrar.
+
+## 3 · O que esta secção não cobre
+
+- As linhas da B.5 entradas **antes** de 2026-09-29 (commits de 2026-09-08 e 09-09) não foram
+  reclassificadas aqui. A de 09-09 (a partilha deixa de ser o mecanismo) declara ela própria que a
+  versão de registo já carrega a correcção.
+- Se um número do camera-ready for corrigido junto da editora, esta tabela perde a linha
+  correspondente. Até lá, cada linha do §1 é uma diferença que um leitor dos dois textos encontra.

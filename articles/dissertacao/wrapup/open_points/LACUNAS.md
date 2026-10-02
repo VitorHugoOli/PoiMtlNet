@@ -77,17 +77,24 @@ aberto e o texto enviado ja diz que esta em aberto.
 
 ### [FECHADO 2026-08-13] · P1 · Controle de regiao com capacidade pareada: a vantagem em Texas e California e compartilhamento ou parametro?
 
-**RESPOSTA FINAL (executado):** e capacidade. Dando ao dedicado de regiao o orcamento inteiro de
-parametros do modelo conjunto, ele **supera** o conjunto em California ($-0{,}43$ Acc@10 para o
-conjunto, $p = 0{,}008$, unanime nos cinco folds) e o iguala em Texas ($-0{,}21$, $p = 0{,}12$). Um
-braco a 57 por cento do orcamento ja alcanca o mesmo nivel, e o passo dele ate o orcamento cheio nao
-se separa de zero ($+0{,}021$, $p = 0{,}40$). Registro completo em
-`../post_submission_studies/P1_capacity_region.md`; a errata que leva isso ao texto em
+**RESPOSTA FINAL (executado; numeros corrigidos a 2026-09-02, propagados aqui a 2026-10-02):** na
+California, e capacidade. Contra a contagem do modelo conjunto lida nos logs de treino (5.151.189),
+o braco pareado e o de `d_model=352` (5.014.942, **97,4 %**), e ele **supera** o conjunto por
+$+0{,}41$ Acc@10 ($p = 0{,}010$, unanime nos cinco folds); o de 528 (**174,8 %**) faz $+0{,}43$
+($p = 0{,}008$), e o passo de um para o outro nao se separa de zero ($+0{,}021$, $p = 0{,}40$). O
+**Texas nao tem controle pareado**: o unico braco (544, **170,5 %**) faz $+0{,}21$, $p = 0{,}12$.
+*Esta resposta dizia, ate 2026-10-02, que o "orcamento inteiro" era o braco de 528, que o Texas era
+igualado, e que um braco "a 57 por cento" ja chegava ao mesmo nivel; o 57 % dividia por uma contagem
+reconstruida (8.809.533), nao medida.* Registro completo em
+`../post_submission_studies/P1_capacity_region.md` (que ainda traz os percentuais antigos), a
+correcao em `../erratas/VERIFICACAO.md`, e a errata que leva isso ao texto em
 `../erratas/errata_Q14_capacity_region.tex`.
 
 **Nota de largura:** as larguras publicadas em `capacity_baseline_experiment.md` medem a arquitetura
 anterior e nao pareiam capacidade no modelo atual. As derivadas contra o modelo atual, alvo igual ao
-modelo conjunto inteiro, sao $624$ (AL), $528$ (CA) e $544$ (TX).
+modelo conjunto inteiro, sao $624$ (AL), $528$ (CA) e $544$ (TX). *(2026-10-02: essas tres foram
+derivadas contra contagens reconstruidas do conjunto, e contra as medidas ficam a 166 a 175 %. O unico
+braco proximo da paridade e o de 352 em California. Ver `VERIFICACAO.md`.)*
 
 <details><summary>o registro de quando o item estava aberto</summary>
 
@@ -547,7 +554,8 @@ bounded within half a point, the same band this control's own effects fall near,
 argument there"*. Ele declara tambem o proprio escopo: Alabama com o protocolo completo de quatro
 sementes, California com uma semente, esta limitada por custo por dobra trinta e seis vezes maior.
 **RESPOSTA FINAL:** "O controle testa a explicacao concorrente, capacidade em vez de representacao, e
-responde em Alabama: multiplicar por 6,5 os parametros treinaveis do modelo dedicado **baixa** o
+responde em Alabama: multiplicar por 6,7 (era 6,5 antes da recontagem de 2026-09-02) os parametros
+treinaveis do modelo dedicado **baixa** o
 macro-F1 em 0,53 ponto, com teste pareado sobre quatro sementes separando a diferenca de zero,
 p = 0,0011, e direcao unanime nas vinte dobras. Em California os tres bracos ficam dentro de 0,06 ponto
 numa semente so, e isso e reportado como leitura de semente unica, sem teste e sem media entre

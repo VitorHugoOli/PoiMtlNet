@@ -23,7 +23,7 @@
 |---|---|
 | **Resposta oral, ja sustentada por medicao** | N1, N2, N5, N6, N7, N8 |
 | **Resposta oral que declara um limite** | N3, N4, N9 |
-| **Decisao sua, antes da defesa** | a margem de dois pontos (secao 4), a contagem de usuarios (secao 10.1), a contagem de parametros do apendice de capacidade (secao 10.6) |
+| **Decisao sua, antes da defesa** | a margem de dois pontos (secao 4). *A contagem de usuarios (secao 10.1) e a contagem de parametros do apendice de capacidade (secao 10.6) foram resolvidas a 2026-09-01 e 2026-09-02; ver o topo de cada secao (anotado 2026-10-02).* |
 | **So fecha com execucao** | a paridade do modelo conjunto, a decomposicao do checkpoint unico (secao 10) |
 
 ---
@@ -452,6 +452,12 @@ Isto vale para a dissertacao tambem. **Nao e regressao; e honestidade nova.**
 
 ### 10.1 · A contagem de usuarios da tabela de datasets [decisao do autor]
 
+> **RESOLVIDO 2026-09-01** (anotado aqui a 2026-10-02). A saida escolhida foi a clausula na legenda: a
+> tabela de datasets do Cap. 5 diz agora que check-ins, usuarios e POIs sao contagens do corpus
+> inteiro, **antes** do filtro de dez visitas, e que a coluna de janelas e calculada **depois** dele.
+> Commit `e1f9b8c0`; registo na tabela do §1.2 do `CLAUDE.md` (linha "Table 8") e uma linha da
+> Tabela B.5 do suplemento. Nenhum numero mudou.
+
 A Tabela de estatisticas dos datasets publica **3 858 usuarios** para Alabama, **7 869** para Arizona e
 **23 694** para Istambul. O mtlcheck, contando sobre o substrato v18, encontra **1 101**, **2 136** e
 **14 530** usuarios efetivamente presentes nas predicoes agregadas.
@@ -611,6 +617,12 @@ os defeitos reproduzidos, o limite do substrato e as perguntas de banca continua
 descrevem o que foi encontrado, nao o numero que estava na tela.
 
 ### 10.6 · A contagem de parametros do controle de capacidade [decisao do autor]
+
+> **RESOLVIDO 2026-09-02** (anotado aqui a 2026-10-02). As contagens foram corrigidas nos dois
+> volumes: o Apendice G do suplemento imprime 1.433.863 / 9.634.471 (229,5 %) / 12.044.791
+> (233,8 %), e as duas somas do volume principal passaram de 1,1 / 2,0 para 1,9 / 2,8 milhoes.
+> Reproduzivel sem GPU por `research/reproducibility/mobiwac_v18/param_counts.py`. Registo: `CLAUDE.md`
+> §5, armadilha 6. O texto abaixo e o diagnostico de antes da correcao.
 
 Este e o unico item do ledger de defeitos que toca um numero **ja escrito no material de defesa**, e
 por isso ele nao pertence a lista de execucoes futuras: ele ja esta na pagina.

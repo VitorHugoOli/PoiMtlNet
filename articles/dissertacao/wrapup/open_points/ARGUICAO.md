@@ -24,7 +24,7 @@
 |---|---|
 | **Resposta oral, ja sustentada pelo texto** (FECHADO) | Q1, Q2, Q3, Q4, Q6, Q7, Q9, Q11, Q12, Q13, Q14, Q15, Q16, Q17, Q18 |
 | **Resposta oral que declara um limite** (FECHADO, mas a frase precisa ser dita como limite) | Q5, Q8, Q10, Q19, Q20, Q21, Q22, Q23 |
-| **So fecha com execucao** (ABERTO) | Q5 (numero da dependencia entre as duas entradas), Q8 (controle de capacidade em CA/TX), Q10 (segunda cidade fora dos EUA) |
+| **So fecha com execucao** (ABERTO) | Q5 (numero da dependencia entre as duas entradas), Q8 (a ablacao do trunk em cinco folds em CA/TX; o controle de capacidade correu a 2026-08-13, ver o bloco), Q10 (segunda cidade fora dos EUA) |
 | **Fecha por decisao sua, antes da defesa** | Q13 (divergencia do controle de concatenacao entre os dois documentos), Q14 (limite de capacidade que o artigo carrega e a dissertacao nao), Q15 (o quarto fundamento de integridade descrito na errata e ausente do volume principal) |
 | **Errata para o deposito final** | Q13, Q14, Q15, e o item de silhueta registrado em `REVISION_PLAN.md` §15.4 (defeito do lado do artigo, nao da dissertacao) |
 
@@ -162,6 +162,14 @@ contra eles inclui tambem a vantagem de representacao, o que esta dito em p. 82,
 de cada um em §5.5.4, p. 77.
 
 ### [ABERTO] · Q8 · O resultado de regiao e transferencia entre tarefas, ou e a arquitetura e os parametros que o senhor acrescentou?
+> **Atualizado 2026-10-02.** O controle de capacidade **existe desde 2026-08-13** (P1), com os
+> numeros corrigidos a 2026-09-02: na California, o dedicado de regiao com **97,4 %** dos parametros
+> do conjunto (5.014.942 contra 5.151.189, contados nos logs) faz **+0,41 Acc@10 acima** dele,
+> p = 0,010, cinco folds na mesma direcao; o **Texas nao tem braco pareado** (o unico, a 170,5 %, faz
+> +0,21, p = 0,12). Fonte: `../erratas/VERIFICACAO.md` e `../erratas/errata_Q14_capacity_region.tex`.
+> A resposta passa a ser: na California a vantagem de regiao mede capacidade. O que continua sem
+> existir e a ablacao do trunk em cinco folds em CA/TX (LACUNAS P4). O texto abaixo e o de antes.
+
 **ACAO NECESSARIA:** um controle de capacidade pareada em Texas e California, cinco folds, e uma
 ablacao do trunk de cinco folds nesses dois datasets. Nenhum dos dois existe. O registro interno
 que documenta a ausencia e `docs/studies/closing_data/v18/SWEEP_PLAN.md:285-290` ("A 5-fold trunk
@@ -538,6 +546,12 @@ contribuicoes das duas partes. A triagem tinha poder para a hipotese de que o tr
 pontos e nao a confirmou, o que reforca a formulacao cautelosa em vez de contradiz-la.
 
 ### U2 · A vantagem de regiao sobrevive a um controle de capacidade pareada?
+> **Atualizado 2026-10-02: foi medido** (P1, 2026-08-13; numeros corrigidos a 2026-09-02). Na
+> California **nao sobrevive**: o dedicado de regiao com 97,4 % dos parametros do conjunto faz +0,41
+> Acc@10 acima dele (p = 0,010, 5/5). O Texas nao tem braco pareado. Ver Q8 acima e
+> `../erratas/RESPOSTAS_ORAIS.md` §Q14. O paragrafo abaixo e o de antes da medicao, e o fator de
+> categoria e **6,7** desde a recontagem de 2026-09-02.
+
 **Nao foi medido no eixo de regiao.** O controle de capacidade que existe, Apendice G do suplemento,
 p. 24-26, cobre **next category**: em Alabama, multiplicar por 6.5 os parametros treinaveis do
 modelo dedicado **reduz** sua macro-F1 em 0.53 ponto, com teste pareado sobre as quatro sementes

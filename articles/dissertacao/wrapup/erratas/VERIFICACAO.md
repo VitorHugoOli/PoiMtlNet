@@ -16,7 +16,7 @@ celulas `{state}_s0_joint`, campo `top10_full` por fold, mesma semente e mesma e
 | Texas: $p = 0.12$, nao separado de zero | $p = 0.1162$, 4 de 5 folds | sim |
 | braco estreito a $57$ por cento do orcamento | $5{,}014{,}942 / 8{,}809{,}533 = 56.9$ por cento | **NAO -- o denominador esta errado, ver abaixo** |
 | passo de $352$ para $528$ nao separado de zero | $+0.021$, $p = 0.40$ | sim |
-| categoria: $6.5\times$ os parametros baixa o macro-F1 | registro do controle de categoria, $-0.53$, $p = 0.0011$ | sim |
+| categoria: $6.5\times$ os parametros baixa o macro-F1 | registro do controle de categoria, $-0.53$, $p = 0.0011$ | sim, mas o fator passa a $6.7\times$ com a recontagem de 2026-09-02 (9.634.471 / 1.433.863; Apendice G corrigido) |
 
 ## O denominador estava errado, e com ele a leitura de todos os arms (2026-09-02)
 
@@ -72,11 +72,12 @@ Foram trazidos em 2026-09-02 para **`docs/results/P1/`, a partir da RAIZ DO REPO
 `articles/dissertacao/` procura no ficheiro errado e conclui que os artefatos nao existem -- foi o
 que aconteceu ao verifica-los.
 
-⚠ **O git nao os ve.** `.git/info/exclude:9` tem um padrao `results` que esconde `docs/results/`
-inteiro, portanto os tres ficheiros estao em disco e **fora do controlo de versoes**. Continuam a
-existir na `nespedgpu` no caminho do P1 §5. Se a evidencia desta errata tiver de viajar com o
-repositorio, precisam de `git add -f`, e isso e decisao do autor: sao 57 KB e o directorio esta
-excluido por escolha local, nao por politica do repositorio.
+✅ **Rastreados desde 2026-09-06** (commit `0c226b98`, *"os tres JSON do controlo de capacidade entram
+no git"*, com `git add -f`). O paragrafo que estava aqui dizia que o git nao os via e que
+traze-los era decisao do autor. Isso ficou resolvido nesse commit e so foi corrigido aqui a
+2026-10-02. A armadilha continua valida para o resto do directorio: o padrao `results` em
+`.git/info/exclude` esconde `docs/results/` de `git status`, portanto um ficheiro novo ali nao
+aparece nem como untracked.
 
 ## Convencao de metrica
 

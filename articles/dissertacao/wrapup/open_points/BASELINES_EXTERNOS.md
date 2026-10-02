@@ -21,15 +21,23 @@ conjuntos** (`chapters/5_mobiwac/06_results.tex:256`). As margens, calculadas da
 
 | eixo | melhor externo | margem do conjunto | células |
 |---|---|---|---|
-| **próxima categoria** (macro-F1) | POI-RGNN | **+3,06 a +6,93** | 6 de 6 |
+| **próxima categoria** (macro-F1) | POI-RGNN | **+4,11 a +6,93** (era +3,06 a +6,93 até 2026-10-01; ver a nota abaixo) | 6 de 6 |
 | **próxima região** (Acc@10) | HMT-GRN / STAN / ReHDM, o melhor por conjunto | **+3,55 a +6,04** | 6 de 6 |
+
+> **Corrigido 2026-10-02.** As células do POI-RGNN em FL/CA/TX eram **34,49 / 31,78 / 33,03**, de uma
+> implementação anterior (TF, outubro de 2025) com folds que dividiam as janelas de cada utilizador.
+> Desde 2026-10-01 o Cap. 5 imprime as da reimplementação, com folds disjuntos por utilizador:
+> **33,35 / 30,71 / 32,08**. A menor margem do conjunto sobre o POI-RGNN passa de **3,06 para 4,11**,
+> no Texas (36,19 − 32,08); a maior continua 6,93, no Arizona. Fonte: `src/tables/mobiwac/results.tex`
+> e a linha correspondente da Tabela B.5 (`src/tables/mobiwac/errata_scope.tex`); a história da
+> mistura está no `CLAUDE.md` §5, armadilha 3.
 
 E o contraste que motiva a pergunta do autor é real:
 
 | comparação | faixa |
 |---|---|
 | conjunto × **dedicado** — a comparação controlada, onde toda a maquinaria estatística é gasta | **−0,88 a +1,21** |
-| conjunto × **literatura** | **+3,06 a +6,93** |
+| conjunto × **literatura** | **+4,11 a +6,93** |
 
 **A margem sobre a literatura é de outra ordem de grandeza que a margem que a tese discute.** A
 observação do autor procede.
@@ -92,11 +100,11 @@ e ela desmonta a manchete. **A pergunta já está no banco: `ARGUICAO.md` Q22.**
 | o baseline externo é **nativo da tarefa**? | **sim** — POI-RGNN prediz a próxima categoria (`2_fundamentals.tex:351`) | **não diretamente** — ver §4 |
 | foi **adaptado**? | **não** — *"which we re-implement from its published architecture and hyperparameters"* (`05_setup.tex:178`) | STAN sim (saída trocada); HMT-GRN parcialmente (ver §4) |
 | roda nas **nossas partições**? | sim | HMT-GRN sim; STAN parcial; ReHDM não |
-| o **piso trivial** o supera? | **não.** O POI-RGNN está acima do Markov-K **nos seis** (20,50→23,80; 23,92→27,64; 24,55→30,12; 29,74→34,49; 27,58→31,78; 28,67→33,03) | **sim**, na maioria |
+| o **piso trivial** o supera? | **não.** O POI-RGNN está acima do Markov-K **nos seis** (20,50→23,80; 23,92→27,64; 24,55→30,12; 29,74→33,35; 27,58→30,71; 28,67→32,08) | **sim**, na maioria |
 
 > **Conclusão operacional.** O momento *"estamos à frente da literatura"* existe e é honesto —
 > **mas vive no eixo de CATEGORIA**, onde o baseline é nativo, fielmente reimplementado, e acima do
-> piso sintonizado nos seis conjuntos. **+3,06 a +6,93, seis de seis.**
+> piso sintonizado nos seis conjuntos. **+4,11 a +6,93, seis de seis.**
 > No eixo de região a coluna externa valida pouco, e reivindicá-la custa mais do que rende.
 
 ---

@@ -1,4 +1,10 @@
-# Integrity re-run on the delivered protocol — prep package (NOT launched)
+# Integrity re-run on the delivered protocol — prep package
+
+> **Status 2026-10-02: the three patches are applied (`d01cd2a8`) and Alabama is done** (seed 0,
+> 5 folds, on the Mac): category TO − FULL = −0.108 ± 0.099 (p = 0.07), region −0.014 ± 0.376
+> (p = 0.94). Evidence and protocol: `docs/results/closing_data/v18/g1_integrity_al/` (`5cd62589`).
+> Florida is running from an external-SSD clone; Arizona's inputs are staged. The "prepared, not
+> run" status below is the record of 2026-10-01.
 
 **Status 2026-10-01: prepared, not run. Not on nespedgpu.** The box hard-reset four times
 (2026-09-30, boots 05:19, 05:22, 16:46, 21:28), each time 7–70 s into the Alabama fold-0 train-only
@@ -44,8 +50,10 @@ nothing deleted.
 | `a4_build_dk_ovl.patch` | `scripts/pre_freeze_gates/a4_build.py`: split from a frozen `dk_ovl` JSON; output as a NEW engine `check2hgi_design_k_resln_mae_l0_1_to_f<F>`; fresh pseudo tag `a4dk`; refuses to overwrite; keeps pseudo artifacts by default; `--device` passthrough; writes `build.json` provenance |
 | `freeze_split_group_dtype.patch` | `scripts/integrity_v2/freeze_split.py`: adds `--group-dtype {str,int}`, default `str` (unchanged). `int` reproduces `train.py`'s folds; records `group_dtype` in the JSON. Added 2026-10-01, see the correction above |
 
-All three patches apply cleanly to the tree at the time of writing (`git apply --check`). **Neither is
-applied.** Applying them is the author's call.
+All three patches applied cleanly to the tree at the time of writing (`git apply --check`). **All three
+were applied on 2026-10-01 in `d01cd2a8`** (author-approved queue item G1), with one addition:
+`a4_build.py` asserts `group_dtype == 'int'` in the split JSON. Until 2026-10-02 this paragraph said
+"Neither is applied".
 
 Two traps the `a4_build` patch closes: the original skips when
 `results/pre_freeze_gates/a4/<st>_s0_f<F>_regemb.parquet` exists, so an unpatched re-run silently

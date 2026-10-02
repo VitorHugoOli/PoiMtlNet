@@ -61,8 +61,9 @@ wrong generation of the experiment**, or from the wrong one of two volumes that 
 **`docs/studies/closing_data/RESULTS_BOARD.md` is DEAD for this dissertation.** It calls itself a
 single source of truth, and it is one — for **v17**, whose category cells are leak-inflated by 25–45
 points (it prints AL 63.56 / FL 79.85 / CA 77.05 against the delivered 30.59 / 37.55 / 35.63). It
-was last touched 2026-07-20 and never mentions v18. Several documents still route you there,
-including `AGENT_GUARDRAILS.md` §N1 — **that pointer is stale; this table wins.**
+was last touched 2026-07-20 and never mentions v18. If any document still routes you there,
+**this table wins.** (`AGENT_GUARDRAILS.md` §N1 was repointed on 2026-08-20, commit `401c45ab`, and
+now warns against the board itself; until 2026-10-02 this paragraph still called that pointer stale.)
 
 ### 0.2 · Why the generation matters so much
 
@@ -182,8 +183,10 @@ One source, three builds, from `src/`:
 applied here as they are decided, each one registered in `wrapup/erratas/`. The delivered
 **`src/banca.pdf` is never rebuilt** — it is the frozen record of what the banca received
 (md5 `5be69d1b…`, 119 pp). The current build, **with the erratas applied**, is `src/dissertacao.pdf`,
-which `make defense` produces. Two artifacts, on purpose: one is the record, the other is what will
-be deposited.
+which `make defense` produces. Two artifacts, on purpose: one is the record, the other is the current
+text. (The file uploaded to AcademicoPG is neither: it is `build/main_academico.pdf`, from
+`make academico` — see the STALE block below. Until 2026-10-02 this sentence called
+`dissertacao.pdf` "what will be deposited".)
 
 | applied | what changed | errata |
 |---|---|---|
@@ -202,6 +205,7 @@ be deposited.
 | 2026-09-06 · **ladder probes** | The verdict ladder is the document's central claim, copied **by hand at twelve live sites across eight files**, and no probe watched any of them — the 2026-08-21 Resumo errata was exactly this drift, in one language only. Four `LADDER-*` probes now pin scope + count + bound in one match, at both abstracts and Chs. 1 and 6; **not** Ch. 5, whose sentences are reproduced text. Each sabotage-validated against the specific drift it must catch. Gate 220/236 → **224/240**. | commit `03774545` |
 | 2026-09-06 · **ERR-2 ratified** | Chapter headings read "Multitask" while the prefaces cite the article titles hyphenated. **No change**, ratified by the author after a check: 73 "multitask" vs 3 "multi-task" live, and all three hyphenated ones quote a title of record. The governing rule is citation fidelity, not house style — a title is reproduced as published, in APA and IEEE alike. All seven ERR are now closed. | `wrapup/open_points/LACUNAS.md` §ERR-2 |
 | 2026-09-06 · **Ch. 2 window** | The chapter never stated the windowing: live count of "window" in Ch. 2 was **0** while Ch. 5 uses it 34 times, in a subsection titled "Preparation and data split" that had no preparation. New opening paragraph. **ℓ=9 is universal** (`L_h=9` at Chs. 3 and 4, "nine visits" at Ch. 5) — an earlier claim of mine that the three disagreed on ℓ was **wrong**; what varies is stride (non-overlapping vs. overlapping), the minimum history (5 vs. 10 visits) and short-history handling (zero-pad vs. full-length-only), each splitting the first two studies against the third. Frame, no errata; every value quoted from delivered text. | commit `b6b569e4` |
+| 2026-09-08 onward | **Not copied here; this ledger stops at 2026-09-06.** Every later correction to Ch. 5 is a row of **Table B.5 of the supplement** (`src/tables/mobiwac/errata_scope.tex`, 31 rows on 2026-10-02) and every later one to Ch. 3 a row of **B.1** (`src/tables/cbic/errata.tex`, 14); `git log -- src/` gives the commit of each. | B.5 / B.1 + `git log` |
 
 > ✅ **DEPOSIT NUMBERING AND FORMATTING: VERIFIED CONFORMANT ON THE SYSTEM-EMITTED FILE (2026-09-06).**
 > Not on our build — on the RASCUNHO the portal emitted after the corrected body was re-attached
@@ -211,7 +215,11 @@ be deposited.
 > build (the DRAFT layer covers the whole sheet and contaminates any measurement taken on the
 > RASCUNHO): margins 3.00 / 2.01 / ≥1.96 cm, leading 17.9–18.0 pt = 1.5 × 12 pt, number top-right at
 > 2.01 cm, A4, TeX Gyre Termes 12 pt, and the §6 order Figures → Tables → siglas → Contents → body.
-> **Only the BBT submission remains, and it is the author's to make.**
+> ~~**Only the BBT submission remains, and it is the author's to make.**~~ *(Superseded
+> 2026-10-02: true of the 09-06 file, but erratas kept landing after it, so the uploaded body is
+> behind the source again. The remaining sequence is the one in the banner at the top of this file:
+> decisions → apply → rebuild → re-attach → re-emit the RASCUNHO → manual pass → BBT → ficha →
+> "Enviar". The verification above has to be redone on the next RASCUNHO.)*
 >
 > ⚠ **THE WATERMARK TRAP, because it produces false negatives on arbitrary pages.** A line-anchored
 > regex (`^\d+$`) over a watermarked PDF reports "no page number" on sheets where the DRAFT glyphs
@@ -242,10 +250,16 @@ be deposited.
 
 > ⚠ **`src/dissertacao.pdf` is STALE — measured 2026-09-06, and this warning was itself stale.**
 > It said "built 2026-08-21, carries only the Resumo errata". It was in fact rebuilt **2026-09-04
-> 17:34** (by the author) and is **120 pp**. It is still behind: **ten** files under `src/` have
-> changed since that build — `2_fundamentals.tex`, `5_mobiwac/{04_method,05_setup,07_discussion}.tex`,
+> 17:34** (by the author) and is **120 pp**. It is still behind: **ten** files under `src/` had
+> changed since that build on 2026-09-06 — `2_fundamentals.tex`, `5_mobiwac/{04_method,05_setup,07_discussion}.tex`,
 > `6_conclusion.tex`, `apx_h_check2hgi_joint_model.tex`, `content.tex`, `main.tex`, `references.bib`,
 > `tables/mobiwac/errata_scope.tex`.
+>
+> *Re-measured 2026-10-02.* The build is still the 2026-09-04 17:34 one (`pdfinfo` CreationDate). What
+> happened on 2026-09-08 is that this build was **committed** (`ec9a191d`; the tracked copy until then
+> was the 119-pp build of 08-21), which is why the file's mtime reads 09-08. It was not rebuilt.
+> Commits since the build have touched **27** `.tex`/`.bib` files under `src/`
+> (`git log --since='2026-09-04 17:34' -- src/`), including the Ch. 5 corrections of 09-29 to 10-02.
 >
 > ✅ **It is NOT a deposit artifact, so nothing is blocked on it.** The AcademicoPG body is
 > `build/main_academico.pdf`; `UFV_COMPLIANCE.md` never mentions `dissertacao.pdf`. It is the
@@ -256,8 +270,8 @@ be deposited.
 
 **Consequence for anyone verifying:** a rebuild of `src/` no longer reproduces
 `src/banca.pdf`. That is expected and is the point of the two names. **To see what the banca
-received, read `src/banca.pdf`; to see what will be deposited, read `src/dissertacao.pdf`** (or
-rebuild it with `make defense`).
+received, read `src/banca.pdf`; to see the current text, read `src/dissertacao.pdf`** (or rebuild it
+with `make defense`). The deposit body is `build/main_academico.pdf` (`make academico`).
 
 ---
 
@@ -311,22 +325,25 @@ supplement**. BRACIS 2026 is **not** a chapter: rejected, superseded by MobiWac.
 ## 4 · What is still open
 
 The live registry is [`wrapup/open_points/LACUNAS.md`](wrapup/open_points/LACUNAS.md) — 42 items,
-each remedied against the live source and the built PDF. **10 blocks are open** (was 17 — the
-seven ERRATA all closed on 2026-09-06), in four classes:
+each remedied against the live source and the built PDF. **6 blocks are open** as of 2026-10-02
+(was 10; 17 before the seven ERRATA closed on 2026-09-06), in four classes. ⚠ LACUNAS's own block
+headers still read `[ABERTO]` for GAPS-D, NSO-46, LO-11 and LO-13, and the table below names the
+records that close them.
 
 | class | open | what closes it |
 |---|---:|---|
 | **ERRATA** — changes at the final deposit | **0** | ERR-1…ERR-7 all closed 2026-09-06. ERR-1 was **not a defect** (the diagnosis was wrong: the errata table is not in the deposit PDF); ERR-2 **ratified without change** (chapter headings may differ from a cited title — the rule is citation fidelity, not house style); ERR-3/6/7 applied; ERR-4 decided (keep the orphans, with an archive note); ERR-5 closed **fail-closed** on `holm1979`, whose proposed DOI does not resolve |
-| **DECISÃO DO AUTOR** — no agent closes these | 7 | NSO-46 (the last open sign-off marker), LO-6, LO-11 (authorship credit on the CoUrb article), LO-12 (Ch. 4's temporal-input description), LO-13, GAPS §7.1, PENDENCIAS 4.1 |
-| **EXECUÇÃO** — only an experiment closes it | 3 | P4, P6, GAPS-D. P1 is **closed** (2026-08-13). ⚠ None of the three blocks the deposit; all three are answerable standing up from the record already written into each entry |
-| **ORAL** — answered standing up, text untouched | 0 open | six answers drafted in `wrapup/erratas/RESPOSTAS_ORAIS.md` |
+| **DECISÃO DO AUTOR** — no agent closes these | 4 | LO-6, LO-12 (Ch. 4's temporal-input description), GAPS §7.1, PENDENCIAS 4.1 (only **AUT-26** is still open there: the author is asking the advisor). *Corrected 2026-10-02, was 7:* LO-11 (authorship credit on the CoUrb article) was decided by the author on 2026-07-30 and LO-13 on 2026-08-04 (both in `src_utils/LEFT_OUT.md`); NSO-46 is moot, because its paragraph lives in `apx_b_static_scope.tex`, which no live `\input` builds (LACUNAS's own block measures this) |
+| **EXECUÇÃO** — only an experiment closes it | 2 | P4, P6. P1 is **closed** (2026-08-13). *Corrected 2026-10-02, was 3:* GAPS-D closed on 2026-08-11 (`docs/studies/closing_data/v18/GAPS.md` §4: every `reg` cell now carries `scoring_path`). ⚠ Neither blocks the deposit; both are answerable standing up from the record already written into each entry |
+| **ORAL** — answered standing up, text untouched | 0 open | three answers drafted in `wrapup/erratas/RESPOSTAS_ORAIS.md` (Q13, Q14, Q15; this cell said six until 2026-10-02) |
 
 Two more registries: [`wrapup/NEW_VERSION.md`](wrapup/NEW_VERSION.md) (the `mtlcheck` rewrite — see
 §5) and `src_utils/PENDENCIAS.md` (the older author queue).
 
 > **The sign-off marker count does not live in one place any more.** Measured 2026-08-20:
 > `src/` **24** + `wrapup/material_extra/` **9** + `wrapup/erratas/` **1** = **34**. A command that
-> greps only the main tree misses ten, **including NSO-46, the one still open.**
+> greps only the main tree misses ten, **including NSO-46, the one annotated open** (moot, since no
+> build includes its file; see the table above).
 
 ---
 

@@ -84,7 +84,8 @@ está cheio de lixo.
 
 **Veredito: NÃO. São de carga.** Verificado por três caminhos independentes.
 
-1. `src_utils/check.sh:345` **executa** `_history/_round9/35_wave_a_render_check.py`.
+1. `src_utils/check.sh` **executa** `_history/_round9/35_wave_a_render_check.py` (procure o nome do
+   script no `check.sh`; o número de linha que estava aqui, `:345`, já tinha apodrecido a 2026-10-02).
 2. `check_audit_claims.py` **lê os `.md` como dados** — tem uma tabela de expressões regulares que
    casa contra `_history/_round9/37_reviewer_gate_round9.md`, `_history/_round9/47_applied_check.md` e outros.
    Apagar um deles faz o portão de auditoria **falhar, não avisar**.
@@ -94,7 +95,8 @@ Também não tocar: `_fixtures/check_verify_list/{clean,dirty}/src_utils/_histor
 cópias-fixture que o próprio `check.sh` compara.
 
 **Prova:** `wrapup/ACHADOS.md` §A5 · `README.md` §"parecem pastas de trabalho velhas e não são" ·
-`CLAUDE.md` linha 150.
+`CLAUDE.md` §2, a linha `src_utils/` do mapa de pastas (*"load-bearing"*). Até 2026-10-02 este
+ponteiro dizia "linha 150", que já apontava para outra coisa.
 
 ---
 
@@ -231,8 +233,9 @@ caminhos que ele cita — por isso a esteira não mudou (verificado por A/B).
 em ficheiro vivo nenhum, e **zero** são citados pelo texto entregue — varri os 18 caminhos e os 18
 nomes de ficheiro contra todo o `src/**/*.tex`. As únicas referências que sobram são por nome, e
 todas dentro de outros ficheiros de rodada ou dos seus `README`, que é precisamente o caso que este
-verdete declara esperado. **A regra do `CLAUDE.md` linha 225 — "do not prune the underscore dirs" —
-não foi violada**: ela protege o que o `check.sh` executa e o que o texto entregue cita por caminho,
+verdete declara esperado. **A regra do mapa de pastas do `CLAUDE.md` (§2, linha `src_utils/`) — que a
+2026-09-08 dizia "do not prune the underscore dirs" e desde 2026-10-01 diz "move nothing there
+without running the gates" — não foi violada**: ela protege o que o `check.sh` executa e o que o texto entregue cita por caminho,
 e nenhum dos dezoito é uma coisa nem outra.
 
 Tudo continua recuperável: `git show <sha>^:<caminho>`.
@@ -283,7 +286,8 @@ acrescenta pouco *neste eixo*; a estrutura ao nivel do check-in continua a fazer
 **Porque e que isto nao esta no texto:** decisao do autor, 2026-09-07. Um apendice seria peso para
 um controlo que confirma o que o texto ja afirma, e um ponteiro do Capitulo 5 para um apendice da
 dissertacao **feriria o principio de que os capitulos de artigo se sustentam sozinhos** — o texto
-depositado cita-se so a si proprio e ao repositorio (`CLAUDE.md` linha 97), e um ponteiro desses e
+depositado cita-se so a si proprio e ao repositorio (`CLAUDE.md` §1, o paragrafo a seguir a tabela
+dos dois volumes: *"deliberately does not point at the supplement"*), e um ponteiro desses e
 das coisas que partem quando o capitulo sai da dissertacao. Fica aqui, pronto a mostrar a quem
 perguntar. **Para a versao final do MobiWac e outra conversa**: la o texto esta a ser reescrito e o
 numero transforma o "most" numa quantidade.
@@ -462,7 +466,9 @@ sweep novo. Qual geração correu cada pesquisa é detalhe de desenvolvimento, e
 (`WRITING_LAW.md` §3, "Describe the method as it stands").
 
 **Prova:** o registo v18 cobre Istanbul, Alabama, Arizona e Texas. A Florida e a Califórnia estão
-só no sweep v17. A decisão está no dossiê de depósito, item 2, de 2026-09-29.
+só no sweep v17. A decisão, de 2026-09-29, está registada na mensagem do commit `5f0e8bac`, que criou
+este verdete. (Até 2026-10-02 esta linha apontava para "o dossiê de depósito, item 2", que não está no
+repositório.)
 
 ---
 

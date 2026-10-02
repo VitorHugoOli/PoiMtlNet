@@ -41,18 +41,27 @@ regiao. A lista da dissertacao nao o carrega. Por que ele saiu?"
 
 **Ele nao deveria ter saido, entra como errata, e agora vem com a medicao que o artigo dizia faltar.**
 
-> O artigo declara que o controle pareado por capacidade nao havia sido rodado. Eu o rodei. Dando ao
-> modelo dedicado de regiao o orcamento inteiro de parametros do modelo conjunto, ele passa o
-> conjunto em California, por quatro decimos de Acc@10, com a diferenca separada de zero em cinco
-> dobras e direcao unanime, e o iguala em Texas, onde a diferenca nao se separa de zero. Um braco
-> mais estreito, com cinquenta e sete por cento daquele orcamento, ja chega no mesmo nivel. Ou
-> seja: a vantagem de regiao que eu reporto mede capacidade, nao troca entre as tarefas. O que
-> sobrevive e a afirmacao operacional, um modelo produz as duas predicoes em uma passada sem custo
-> mensuravel em nenhuma das duas tarefas, e essa continua de pe.
+> O artigo declara que o controle pareado por capacidade nao havia sido rodado. Eu o rodei, na
+> California. Dando ao modelo dedicado de regiao noventa e sete por cento do orcamento de parametros
+> do modelo conjunto, contado nos logs de treino, ele passa o conjunto por quatro decimos de Acc@10,
+> com as cinco dobras na mesma direcao e um teste pareado que separa a diferenca de zero. Alargar
+> alem da paridade nao acrescenta nada. No Texas nao ha controle pareado: o unico braco que correu
+> la tem cerca de setenta por cento a mais que o conjunto, e a diferenca dele nao se separa de zero.
+> Ou seja: na California, a vantagem de regiao que eu reporto mede capacidade, nao troca entre as
+> tarefas. O que sobrevive e a afirmacao operacional, um modelo produz as duas predicoes em uma
+> passada sem custo mensuravel em nenhuma das duas tarefas, e essa continua de pe.
+
+*Corrigido a 2026-10-02 com os numeros de 2026-09-02 (`VERIFICACAO.md`, seccao do denominador; e o
+texto atual de `errata_Q14_capacity_region.tex`). A versao anterior desta resposta tratava o braco de
+528 como o "orcamento inteiro", dizia que o conjunto era igualado em Texas, e dispensava o braco de
+352 como "cinquenta e sete por cento". Contra a contagem medida nos logs (5.151.189 parametros), o de
+352 e o pareado (97,4 %, +0,41, p = 0,010, 5/5), o de 528 tem 174,8 %, e o unico braco do Texas tem
+170,5 % (+0,21, p = 0,12).*
 
 **Se perguntarem se isso derruba a tese.** Nao, e por uma razao que o documento ja declara: a tese
 e sobre representacao, e vive no eixo de categoria. La o controle de capacidade aponta na direcao
-oposta, multiplicar por seis e meio os parametros do dedicado **baixa** o macro-F1 dele. Os dois
+oposta, multiplicar por quase sete (6,7; era "seis e meio" antes da recontagem de 2026-09-02) os
+parametros do dedicado **baixa** o macro-F1 dele. Os dois
 ganhos de regiao sao resultados secundarios, fora do plano de analise registrado, e a p. 76 e a
 p. 88 ja dizem isso.
 

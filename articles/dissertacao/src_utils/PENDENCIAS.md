@@ -60,6 +60,12 @@ trajetoria do §2.8: deixou de pedir decisao e virou registro.
 
 ### 2.1 Os marcadores `[NEEDS SIGN-OFF]` no fonte — **56** medidos em 2026-08-02, agora com mapa item por item
 
+> **MORTO (2026-08-12, `wrapup/open_points/LACUNAS.md` §5; anotado aqui a 2026-10-02).** A contagem de 56
+> esta invalidada: sao 34 marcadores, 32 anotados `CLOSED` e um so `OPEN`, o item 46, cujo ficheiro
+> (`apx_b_static_scope.tex`) nenhum build inclui. Nada aqui espera decisao. Fica no lugar, e nao no
+> arquivo, ate alguem o mover com o motivo de saida, como manda o topo deste ficheiro.
+
+
 **O que e.** Pontos do fonte marcados como precisando do seu aval. Nenhum bloqueia build, e **nenhum aparece no PDF**:
 todos vivem em comentario `%`. **O numero anda** — tracks paralelas removem marcadores conforme voce decide.
 
@@ -113,6 +119,11 @@ contra corpo de 11,96 pt. O raster do Cap. 3 e byte-identico ao publicado do CBI
 > pagina. **Opcional**, pela sua propria observacao sobre o contraste.
 
 ### 2.27 A arvore revisada do autor entrou no `src`, e o que ficou aberto nela
+
+> **MORTO (2026-08-12, `wrapup/open_points/LACUNAS.md` §5; anotado aqui a 2026-10-02).** O item 1 (28
+> blocos `ORPHANED`; medidos 16), o item 2 (54 marcadores abertos; sao 34, 32 `CLOSED`) e o (C) (as
+> paginas) estao invalidados; os itens 3 e 4 sao registo, sem decisao pedida. Nada aqui espera decisao.
+
 
 **(A) O que e.** Em 2026-08-02 o autor entregou `src_clean`, lido e editado por ele. O merge esta em
 `src_utils/_history/_round9/49_clean_tree_merge.md`. A prosa dele entrou byte a byte nos 54 arquivos; a camada de comentario do
@@ -294,6 +305,11 @@ reescrito sem nomear o capitulo irmao, ou se desaparece.
 
 ### 2.32 O Apendice E (Check2HGI e o modelo conjunto) nao e citado por nenhum capitulo
 
+> **MORTO (2026-08-12, `wrapup/open_points/LACUNAS.md` §5; anotado aqui a 2026-10-02).** A saida (b)
+> foi aplicada: o `2_fundamentals.tex` tem um `\ref` vivo para o apendice, e ele imprime no Cap. 2
+> ("Appendix E gives the exact composition and its width"). A decisao pedida abaixo ja nao se aplica.
+
+
 **O fato, medido.** O rotulo `apx:check2hgi-joint-model` aparece **zero** vezes como `\ref` em prosa
 viva em todo o `src/chapters/` e `src/tables/`. A unica ocorrencia no documento e a propria
 declaracao `\label` na linha 3 de `chapters/apx_h_check2hgi_joint_model.tex`, e um `\label` nao e uma
@@ -347,8 +363,8 @@ tocaria `content.tex:398` e mais nada.
 |----------------------------------------------------|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Dois membros da banca e a data da defesa           | Orientador / PPGCC               | Placeholders entre colchetes em `preamble.tex:217-219`. **Nao imprimem em nenhum dos tres builds** (`\folhadeaprovacao` esta comentada em `abntex2-UFV.sty:166-170`), entao nao ha nada inventado no PDF — nem os nomes reais quando chegarem |
 | Folha de aprovacao assinada                        | A defesa                         | `make ppgc` gera o PDF com o placeholder; a versao assinada o substitui depois                                                                                                                                                                |
-| Status do MobiWac                                  | Revisores                        | A redacao e sempre "submitted, under review", em todo o documento. **Nao mudar** ate haver decisao                                                                                                                                            |
-| `\finalbuildfirstpage` conferido contra o RASCUNHO | Upload pos-defesa ao AcademicoPG | Agora **9** (`main.tex:95`), das 8 paginas pre-textuais do build de deposito; a primeira pagina de corpo do `main_academico.pdf` e a fisica 9 e imprime 9. Confira contra o RASCUNHO quando subir                                             |
+| Status do MobiWac                                  | — (fechado)                      | **Aceite a 2026-08-26.** A redacao do documento passou a "accepted for publication" na AUT-35 (decidida a 2026-09-01, commit `e1f9b8c0`). Esta linha dizia "submitted, under review... Nao mudar ate haver decisao" ate 2026-10-02 |
+| `\finalbuildfirstpage` conferido contra o RASCUNHO | — (conferido)                    | Agora **20** (a definicao `\newcommand{\finalbuildfirstpage}` no `main.tex`): as paginas pre-textuais do sistema contam mas nao se numeram, e a primeira pagina de corpo do RASCUNHO emitido pelo portal imprime 20, verificado a 2026-09-06 (`CLAUDE.md` §1.2, bloco da numeracao do deposito). Tem portao proprio, `check_first_body_page.py`. Esta linha dizia **9** ate 2026-10-02; volta a conferir-se no proximo RASCUNHO |
 
 ---
 

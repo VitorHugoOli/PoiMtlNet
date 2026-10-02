@@ -24,7 +24,8 @@ PPGCC/UFV · formato coletânea de artigos (CBIC → CoUrb → MobiWac)
 | quero… | está em |
 |---|---|
 | **o texto entregue** | `src/` — `content.tex` monta `src/chapters/` |
-| **o PDF do depósito** | `src/dissertacao.pdf` |
+| **o PDF do depósito** | `src/build/main_academico.pdf` (`make academico`; não rastreado, é o corpo que se anexa no AcademicoPG) |
+| **o build corrente do texto** | `src/dissertacao.pdf` — cópia de conveniência que o `make defense` produz; **não** é o que se deposita (corrigido 2026-10-02: esta linha dizia que era) |
 | **o PDF que a banca recebeu** | `src/banca.pdf` — **congelado, nunca rebuildar** (ver abaixo) |
 | **as figuras do volume** | `src/figures/` (`.png`, `.tex`, `courb/`, `mobiwac/`) |
 | **as tabelas de resultados** | `src/tables/` |
@@ -54,7 +55,8 @@ a resposta?** A resposta entregue, medida com CV por usuário disjunto, n=20, co
 - **next-region:** **não-inferior nos seis** (TOST, margem registrada de 2 pontos), com
   **Texas +1,21** e **California +1,06** superando;
 - **a representação é o fator dominante:** trocar embedding place-level por check-in-level move
-  mais que qualquer mudança de arquitetura — **+0,23 a +6,29** macro-F1;
+  mais que qualquer mudança de arquitetura — **+0,23 a +2,81** macro-F1 (o +6,29 de Istambul não era
+  pareado; o par corrido a 2026-10-01 dá +2,81, `docs/results/closing_data/v18/istanbul_pair/`);
 - o arco é uma **trilha de correção**, não três artigos grampeados: resultado negativo publicado
   (CBIC) → diagnóstico (CoUrb) → resolução (MobiWac).
 
@@ -69,10 +71,13 @@ a resposta?** A resposta entregue, medida com CV por usuário disjunto, n=20, co
 ## Cinco coisas que quem chega precisa de saber antes de mexer
 
 1. **`src/banca.pdf` não reproduz do `src/` — de propósito.** É o registo congelado do que a banca
-   recebeu (md5 `5be69d1b…`). O do depósito é o `src/dissertacao.pdf` (md5 `d7e85bb7…`).
-   Quem os comparar sem saber isto vai reportar um defeito que não existe.
+   recebeu (md5 `5be69d1b…`). O build corrente é o `src/dissertacao.pdf`, e o corpo do depósito é o
+   `src/build/main_academico.pdf`. Quem os comparar sem saber isto vai reportar um defeito que não
+   existe. (Até 2026-10-02 esta linha dava ao `dissertacao.pdf` o md5 `d7e85bb7…`, que já não era o
+   ficheiro, e chamava-lhe o PDF do depósito. O md5 saiu: sem `SOURCE_DATE_EPOCH` cada rebuild o muda,
+   e o conteúdo compara-se por `pdftotext`.)
 
-2. **Um `make` pelado sobrescreve o PDF do depósito.** Cinco alvos copiam para `dissertacao.pdf`:
+2. **Um `make` pelado sobrescreve o `dissertacao.pdf`.** Cinco alvos copiam para ele:
    `defense`, `all`, `all3`, `fast`/`fast-defense`, `fast3`. Para conferir sem buildar: `make check`.
 
 3. **`src_utils/_history/_round6` … `_round14` parecem pastas de trabalho velhas e não são.**
@@ -103,7 +108,7 @@ derivadas). Sem `build/`, seis portões saltam — e dizem-no alto (`SKIP: src/b
 built`), mas um portão que não corre não é um portão que passa.
 
 ⚠ **`make check` sai com código ≠ 0 e imprime verde na mesma. Ler o exit code, não a saída.**
-E **nunca um `make` pelado**: cinco alvos sobrescrevem o `dissertacao.pdf` do depósito. O
+E **nunca um `make` pelado**: cinco alvos sobrescrevem o `dissertacao.pdf`. O
 `latexbuild.sh` acima builda sem copiar.
 
 O `presentation/Makefile.speech` **só compila o `SPEECH.tex` que já existe** — não chama os dois
