@@ -55,16 +55,34 @@ qual esta trilha não é o capítulo da dissertação encurtado:
 
 ## 2 · A lei
 
+> ### ⚠ DECISÃO DO AUTOR, 2026-10-03 — o deck mostra os números CORRIGIDOS, não os publicados
+>
+> Depois de o artigo estar nas actas, a revisão da dissertação (29/09–01/10) corrigiu quatro grupos
+> de valores do Capítulo 5, todos com errata marcada AUTHOR-APPROVED. O autor decidiu que **o deck de
+> Paris mostra os corrigidos**. Resposta preparada, se perguntarem: *"o artigo misturou fontes de
+> versões diferentes, e os valores corrigidos vêm do build entregue"* — ver §5.
+>
+> *Proveniência: autor → `knowladge` → `mobiwac-ppt` → esta sessão, 2026-10-03. Não a ouvi do autor.
+> Reproduzi os valores na fonte (`articles/dissertacao/src/chapters/5_mobiwac/` e
+> `src/tables/mobiwac/`) antes de os escrever aqui.*
+>
+> **Verifiquei que a frase do autor é verdadeira para cada correcção que está no deck.** Não é
+> retórica: é o que ele vai dizer de pé. O braço por lugar de Istambul veio do build `hgi_dk_ovl` de
+> 26/06, com 343 795 linhas, contra as 271 666 do v18 — outra versão. O POI-RGNN de FL/CA/TX veio da
+> implementação TF antiga. O controlo de concatenação, de outra corrida. As três são, literalmente,
+> fontes de versões diferentes. **A excepção que aí vem é o HMT-GRN** (ver S8): se os valores mudarem,
+> é por convenção de época, não por versão — e a frase precisará de mais meia oração.
+
 ### 2.1 De onde vêm os números
 
-**Fonte única:** `CAMERA_READY.md §3` (v18, convenção *joint-best*). Não usar o `RESULTS_BOARD.md`
+**Fonte:** a **dissertação entregue** (Cap. 5 depois das erratas de 29/09–01/10) para as quatro células corrigidas; `CAMERA_READY.md §3` (v18, *joint-best*) para tudo o resto, que não mudou. Não usar o `RESULTS_BOARD.md`
 (está morto), nem números lidos do deck sem os conferir contra o §3.
 
 - Categoria (macro-F1), conjunto vs dedicado: **supera em 1 de 6** — Florida **+0,19** (Holm p = 0,011).
 - Região (Acc@10), conjunto vs dedicado: **supera em 2 de 6** — Texas **+1,21**, California **+1,06**.
 - As outras quatro células de região ficam **dentro da margem de 2 pp** pré-registada (TOST).
-- Representação (Tab. 2): **+0,23 a +6,29** macro-F1, 6/6 datasets, 5/5 folds cada.
-- Margens sobre as externas: categoria ≥ **+3,06**; região ≥ **+3,55**.
+- Representação (Tab. 2): **+0,23 a +2,81** macro-F1, 6/6 datasets, 5/5 folds cada. *(Publicado: +6,29 — Istambul não pareado.)*
+- Margens sobre as externas: categoria ≥ **+4,11** (conjunto, mínimo em TX; o dedicado ≥ +4,00, em FL). Região ≥ +3,55 ⏸ **PENDENTE** — o HMT-GRN está a ser re-corrido no melhor epoch.
 - Piso de Markov excedido por **+4,1 a +10,0**.
 
 ### 2.2 ⛔ NUNCA MOSTRAR
@@ -78,11 +96,25 @@ tinha um vazamento de rótulo. **Nenhum pode aparecer num slide.** Lista complet
 | Categoria conjunto 63,32 / 64,51 / 65,79 / **79,84** / 77,24 / 77,05 | 35,42 / 30,59 / 34,57 / 37,55 / 36,19 / 35,63 |
 | "supera o dedicado em todos os datasets" (categoria) | supera **só em Florida** |
 | "supera em quatro de seis" (região) | supera em **dois**: TX e CA |
-| Representação "+27,63 … +39,62" / "cerca de 28 a 40 pontos" | **+0,23 … +6,29** |
-| "pelo menos 4 Acc@10" e "pelo menos 33 macro-F1" | **3,55** e **3,06** |
+| Representação "+27,63 … +39,62" / "cerca de 28 a 40 pontos" | **+0,23 … +2,81** (e **não** o +6,29 publicado — ver abaixo) |
+| "pelo menos 4 Acc@10" e "pelo menos 33 macro-F1" | categoria **4,11**; região ⏸ pendente (era 3,55) |
 | Markov excedido por "4,9 a 10,3" | **4,1 a 10,0** |
 | "a lei de escala com o número de regiões" | **morta** — CA tem mais regiões do que TX e ganho menor |
 | Deltas do CTLE +37,8 / +37,0 / +28,7 | **não existem** em v18; só a ordenação sobrevive |
+
+### 2.2b ⛔ NUNCA MOSTRAR — publicados nas actas, mas corrigidos
+
+Uma classe nova, e mais traiçoeira do que a v17: **estes valores estão no PDF que a sala pode
+descarregar.** Quem preparar um slide "a partir do artigo" vai apanhá-los.
+
+| ⛔ publicado | corrigido |
+|---|---|
+| Istambul, braço por lugar **29,07**; Δ **+6,29**; intervalo "0,23 a **6,29**"; "rácio de trinta e dois" | **32,54 ± 1,03**; Δ **+2,81**; intervalo 0,23 a **2,81** |
+| POI-RGNN FL/CA/TX **34,49 / 31,78 / 33,03** | **33,35 / 30,71 / 32,08** |
+| margem mínima de categoria **+3,06** (FL) | **+4,11** (TX) |
+| controlo de concatenação **+2,0 / +1,7 / +0,8** | **+1,73 / +1,70 / +1,02** |
+| "HMT-GRN abaixo do piso de Markov nos seis; STAN em quatro; ReHDM em três" | **sai** — a dissertação removeu a contagem (`e6ac03c0`) |
+| "HMT-GRN on our data, folds, and initialization" | **"on the same data"** — nenhuma externa corre nos nossos folds |
 
 > ### ⛔ A armadilha mais tentadora, e é específica desta plateia
 >
@@ -133,7 +165,7 @@ o camera-ready corrigiu nas últimas semanas.
 
 Verificado, ocorrências no deck: alegação de primazia **0**; linguagem de atribuição à partilha **0**;
 controlo de capacidade **0**; a frase da cobertura da procura **0**; a divulgação do prior de transição
-**0**. Os números das tabelas do deck batem **célula a célula** com o `CAMERA_READY §3`.
+**0**. Os números das tabelas do deck batiam **célula a célula** com o `CAMERA_READY §3`. *(Desde 2026-10-03 deixaram de bater **de propósito** nas células corrigidas — ver o banner da §2.)*
 
 Sobram **três** divergências reais. Duas são para corrigir, uma é a armadilha da §2.2.
 
@@ -249,18 +281,18 @@ Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segun
 
 ### S4 · Resultado 1: a representação — 115 s
 - **Mensagem:** mudando **só a entrada**, a categoria melhora nos seis conjuntos e em todos os folds.
-- **Mostra:** a tabela de 6 linhas, Δ de **+0,23 a +6,29**.
+- **Mostra:** a tabela de 6 linhas, Δ de **+0,23 a +2,81**. Istambul: lugar **32,54**, Δ **+2,81**.
 - **Fonte:** `CAMERA_READY §3.3`; `src/tables/tbl2_substrate.tex`; o controlo em `06_results.tex:63-72`.
 - **Do deck:** **reaproveitar** a tabela.
 
 **⚠ Duas coisas ditas em voz alta, porque a tabela não as diz e ambas saem na primeira pergunta:**
 
-- **O ganho é grande onde os dados são pequenos** (Istanbul +6,29) e **abaixo de um ponto nos três
-  maiores**. Em Florida (+0,23) o desvio entre folds (0,42) é **maior do que o gap**, e o teste
+- **O ganho é maior nos três conjuntos mais pequenos** (AL +1,62 · AZ +2,58 · Istambul +2,81 — os
+  três com menos check-ins na Tabela 1) e **abaixo de um ponto nos três maiores**. Em Florida (+0,23) o desvio entre folds (0,42) é **maior do que o gap**, e o teste
   pareado **não separa** as duas representações (p = 0,067).
 - **E o atalho barato faz quase o mesmo — dito por nós, não por quem pergunta.** O artigo mede um
   controlo de concatenação: pegar no vector de lugar e juntar-lhe as mesmas *features* cruas por
-  visita (categoria em one-hot, hora, dia da semana). Ganha **+2,0 / +1,7 / +0,8** em AL/AZ/FL,
+  visita (categoria em one-hot, hora, dia da semana). Ganha **+1,73 / +1,70 / +1,02** em AL/AZ/FL,
   contra os nossos **+1,62 / +2,58 / +0,23** nos mesmos estados. **Em Alabama e Florida o atalho
   ganha mais do que o grafo.** O artigo escreve-o assim: *"Most of the category difference is
   therefore already available in the raw per-visit features, and this control does not separate what
@@ -268,6 +300,10 @@ Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segun
   **Meia frase no palco:** *"and to be clear — most of that gain is already there if you just hand
   the place vector the hour and the category; what the graph adds beyond that, this control does not
   separate."* Dito por nós é honestidade; dito por um ouvinte é uma ferida. Ver **B9**.
+- *(Para o autor, não para o ecrã.)* **Resíduo conhecido:** o emparelhamento dos braços por lugar foi
+  confirmado em AL, AZ e FL, e corrigido em Istambul; em **CA e TX não é verificável** com o que está
+  no disco. A tabela corrigida tem duas células que ninguém conseguiu provar pareadas. Não muda a
+  mensagem (ambas abaixo de um ponto), mas não as defender como verificadas se perguntarem.
 
 ---
 
@@ -371,14 +407,20 @@ vocabulários de região é **observação, não lei** — CA tem mais regiões 
 > desdizer. Agora vem **depois** do veredito e em 45 s.
 
 **Frase única, corrigida (ver §8, F11):** *"Both our models — the dedicated and the joint — are above
-every system we re-ran. The joint model by at least **3.06** points on category and **3.55** on region.
-That margin belongs mostly to the representation from Result 1, so it is not evidence for sharing."*
+every system we compared against. The joint model by at least **4.11** points on category
+[⏸ e região: pendente do HMT-GRN]. That margin belongs mostly to the representation from Result 1,
+so it is not evidence for sharing."*
 E segue.
 
-> ⚠ **Não dizer "both our models ... by at least three points".** Os 3,06 e 3,55 são margens **do
-> conjunto**. As do **dedicado** são **+2,86** (categoria, mínimo em Florida sobre POI-RGNN) e **+3,27**
-> (região) — `CAMERA_READY §3.4`. Dizer "ambos, pelo menos três pontos" é falso por 0,14 numa célula,
-> e é o tipo de número que alguém confere.
+> **Porque é que fica específica do conjunto, embora agora ambos passem os quatro pontos.** Com o
+> POI-RGNN corrigido, o dedicado também passa: **+4,00** em FL (37,35 − 33,35). Seria tentador dizer
+> *"both our models, by at least four points"*. **Não dizer** — 4,00 é exactamente o limiar, e é
+> precisamente a armadilha da F11: uma margem aplicada aos dois modelos que, na casa decimal
+> seguinte, pode não aguentar. Fica a frase do conjunto, que tem folga.
+
+> ⚠ *(Histórico, valores publicados.)* A v2.1 avisava que "both … by at least three points" era falso
+> porque o dedicado só passava por +2,86 em FL. Com o POI-RGNN corrigido esse número deixou de
+> existir — mas o princípio fica: **nunca aplicar a margem de um modelo ao outro.**
 
 ---
 
@@ -453,13 +495,13 @@ Um slide, uma resposta, sem construção. Chamam-se pelo número.
 |---|---|---|---|
 | **B1** | *"Porquê *tracts* e não uma grelha?"* | A definição e a contagem por conjunto (520 → 8 501). **Reduzido**: a definição de região passou para o S2. | `CAMERA_READY §3.4`; `tbl1_datasets.tex` |
 | **B2** | *"De onde vêm os 2 pontos? Escolheram depois de ver?"* | Pré-registada, **só para a região**; a categoria **não tem** margem registada — por isso as cinco células dizem "não resolvido" e nunca "equivalente" | `CAMERA_READY §3` |
-| **B3** | *"Um Markov não faz isto?"* | Piso de Markov-1 (51,23–72,47), margem **+4,1 a +10,0**; e HMT-GRN abaixo desse piso nos seis, STAN em quatro, ReHDM em três. **⚠ Dizer a margem mais estreita antes que a calculem: Florida, +4,07.** | `CAMERA_READY §3.4` |
+| **B3** | *"Um Markov não faz isto?"* | Piso de Markov-1 (51,23–72,47), margem **+4,1 a +10,0**; **sem** a contagem por sistema ("HMT-GRN abaixo do piso nos seis…") — a dissertação removeu-a e os re-cálculos do HMT-GRN já a contradizem em AL e AZ. **⚠ Dizer a margem mais estreita antes que a calculem: Florida, +4,07.** | `CAMERA_READY §3.4` |
 | **B4** | *"Como sabem que o vector não vê o alvo?"* | O grafo é **forward-only**: um nó lê só as visitas que o precedem, no treino e na leitura. **Publicado, terceiro limite da §7.** | `07_discussion.tex` |
 | **B5** | *"Quanto custa um modelo em vez de dois?"* | 4,2 M vs 1,9 M (AL), 5,2 M vs 2,8 M (CA), contra **os dois somados** | `04_method.tex` |
 | **B6** | *"Se a representação faz quase tudo, para que serve o MTL?"* | A resposta honesta do artigo: na categoria a representação move mais do que a escolha entre um modelo e dois; se a troca acrescenta algo **não é separado pela evidência aqui** | `08_conclusion.tex` |
 | **B7** | *"Porquê estas referências externas?"* | A tabela completa com as duas notas honestas: STAN com folds parciais (TX 4/5, CA 2/5), ReHDM com uma só semente em TX e CA. **⛔ NÃO dizer "HMT-GRN corre nos nossos dados, folds e inicialização"** nem "mesmos folds e sementes" — ver o aviso abaixo. | `CAMERA_READY §3.4` |
 | **B8** | *"O ganho cresce com o número de regiões?"* | **Não.** Observação, não lei: CA tem mais regiões do que TX e ganho **menor** (+1,06 vs +1,21) | `CAMERA_READY §5 C4` |
-| **B9** | *"Isto não é só juntar o timestamp ao vector de lugar?"* | **NOVO, e é a pergunta mais perigosa da sala.** O controlo de concatenação: +2,0 / +1,7 / +0,8 (AL/AZ/FL) contra os nossos +1,62 / +2,58 / +0,23. **Em AL e FL o atalho ganha mais.** A frase do artigo, textual. | `06_results.tex:63-72` |
+| **B9** | *"Isto não é só juntar o timestamp ao vector de lugar?"* | **NOVO, e é a pergunta mais perigosa da sala.** O controlo de concatenação: **+1,73 / +1,70 / +1,02** (AL/AZ/FL) contra os nossos +1,62 / +2,58 / +0,23. **Em AL e FL o atalho ganha mais** — continua verdade com os valores corrigidos. A frase do artigo, textual. | `06_results.tex:63-72` |
 | **B10** | *"E os intervalos de confiança?"* | A tabela de 12 células com IC a 90 % — os que saíram do S7 para ser legível do fundo da sala | `CAMERA_READY §3.1, §3.2` |
 
 > ### ⛔ ALERTA ABERTO — 2026-10-02: a alegação dos folds das externas é falsa, e isto NÃO espera por decisão
@@ -482,6 +524,7 @@ perguntas desta sala em concreto, e nenhuma tinha resposta na v1.
 
 | Pergunta | A frase |
 |---|---|
+| **"Os vossos números não batem com o artigo."** *(nova, 2026-10-03 — e é a mais provável de todas, porque o PDF está nas actas)* | **A frase do autor:** *"The paper mixed sources from different versions; the corrected values come from the delivered build."* Se pedirem o exemplo, o de Istambul é o mais claro e o mais honesto: *"the place-level cell for Istanbul was computed on an older build with more rows; matched on the same rows the gain is 2.81, not 6.29."* ⚠ **Não pedir desculpa nem dramatizar** — a mensagem do Resultado 1 sobrevive inteira: ganho em todos os seis conjuntos e em todos os folds. Muda a amplitude, não o sinal. |
 | **"Latência? Energia? Corre na borda, no telemóvel?"** | *"About five million parameters and a window of nine visits per query. **We did not measure latency or energy.**"* ⚠ O título do S10 ("o que custa") torna esta pergunta inevitável: para esta sala, custo são **milissegundos e watts**, não parâmetros. |
 | **"Partiram por utilizador e não por tempo. E deriva? E re-treino?"** | Textual do artigo: *"The split is by user and not by time, so the evaluation does not measure drift or the effect of sporadic events."* E depois o lado bom: por ser por utilizador, **todos os números são sobre utilizadores nunca vistos**. |
 | **"Gowalla é de 2009–2011. Ainda representa alguma coisa?"** | Istanbul vem do Massive-STEPS, recolha recente; o Gowalla é o *benchmark* padrão desta linha. O que interessa é o padrão que **se repete** entre continentes e épocas. |
@@ -546,6 +589,13 @@ Não decidi nenhuma destas. Cada uma com opções e a minha recomendação.
 
 ### DA-3 · Se perguntarem directamente porque é que os números diferem de uma versão anterior
 
+> ⚠ **2026-10-03 — passaram a existir DUAS perguntas diferentes, com duas respostas diferentes.**
+> Não as fundir: respondem a coisas distintas, e uma resposta à pergunta errada soa a fuga.
+> 1. *"Como sabem que o vector não vê o alvo?"* — **pelo mecanismo**, via B4 (*forward-only*,
+>    publicado no terceiro limite). É esta DA-3, decidida abaixo.
+> 2. *"Os vossos números não batem com o artigo."* — **a frase do autor**, decidida a 2026-10-03:
+>    *"o artigo misturou fontes de versões diferentes; os corrigidos vêm do build entregue"*. Está na §5.
+
 > ### ✅ DECIDIDA — DA-3
 > **Responder pelo mecanismo, via B4, sem história de processo — a opção (a).**
 > *Proveniência: decidida pelo autor na sessão `mobiwac-ppt` a 2026-10-01 e relatada a mim por essa sessão; não me foi dita directamente. Se não corresponder ao que decidiu, é esta linha que está errada, não a sua memória.*
@@ -587,6 +637,10 @@ sala inteira. Se só houver tempo para ensaiar uma coisa, ensaiar o S2 e a recus
 ---
 
 ## 8 · Revisão Fable — o que apontou, o que aceitei, o que recusei
+
+> *Registo histórico. Os números citados nesta secção e na §8b são os **publicados**, anteriores às
+> correcções de 2026-10-03 (+6,29, 3,06, +2,0/+1,7/+0,8…). Ficam como estavam porque descrevem o que a
+> revisão leu, não o que a palestra mostra. Para os valores em vigor, a §2.*
 
 Corrida sobre a v1. **Reproduzi cada afirmação verificável contra o artigo antes de aceitar**, porque
 um relatório de um par é uma afirmação de segunda mão e já me entrou uma correcção errada assinada
