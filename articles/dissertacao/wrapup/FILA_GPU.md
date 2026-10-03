@@ -8,6 +8,19 @@
 
 Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca correr.
 
+> ## Estado a 2026-10-03
+>
+> - **G1 Florida:** o autor escolheu a opção (b), o carregador mais leve (D2). O patch está em
+>   `docs/studies/closing_data/v18/gpu_queue/d2_lean_single_task_folds.patch`, ainda NÃO aplicado.
+>   O Fable aprovou o diagnóstico e a correção: residente na Florida ~32 GB → ~8,8 GB. Falta a prova
+>   e2e: AL f0 e f3, antigo contra novo e antigo contra antigo, com as curvas de validação iguais.
+>   Depois aplica-se e a Florida corre à noite, com o Mac livre.
+> - **Ressalva do G1** (`d928395a`): fora do MTL não há reseed por fold. Sob `--only-fold`, só o fold
+>   0 segue a trajetória aleatória do fold entregue. O contraste só-treino contra todos continua
+>   pareado.
+> - **G5:** Texas a correr. A Califórnia volta a correr no disco interno depois. **G2 Istambul** vem a
+>   seguir, e é dele que depende o "and Istanbul" da frase do CTLE (D3).
+>
 > ## Estado a 2026-10-02 de manhã (noite de execuções no M2 Pro)
 >
 > - **G1 integridade:** Alabama e Arizona FEITOS, 5 folds cada (`5cd62589`, `cb35cd62`). Categoria,
@@ -27,7 +40,7 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
 
 ## G1 · Verificação de integridade no modelo entregue — BLOQUEIA O DEPÓSITO
 
-> **Estado a 2026-10-02: Alabama FEITO, Florida a correr, Arizona preparado.** Os três patches foram
+> **Estado a 2026-10-02 (superado: AL e AZ feitos, Florida à espera do D2, ver o topo).** Os três patches foram
 > aplicados no commit `d01cd2a8` (com uma guarda que exige `group_dtype == 'int'`). Alabama, seed 0,
 > 5 folds, neste Mac: treinar a representação só com os utilizadores de treino contra a mesma
 > construção com todos dá categoria **−0,108 ± 0,099** (p = 0,07) e região **−0,014 ± 0,376**
