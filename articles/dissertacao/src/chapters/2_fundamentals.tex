@@ -1591,6 +1591,24 @@ United States.
 % removed from src/references.bib in the same commit (100 entries -> 99) so BibTeX does not carry a
 % silently unprinted entry. Do not re-add it without a citing sentence.
 
+% [2026-10-03, AUTHOR-RULED D7 (cite, do not cut); frame, no errata row] Every clause checked against the
+% source it cites; the ones no source supports are gone. Census tract: U.S. Census Bureau Geography Program
+% Glossary ("small, relatively permanent statistical subdivisions of a county ... updated by local
+% participants prior to each decennial census"; "generally have a population size between 1,200 and
+% 8,000 people, with an optimum size of 4,000") and Federal Register 83 FR 56277 (2018-11-13, final
+% criteria: "nationally consistent small, statistical geographic units, with stable boundaries"; optimum
+% 4,000, minimum 1,200, maximum 8,000). Cut: "roughly stable population" (the sources give a size range
+% and stable BOUNDARIES) and "it has no government of its own" (no source sentence; "statistical" carries
+% it). Mahalle: Law 5393 (Belediye Kanunu, 2005) Art. 3(d) "Belediye sinirlari icinde ... idari birimi"
+% and Art. 9 "Mahalle, muhtar ve ihtiyar heyeti tarafindan yonetilir"; Law 2972 (1984) Art. 1(c) and
+% Arts. 30-31 govern the election of mahalle muhtars and councils of elders. Cut: "smallest unit of
+% Turkish local administration" and "one level below the district" (neither law says so). "unit of
+% government" -> "administrative one" (the law's own word, idari). Law 5442 (Il Idaresi Kanunu) was
+% considered and not used: the election of the mahalle head (muhtar) is Law 2972, not 5442. The Turkish
+% word for the head is kept out of the prose (GLOSSARY has no row; probe R13-mahterm, fail-closed):
+% "administered by an elected head and council of elders". Boundaries "can be updated", as the glossary
+% says, not "are updated". Probes R13-mahfull and R13-mahfull2 were re-pinned to this wording the same
+% day; verified.
 The experiments use two sources of check-ins. Gowalla is the main source, and the
 dissertation evaluates Alabama, Arizona, Florida, California, and
 Texas~\cite{cho2011gowalla}. Istanbul check-ins come from Massive-STEPS, which also
@@ -1611,12 +1629,13 @@ draws attention to the field's continued dependence on old
 datasets~\cite{wongso2025massivesteps}. The two sources supply different areal units
 for the region target: a census tract in the five United States datasets, and a
 \emph{mahalle} in Istanbul. The two are not the same kind of object. A census tract is a
-statistical area that the United States Census Bureau draws to hold a roughly stable
-population and revises at each decennial census; it has no government of its own. A
-\emph{mahalle} is the smallest unit of Turkish local administration, one level below
-the district, and it has an elected local administrator. Both partition a city at
+statistical subdivision of a county, generally drawn to hold between 1,200 and 8,000
+residents. Its boundaries are meant to stay stable, and they can be updated before each
+decennial census~\cite{census2026glossary,census2018tracts}. A \emph{mahalle} is an
+administrative unit within a municipality's boundaries, administered by an elected head
+and council of elders~\cite{turkey2005law5393,turkey1984law2972}. Both partition a city at
 neighborhood scale, which is what makes the region target comparable across the two
-collections, but one is a unit of measurement and the other a unit of government.
+collections, but one is a statistical unit and the other an administrative one.
 Chapter~\ref{ch:mobiwac} reports how many regions each dataset contributes.
 % [2026-09-04, AUTHOR-APPROVED cuts, item 2] Removed: "The Foursquare dataset for New York and Tokyo
 % is another common benchmark~\cite{yang2015tsmc}, but it provides context only and is not used in

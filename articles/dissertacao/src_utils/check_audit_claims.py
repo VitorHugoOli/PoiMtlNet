@@ -1022,12 +1022,14 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R13-mahfull",  "§2.4.1 defines BOTH region units and says what kind of object each is, so the "
                      "comparison across the two collections is legible",
      "chapters/2_fundamentals.tex",
-     r"A census tract is a\s+statistical area that the United States Census Bureau draws to hold a "
-     r"roughly stable\s+population", True),
+     # Re-pinned 2026-10-03 (D7, author-ruled: cite the definitions; the cited wording replaced the
+     # uncited one). Whitespace is \s+ throughout so a rewrap cannot break the probe.
+     r"A\s+census\s+tract\s+is\s+a\s+statistical\s+subdivision\s+of\s+a\s+county", True),
     ("R13-mahfull2", "and the mahalle half names the administrative level rather than calling it a "
                      "statistical unit like a tract",
      "chapters/2_fundamentals.tex",
-     r"smallest unit of Turkish local administration, one level below\s+the district", True),
+     r"\\emph\{mahalle\}\s+is\s+an\s+administrative\s+unit\s+within\s+a\s+municipality's\s+boundaries",
+     True),
     # The unregistered-term ban: the word for the elected head of a mahalle is NOT in the GLOSSARY,
     # and §1's rule is fail-closed. This probe fails if any chapter starts using it before the author
     # approves a registry row -- the same shape as the other fail-closed bans in this suite.
