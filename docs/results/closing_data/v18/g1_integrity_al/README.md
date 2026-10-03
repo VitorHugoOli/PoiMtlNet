@@ -88,6 +88,25 @@ The contrast must differ only in the excluded users.
   6. Each category run's report support equals its fold's `n_val_rows`.
 - **Machine.** Apple M2 Pro, 32 GB, torch 2.11.0. Builds ran on CPU; training ran on MPS.
 
+## Caveat: per-fold random state under `--only-fold` (added 2026-10-03)
+
+Single-task training has **no per-fold reseed**:
+- `seed_everything` runs once at `train.py` start;
+- `per_fold_seed` reaches only the MTL runners.
+
+The delivered `cell_cat` ran all 5 folds in one process, so delivered fold F (F ≥ 1) starts from the
+random state left after folds 0..F−1. Every arm here ran with `--only-fold F`, so each fold starts
+from the fresh seed. Consequences:
+- **Only fold 0's absolute numbers follow the delivered fold's random trajectory.**
+- For folds 1–4, the absolute values are not the delivered trajectory. MPS vs CUDA also rules out
+  bitwise matching.
+- **The train-only vs full contrast is unaffected.** Both arms of every fold ran under the same
+  `--only-fold` protocol and seed, so the comparison is paired.
+- The comparison against the printed values is a sanity band, not a reproduction, beyond fold 0.
+
+(Raised by the independent review of the D2 patch,
+`docs/studies/closing_data/v18/gpu_queue/d2_lean_single_task_folds.patch`.)
+
 ## Cost (per fold, wall)
 
 | step | wall | peak RSS |
