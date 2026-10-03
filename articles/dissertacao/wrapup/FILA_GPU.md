@@ -11,10 +11,11 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
 > ## Estado a 2026-10-03
 >
 > - **G1 Florida:** o autor escolheu a opção (b), o carregador mais leve (D2). O patch está em
->   `docs/studies/closing_data/v18/gpu_queue/d2_lean_single_task_folds.patch`, ainda NÃO aplicado.
->   O Fable aprovou o diagnóstico e a correção: residente na Florida ~32 GB → ~8,8 GB. Falta a prova
->   e2e: AL f0 e f3, antigo contra novo e antigo contra antigo, com as curvas de validação iguais.
->   Depois aplica-se e a Florida corre à noite, com o Mac livre.
+>   `docs/studies/closing_data/v18/gpu_queue/d2_lean_single_task_folds.patch`, **APLICADO a 03/10
+>   (`ab92d07d`)** depois da prova (`gpu_queue/d2_proof/`): AL f0 e f3, antigo contra novo e antigo
+>   contra antigo, com os CSVs por época iguais byte a byte. Residente na Florida ~32 GB → ~8,8 GB.
+>   A Florida corre à noite, depois de CA e IST, a começar pelo fold 0. No braço de região (p1), o
+>   worker mede primeiro e só faz patch se a pressão de memória chegar a crítica.
 > - **Ressalva do G1** (`d928395a`): fora do MTL não há reseed por fold. Sob `--only-fold`, só o fold
 >   0 segue a trajetória aleatória do fold entregue. O contraste só-treino contra todos continua
 >   pareado.
