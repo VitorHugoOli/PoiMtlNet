@@ -265,11 +265,12 @@ def _run_single_task(config, results_path, fold_results, *, task, run_cv,
                      model_name, fold_attr, getter, description) -> dict:
     """Shared single-task (category / next) CV launcher. The two paths differ only in
     which ``run_cv`` module, fold attribute, dataset getter, and labels they use."""
-    folds = [
-        (getattr(fold_results[i], fold_attr).train.dataloader,
-         getattr(fold_results[i], fold_attr).val.dataloader)
-        for i in sorted(fold_results)
-    ]
+    folds = []
+    for i in sorted(fold_results):
+        # One access per fold: a lazy mapping (--only-fold/--only-folds) builds the fold on
+        # each access; for the eager dict both reads return the same object.
+        fold_data = getattr(fold_results[i], fold_attr)
+        folds.append((fold_data.train.dataloader, fold_data.val.dataloader))
     history = MLHistory(
         model_name=model_name,
         model_type="Single-Task",
@@ -1878,6 +1879,10 @@ def _resolve_folds(
             task_a_input_type=getattr(args, "task_a_input_type", "checkin"),
             task_b_input_type=getattr(args, "task_b_input_type", "checkin"),
             aligned_pairing=getattr(config, "aligned_pairing", False),
+            # Build only the selected fold(s) on single-task --only-fold / --only-folds;
+            # the full k-fold run keeps the eager path.
+            lazy_single_task=(getattr(args, "only_fold", None) is not None
+                              or getattr(args, "_only_folds_list", None) is not None),
         )
         return creator.create_folds(config.state, engine)
 
