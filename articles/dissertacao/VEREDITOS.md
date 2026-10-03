@@ -472,6 +472,30 @@ repositório.)
 
 ---
 
+## V17 · Os números da triagem dos 19 balanceadores (Cap. 5) são da versão anterior. Ficam?
+
+*Também chega como:* Nash-MTL +0,68 e scale normalization +0,19 vêm do v14; o T4 screen não foi
+refeito no v18; "earlier build" sem qualificador.
+
+**Veredito: FICAM, sem qualificador no texto.** Decisão do autor a 2026-10-03, D6 do dossiê. A
+frase do trabalho relacionado (`5_mobiwac/02_related.tex`, triagem de dezanove balanceadores em
+Alabama e na Florida) cita magnitudes de uma triagem feita sobre o substrato v14
+(`docs/results/mtl_improvement/T4_full_screen.json`; as rundirs em `T4_corrected_rerun.json` são
+`check2hgi_design_k_resln_mae_l0_1`). A razão do autor: uma re-execução no v18 manteria a mesma
+magnitude e não mudaria a conclusão (nenhum balanceador melhora o peso fixo afinado nas duas tarefas
+e nos dois conjuntos), e os números dão credibilidade à frase.
+
+**Isto é a exceção declarada que a `WRITING_LAW` §3 permite** ("keep it as a declared exception"),
+mas declarada **aqui, no repositório, e não no texto**, porque o autor não quer o detalhe na leitura.
+Quem rever o Cap. 5 e encontrar estes valores no T4 do v14 deve ler esta entrada antes de os
+"corrigir". O Cap. 2 cita só a conclusão, sem magnitudes, e está alinhado com ela (commit `3ac3ed39`).
+
+**Prova:** `docs/results/mtl_improvement/T4_full_screen.json` (reproduz cada oração: AL nash 54,25
+contra equal 53,57; scale_norm 53,76; FL nash −0,19 / −0,02; scale_norm +0,33 cat, região 35,47) ·
+achado da revisão Fable do Cap. 5, 2026-10-02.
+
+---
+
 ## Como acrescentar um verdete
 
 Um verdete entra aqui quando a questão está **fechada com prova**, não quando alguém tem uma
