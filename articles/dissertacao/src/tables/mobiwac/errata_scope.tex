@@ -30,12 +30,15 @@ narrowing and comparison-basis disclosure; no experimental result altered).}
 \midrule
 The representation ``passes no usable information about the test visits, on three
 grounds''. &
-The universal negative is replaced by a bounded statement over named channels. The first
-ground is scoped to the training objective, with the note that each visit's category is a
-node input feature; a fourth ground is added, reporting the development audit that probes
-the forward-edge channel between consecutive visits, with its three limits stated: a
-linear probe, Florida at one random initialization, and earlier builds of the
-representation. Every number already in the paragraph is unchanged. \\
+% [2026-10-02] REESCRITA. A coluna descrevia uma estrutura de "grounds" e um quarto fundamento (sonda
+% linear) que sairam do capitulo a 2026-08-05/06 (467753c7, 1102ef1d); a decisao de 2026-08-13
+% (RESPOSTAS_ORAIS Q15) era retirar essa parte. A negacao universal continua retirada, e e isso
+% que esta linha declara. Os numeros da verificacao mudam com a re-execucao G1 (ver a linha "The
+% integrity check states its scope"), nao aqui.
+The universal negative is removed. The paragraph instead states the check performed, whether
+training the representation on all users changes the results, and reports it; the
+one-directional links between consecutive visits are stated in the method section and as the
+fourth limit. \\
 \addlinespace
 The gradient-cosine paragraph reports the development measurement, four seeds on four
 Gowalla states, and points only to the mechanism test in the results section. &
@@ -158,7 +161,7 @@ short at the third. The conclusion is narrowed to what the control measures, tha
 the category difference is already available in the raw per-visit features and that what
 the representation adds beyond them on this axis is small and unseparated by this control,
 and it is scoped to the category axis. No claim is made about the hierarchy in either
-direction. The three gains are now the paired re-run under the table's own recipe, $+1.73$,
+direction. The three gains are now the paired re-run under the table's own training configuration, $+1.73$,
 $+1.70$ and $+1.02$, in place of $+2.0$, $+1.7$ and $+0.8$ from an earlier screen with a
 different protocol; the control still exceeds the gap at two datasets and falls short at the
 third. \\
@@ -479,6 +482,34 @@ ran on an earlier set of windows. Re-run paired, it is $32.54$,
 the advantage is $+2.81$ with all five folds favoring the
 check-in-level representation, the range ends at $+2.81$, and
 the ratio is about fourteen. The direction is unchanged. \\
+\addlinespace
+% [2026-10-02] ERR-6/7, aplicado a 2026-09-01 (e1f9b8c0), depois da aceitacao, e sem linha ate hoje
+% (achado pela revisao Fable do Cap. 5). LACUNAS.md regista-o como APLICADO 01/09.
+The setup section grades the dedicated category model's
+batch-size search as fewer-fold at Florida and Texas, and
+attributes Florida's and California's learning rate to the
+smaller searches. &
+Only Texas is single-fold in that search; Florida's single-fold
+screen belongs to the joint model's search. Florida and
+California carry the large-dataset value, which only the
+single-fold Texas screen tested. No number changes. \\
+\addlinespace
+% [2026-10-02] Legenda da Tabela 8, alterada a 2026-09-01 (e1f9b8c0), sem linha ate hoje; a legenda
+% da Tabela 10 tem a sua (linha 5).
+The dataset table does not say whether its check-in, user and
+POI counts are taken before or after the ten-visit user
+filter. &
+The caption states that they are counts over the full corpus,
+before the filter, and that the Windows column is computed
+after it. No number changes. \\
+\addlinespace
+% [2026-10-02] Palavras banidas (WRITING_LAW §2, GLOSSARY do artigo §3): "arm" e "recipe"; o
+% camera-ready ja as tinha retirado.
+The setup, results and discussion sections call the compared
+models ``arms'' and a training configuration a ``recipe''. &
+The words are replaced by the column or model they name, and a
+sentence that only restated the previous clause is removed. No
+number changes. \\
 \bottomrule
 \end{tabular}
 \end{table}

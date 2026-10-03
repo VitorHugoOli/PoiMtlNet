@@ -90,6 +90,20 @@ studies three tasks: one static and two sequential.
 %   - bare `r_p`: ZERO live occurrences at HEAD. It enters with this edit and with the
 %     $r_i=r_{p_i}$ of step 2, which is its first consumer. Author's ruling of
 % 2026-08-03: option (a), keep the section order, and apply the definition redesign.
+% [2026-10-02, PROPOSAL from the Fable reviews of the stable text, pending the author's ruling; frame, no errata] Ch.2 sites, all verified against the live text they cite:
+% (7a) balancer sentence -> "none of nineteen such methods improves on a tuned fixed weighting across both
+% tasks and both datasets screened" (5_mobiwac/02_related.tex:146-148, same words); (7b) "A paired test" ->
+% "A one-sample $t$ test" (the cosine script, src_utils/_history/_round7/cosine_stats6.py, calls
+% ttest_1samp against zero); (7c) "hard-shared" dropped from "partial hard-shared interaction subsystem"
+% (GLOSSARY: the cross-attention stack is not hard sharing); (7d) ", for which no such scalar exists,"
+% removed; (7e) "and the split is the same" removed; (7f) carry/carries 7 -> 3 ("has a category", "has one
+% limitation", "runs the risk", "must encode"; :94 and :144 kept because probes R12-s1bind and
+% R12-ad6pos pin them, :716 and :2061 are the physical sense; 4 remain against the budget of 3); (7g) ", substituted from
+% another example in the batch" cut; "roughly one third of the check-ins in a representative state" ->
+% "a quarter to a third of the next-visit labels in the datasets of Chapter 5" (Majority column of
+% tables/mobiwac/datasets.tex: 24.7 to 34.2 percent); the self-reference clause after "set out in the
+% original paper" cut; "CAGrad has such points as fixed points" -> "CAGrad's fixed points are such points".
+% The census-tract/mahalle paragraph is untouched (author decision).
 Let $\mathcal{U}$, $\mathcal{P}$, $\mathcal{C}$, and $\mathcal{R}$ denote the sets of
 users, POIs, category classes, and region classes. Each POI $p\in\mathcal{P}$ carries a
 category $c_p\in\mathcal{C}$ and lies in a region $r_p\in\mathcal{R}$.
@@ -462,8 +476,7 @@ used in the first study. Hierarchical Graph Infomax (HGI) extends that objective
 across POI, region, and city levels~\cite{huang2023hgi}.
 
 HGI is the place-level representation that the final study replaces, so its reference
-point matters here. The mechanism itself is set out in the original paper, and the
-account below is limited to what the later chapters rely on. Its own stated goal is to
+point matters here. The mechanism itself is set out in the original paper. Its own stated goal is to
 learn urban region representations from POIs in a fully unsupervised manner, and it
 reaches that goal by extending the two scales of DGI to three: POI, region, and city.
 The name states what is maximized. Training raises the mutual information between
@@ -646,7 +659,7 @@ express.
 % USES them: the limitation paragraph below, which introduces the move from HGI to Check2HGI, and the
 % Check2HGI sentence further down.
 % REFERENCE DIRECTION: backward in both cases now, which is the point of the move.
-Definition~\ref{def:fund:placelevel} carries one limitation for this research: a
+Definition~\ref{def:fund:placelevel} has one limitation for this research: a
 weekday morning and a Saturday night at the same place have identical inputs at the
 representation level. CTLE shows an alternative by learning context-aware and
 time-aware location embeddings whose vectors change with the
@@ -802,8 +815,7 @@ For each boundary, the term is
 % the lower level. The prose below states all three; the equation names the anchor $\mathbf{e}$ and
 % the partner $\mathbf{e}^{\pm}$, which is the reading the code has.
 Here, $\mathbf{e}$ is the anchor, the element that is the same in both terms;
-$\mathbf{e}^{+}$ is its true partner and $\mathbf{e}^{-}$ is a corrupted partner,
-substituted from another example in the batch. At the check-in-to-place and
+$\mathbf{e}^{+}$ is its true partner and $\mathbf{e}^{-}$ is a corrupted partner. At the check-in-to-place and
 place-to-region boundaries, the anchor is the lower-level element (the check-in, the
 place) and the partner is the element one level above it (the place where the check-in
 occurred, the region that contains the place). At the region-to-city boundary the roles
@@ -1027,7 +1039,7 @@ computation begins.
 \end{definition}
 
 Definition~\ref{def:fund:hard} is the topology of the first joint model of this
-dissertation, and it carries the risk this section addresses. A shared trunk need not
+dissertation, and it runs the risk this section addresses. A shared trunk need not
 treat both tasks identically. Feature-wise Linear Modulation (FiLM) scales and shifts
 features according to an additional input~\cite{perez2018film}, and MTLnet uses it to
 condition its shared layers on task identity, so the two tasks read the same
@@ -1053,7 +1065,7 @@ gates~\cite{tang2020ple}, while DSelect-k makes expert selection sparse and
 differentiable~\cite{hazimeh2021dselectk}. These methods selectively share
 computation instead of forcing every task through one fixed trunk.
 
-The joint model in Chapter~\ref{ch:mobiwac} builds a partial hard-shared interaction
+The joint model in Chapter~\ref{ch:mobiwac} builds a partial interaction
 subsystem based on this principle, using bidirectional cross-attention rather than
 routing gates. The tasks do not reuse the same weight matrices, but their streams
 cross within this jointly optimized module. Each stream queries the other to read its
@@ -1118,10 +1130,10 @@ ignores how large they are: $+1$ means the tasks ask for the same update, $-1$ f
 opposite ones, and $0$ that the requests are orthogonal, each leaving the other's
 objective unchanged to first order. PCGrad changes a direction only when this cosine is
 negative. Other methods may still react to differences in gradient magnitude or task
-loss. In Chapter~\ref{ch:mobiwac}, two such methods exceed equal weighting on one
-dataset but not on the others. Appendix~\ref{apx:cosine} evaluates the final joint
+loss. In Chapter~\ref{ch:mobiwac}, none of nineteen such methods improves on a tuned fixed
+weighting across both tasks and both datasets screened. Appendix~\ref{apx:cosine} evaluates the final joint
 model and finds the task gradients equivalent to orthogonal within a margin of five
-hundredths at each of the four datasets measured there. A paired test separates the mean
+hundredths at each of the four datasets measured there. A one-sample $t$ test separates the mean
 from zero at one of them, but that small departure remains within the equivalence margin.
 The combined result is that the deviations are detectable but too small to represent
 meaningful directional conflict at the scale considered by the balancers.
@@ -1289,7 +1301,7 @@ Pareto-stationary point is one at which a convex combination of the task gradien
 zero, a condition that is necessary but not sufficient for Pareto
 optimality~\cite{nash}. Nash-MTL proves convergence of a subsequence to such a point,
 and reaches Pareto optimality only under a convexity assumption that does not hold for
-a deep network~\cite{nash}; CAGrad has such points as fixed points~\cite{liu2021cagrad},
+a deep network~\cite{nash}; CAGrad's fixed points are such points~\cite{liu2021cagrad},
 and Aligned-MTL converges to one when task weights are fixed in
 advance~\cite{senushkin2023aligned}. PCGrad makes no Pareto claim of its own and
 guarantees only that one projected update does not produce a higher multitask loss than
@@ -1716,7 +1728,8 @@ claim of task performance.
 \subsubsection{Next category}
 
 Next-category prediction uses macro-F1 because the class distribution is imbalanced.
-Food accounts for roughly one third of the check-ins in a representative state, so
+Food accounts for a quarter to a third of the next-visit labels in the datasets of
+Chapter~\ref{ch:mobiwac}, so
 plain accuracy can hide poor performance on less frequent classes. For $C$ classes,
 macro-F1 is
 \begin{equation}\label{eq:fund:macro-f1}
@@ -1806,7 +1819,7 @@ selection score:
 Under this \emph{joint-best} convention, both reported task scores come from the same
 validation-selected checkpoint, reflecting the balanced performance of a single
 deployable system. Chapter~\ref{ch:cbic} pairs static category classification with
-next-category prediction, for which no such scalar exists, and reads each task at the
+next-category prediction and reads each task at the
 epoch of its own highest validation macro-F1.
 
 % [2026-09-04, AUTHOR-APPROVED §2.4 scoping, removal 2] Removed: "Basic baselines establish
@@ -1899,8 +1912,7 @@ visits, whereas Chapter~\ref{ch:mobiwac} starts a new window at every visit, so
 consecutive examples overlap in eight of their nine visits and each user contributes
 many more examples. The second is the minimum history a user must have to enter the
 data: fewer than five visits excludes a user in the first two studies, fewer than ten
-in the third. The third is how a history shorter than the window is handled, and the
-split is the same: the first two studies pad it with zeros, and the third keeps, for
+in the third. The third is how a history shorter than the window is handled: the first two studies pad it with zeros, and the third keeps, for
 each target, only the full-length window that ends at it. Each article
 chapter states its own values, and
 the next subsection reads each result under the protocol that produced it.
@@ -2055,7 +2067,7 @@ interest: a place embedding gives a static classifier one fixed vector per place
 whereas a check-in-level representation describes a single visit, and the static task
 is a less natural fit for that input than a second sequential target.
 
-Two choices increase what the input representation must carry: treating next category
+Two choices increase what the input representation must encode: treating next category
 and next region as final outputs, and replacing the static task. A place embedding
 can encode semantic and geographic relationships, but it assigns the same vector to
 every visit to a place, so it carries nothing about the visit being predicted.

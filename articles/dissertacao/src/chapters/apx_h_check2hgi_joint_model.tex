@@ -315,7 +315,7 @@ hidden width 256. The head selects the top-layer state at the last valid histori
 position, applies layer normalization and dropout, and produces seven category
 logits.
 
-The region head deliberately keeps two routes. The private tower reads the raw
+The region head keeps two routes by design. The private tower reads the raw
 $9\times64$ region history and processes it with a STAN-style spatio-temporal
 attention model \cite{luo2021stan}. The shared-context tower reads the
 $9\times256$ region sequence produced by cross-attention. The private tower uses

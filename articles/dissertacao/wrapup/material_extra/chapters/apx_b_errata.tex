@@ -31,8 +31,9 @@
 %                Table B.4 gained 2 further rows in the references pass of 2026-07-25
 %                (Kohavi DOI dropped; Rußwurm re-typed to ICLR 2024), for 14 total at that stage.
 %   Itemized rows, RE-MEASURED 2026-07-30 (round 9c) by parsing each table's own body rather than
-%                carrying the current arithmetic forward: B.1 CBIC content 13, B.2 CBIC wording 19,
-%                B.3 CoUrb content 10, B.4 bibliography 19. Total 61.
+%                carrying the current arithmetic forward: B.1 CBIC content 14, B.2 CBIC wording 19,
+%                B.3 CoUrb content 10, B.4 bibliography 19. Total 62.
+%                [2026-10-02] B.1 13 -> 14 (the MTPR sparsity row), Total 61 -> 62.
 %                [2026-09-02, third update of the day] B.1 12 -> 13 and B.3 8 -> 10, with the four
 %                rows the banca's own annotations produced once the author ruled on them: the
 %                convergence caption's undeclared stopping criterion (B-14/B-15), the CoUrb
@@ -169,21 +170,21 @@ belong to the article records rather than to the chapter bodies.
 \label{apx:errata:cbic}
 
 Table~\ref{tab:apx:cbic-errata} lists the content corrections applied in the chapter
-text.
+text; its last row corrects the concern the cited MTPR model addresses, sparsity rather
+than uncertainty.
 
 \input{tables/cbic/errata}
 % [round5, author decision 1b.3] The Nash-MTL cost claim moved OUT of this section and INTO the
 % errata table above: one standard for factual errors, per the author. "Three elements" -> "Two".
 
-Two elements of the published article were deliberately preserved rather than
+% [2026-10-02, PROPOSAL pending the author's ruling] "Two elements ... deliberately preserved" -> one: the
+% emphasis sentence that followed ("never bolds the HMRM baseline ... preserved exactly") contradicted
+% B.1's Nightlife-recall row and the live table, where the baseline is now in bold; removed.
+One element of the published article was preserved rather than
 corrected. The sentence stating that Nash-MTL ``consistently yielded a better
 overall performance'' is reproduced verbatim; it predates a later finding about the
 optimizer implementation, and the chapter preface carries the of-the-time caution
 instead of an edit.
-The emphasis convention of the published category table, which
-bolds the better of the joint and single-task models per row and never bolds the HMRM
-baseline, is also preserved exactly; the new caption states the convention so the
-bolding is not misread as ``best per row''.
 % [v2 review F-06, 2026-07-26] Added on persona 10's finding (10_mtl_expert_report.md). The
 % reviewer extracted arXiv:2202.01017 and confirmed "matrix-vector" does not occur in it, while
 % "agnostic to the architecture used" does, so only the cost half is defective. The chapter's own
@@ -256,13 +257,20 @@ strength of a claim.
 \section{Article 2 (Chapter~\ref{ch:courb}, CoUrb 2026)}
 \label{apx:errata:courb}
 
+% [2026-10-02, PROPOSAL pending the author's ruling] the enumeration covered seven rows of a ten-row
+% table; rows eight to ten (emphasis rule, "consistently", single-dataset limitation) added in one
+% sentence; "The last three" -> "Three" for rows five to seven; verified against tables/courb/errata.tex.
 The first two corrections in Table~\ref{tab:apx:courb-errata} replace the published
 numbers by the values of an internal audit of the same results, performed after
 publication; the audited values are the ones the chapter reports. The third substitutes a
 verdict verb without changing the strength of the claim, and the fourth narrows one claim
-about a cited method to the guarantee that method's own paper states. The last three correct
+about a cited method to the guarantee that method's own paper states. Three correct
 attribution and vocabulary: two claims are returned to works that state them, and one data
-column is named for the reader rather than by its identifier in the source files.
+column is named for the reader rather than by its identifier in the source files. The last
+three concern presentation and scope: the two results tables state their emphasis rule and
+underline the second largest value, \emph{consistently} gives way to the scope the counts
+support, and the single-dataset limitation names the period and the country the results
+depend on.
 % [round9c, PENDENCIAS_RESOLVIDOS 2.15 (arquivado 2026-08-02), 2026-07-30] The banner enumerates this table ordinally and the table
 % grew from four rows to seven, so one sentence covers rows five to seven as a group rather than a
 % clause per row, the same treatment the CBIC banner gives its own tail. This file's header already
@@ -406,18 +414,21 @@ sentences for its tables, since the submitted text already introduces each of th
 % cell re-run paired). 1 + 13 + 3 + 1 + 8 + 2 = 28. Opener widened by one clause: the representation
 % table's Istanbul place cell is a dedicated-model value, so "none alters a value of the joint or
 % dedicated models" had to except it.
-Table~\ref{tab:apx:mobiwac-scope} lists twenty-eight further departures in the reproduced prose.
+% [2026-10-02] twenty-eight -> thirty-one: row 1 rewritten (universal negative removed, not narrowed), ERR-6/7
+% search grading and the Table 8 caption counts (corrections of fact 13 -> 15), arm/recipe wording
+% (presentation 2 -> 3). 1 + 15 + 3 + 1 + 8 + 3 = 31; the registry's rows, verified by me against the table.
+Table~\ref{tab:apx:mobiwac-scope} lists thirty-one further departures in the reproduced prose.
 None alters a value of the joint model, or of a dedicated model on the check-in representation,
 in the two results tables; one place-level cell is re-run paired, three external-baseline cells
-change source, and a diagnostic constant and a control are re-measured. One predates the article's acceptance: it narrows a
-universal negative to the channels its evidence covers. The
+change source, and a diagnostic constant and a control are re-measured. One predates the article's acceptance: it removes a
+universal negative. The
 % [2026-09-08, second pass] "one adds a cross-reference to the appendix that measures the same
 % quantity on the final model" described a pointer that was added and then REVERTED in 2bb82234
 % (round 14, article chapters stopped pointing at dissertation appendices): zero \ref{apx:...} in
 % the eight Ch.5 files today. My restructure had re-authored the stale row's claim; the row is now
 % corrected by the registry and this clause follows it. Lesson recorded: a restructure is the time
 % to check the rows, not only to count them.
-other twenty-seven were applied after the article was accepted, and they fall into five kinds. Thirteen
+other thirty were applied after the article was accepted, and they fall into five kinds. Fifteen
 are corrections of fact: the promise of a Wilcoxon result that the text never reports is
 withdrawn; the two dedicated-model parameter sums are corrected against the measured counts;
 the concatenation control is restated against the table it cites, with the paired re-run's $+1.73$,
@@ -437,7 +448,9 @@ Florida is printed as the 3.7 points the two numbers give, not two; and the near
 glossed as the share of vectors whose ten nearest neighbors vote for their own category, which is
 what the measurement computes; and the Istanbul place-level cell, which had been run on a different set
 of rows from its check-in counterpart, is re-run paired, moving it from 29.07 to 32.54, the difference
-from 6.29 to 2.81, and the derived range and ratio with it. Three
+from 6.29 to 2.81, and the derived range and ratio with it; the batch-size and learning-rate
+searches are graded by the folds each dataset actually received; and the dataset table's caption
+states which counts precede the ten-visit filter. Three
 state the delivered method in place of development history: the gradient-cosine paragraph rests
 on the measurement taken on the reported joint model; the region vectors read by the
 spatial stream are described as a fixed region table shared by the joint and dedicated models;
@@ -458,11 +471,12 @@ representation and the private spatial path; the external baselines are stated t
 embeddings and splits, ReHDM under its own chronological split, and the Markov order to be chosen
 on the evaluation folds; and the test behind the representation table is named as a two-sided paired
 $t$-test over the five folds of one seed, with the one Florida fold that differs by 0.001 stated; and no external system is any longer said to
-run on our folds, with the count of datasets at which each falls below the Markov floor removed. Two
+run on our folds, with the count of datasets at which each falls below the Markov floor removed. Three
 concern presentation: the emphasis in the results table is
-split into a magnitude channel and a statistical channel, and the sentence on the
+split into a magnitude channel and a statistical channel; the sentence on the
 non-inferiority intervals scopes its superlative to the four datasets it discusses, since the
-cross-reference beside it leads to a section where a larger difference appears.
+cross-reference beside it leads to a section where a larger difference appears; and the compared
+models are no longer called arms, nor a training configuration a recipe.
 
 % [2026-09-04, AUT-35 sixth site] "It is under review rather than published" and the present-tense
 % mechanism that rested on it: the article was accepted on 2026-08-26. Restated in the past tense,

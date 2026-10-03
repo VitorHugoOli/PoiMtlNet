@@ -68,9 +68,7 @@ For the dedicated category model, batch size was searched at all six datasets, o
 Istanbul, Alabama and Arizona and on a single fold at Texas. The learning rate was
 searched over five folds at Istanbul, Alabama and Arizona and on single folds at Texas; at Florida
 and California it was not varied, so those two carry the large-dataset value, which only the
-single-fold Texas screen tested.
-The selected learning rate differs by dataset, which is
-why the dedicated category arm is a per-dataset-tuned comparison rather than one fixed recipe. For
+single-fold Texas screen tested. For
 the joint model, batch size and the category-head learning rate were searched at Istanbul, Alabama,
 and Arizona over five folds and screened at Florida; Texas and California carry the configuration
 transferred from those searches rather than one of their own. The dedicated region model uses one

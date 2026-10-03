@@ -84,7 +84,9 @@ uses gradient signs. The claim is weaker than the published one, and no result d
 on it. \\
 \addlinespace
 Prose states that Nash-MTL ``requires only two matrix-vector products per iteration''. &
-The clause is removed from the reproduced sentence and its correction given in a footnote.
+% [2026-10-02] "and its correction given in a footnote" removed: the footnote left the chapter on
+% 2026-09-30 (7251739b, author); the preface now says wording errata were corrected.
+The clause is removed from the reproduced sentence.
 The claim is not supported by the method's own paper, where the phrase does not occur, and
 it understates the cost: both implementations examined run an iterative concave-convex
 procedure, twenty passes by default, each a convex solve, on top of one backward pass per
@@ -95,7 +97,7 @@ The rationale for hard parameter sharing states that the approach ``frequently m
 exceeds the performance of more complex architectures on many benchmarks, while offering
 faster training and inference'', citing a work on task grouping. &
 Narrowed to the inference-cost claim the cited work supports, that a single network is
-evaluated rather than one network per task, with the correction recorded in a footnote. The
+evaluated rather than one network per task. The
 cited work names improved accuracy and reduced training time among the benefits joint
 training may have in theory, then reports empirically that joint training often performs
 worse than separate networks, and its contribution is a framework for splitting tasks across
@@ -202,5 +204,14 @@ epoch count, and that which target stopped its clock is not recorded. It also st
 the gap does not reach: the wall-time comparison the section draws sets one joint run
 against the sum of two dedicated runs, so it holds under either stopping criterion. No
 value changes. \\
+\addlinespace
+% [2026-10-02] Correccao aprovada a 2026-09-02 (comentario em 3_cbic/basis.tex: "the errata row is
+% the registry's") e nunca registada; achada pela revisao Fable dos Caps. 3-4. O PDF do MTPR tem zero
+% ocorrencias de "uncertain" e doze de "sparse".
+The related-work section says that MTPR combines recurrent networks and adversarial learning
+``to address uncertainty in check-ins''. &
+The cited work addresses the sparsity of check-in data; uncertainty is the concern of another
+model described in the same paragraph. The phrase is corrected to ``the sparsity of check-in
+data''. \\
 \end{longtable}
 }

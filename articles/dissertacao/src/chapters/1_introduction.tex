@@ -149,9 +149,13 @@ narrows the explanation supported by the evidence.
 % The gloss here is an appositive and the formal definition stays in Ch.2, so nothing is duplicated.
 % Probes: R13-aut07, R13-aut10.
 Chapter~\ref{ch:cbic}, published at CBIC 2025, introduces MTLnet, the first joint model
+% [2026-10-02, PROPOSAL from the Fable reviews of the stable text, pending the author's ruling; frame, no errata] (1) "and separate only at their output heads"
+% removed: MTLnet's inputs pass through separate task-specific encoders before the shared trunk
+% (3_cbic/method.tex, "first processed by separate, task-specific encoders"), so the tasks do not share
+% from the input up. The gloss "in which the tasks share one trunk of hidden layers" is true and stays:
+% it is the author's first-use gloss (probe R13-aut10); verified.
 developed in this research. It combines a place-level graph embedding with hard
-parameter sharing, in which the tasks share one trunk of hidden layers and separate
-only at their output heads, and predicts category classification and the next category
+parameter sharing, in which the tasks share one trunk of hidden layers, and predicts category classification and the next category
 in a sequence. For that configuration, the joint model did not consistently outperform
 the two dedicated single-task models and required more training time. The study
 treated this null result as a finding and proposed three possible explanations,
@@ -190,7 +194,7 @@ both tasks one vector for the two visits. The final study tests the hypothesis t
 this loss of context limits both tasks, and it therefore moves the representation to
 the check-in level. Acting on another of the first study's candidate explanations, it also replaces
 the shared hidden layers with cross-attention between task-specific streams, addressing
-the earlier concern about hard parameter sharing. Under a check-in level representation, static
+the earlier concern about hard parameter sharing. Under a check-in-level representation, static
 category classification is a less natural companion task than a second sequential target,
 % [round10, PENDENCIAS §6 FAB-22, author's ruling: "nao precisamos tirar tudo, o ponto e o excesso de
 % informacao. Podemos comentar algo somente sobre o fato que os experimentos foram realizados em 5
@@ -204,6 +208,10 @@ category classification is a less natural companion task than a second sequentia
 % United States dataset, which is what makes it evidence about generalization rather than a sixth
 % dataset. Naming the purpose is also what keeps the sentence honest without the numbers: the claim
 % it makes is about scope, and the scope is now stated.
+% [2026-10-02, PROPOSAL from the Fable reviews of the stable text, pending the author's ruling; frame, no errata] (6) "check-in level representation" ->
+% "check-in-level" (adjective, :193). NOT applied here: (4) dropping "established" and (6b) "non-U.S.",
+% because probes R13-aut08 and R10-fab22 pin both phrases as the author's own wording; reported to the
+% registry for the author's ruling instead; verified.
 so the final task pair becomes next category and next region. Both are established end
 targets in the mobility literature, and the next region feeds a broader family of
 downstream problems.

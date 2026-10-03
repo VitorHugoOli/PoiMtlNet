@@ -1295,9 +1295,10 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                 "volume for the post-publication static-task scope finding",
      "chapters/4_courb.tex", r"\\extravolume", False),
     ("RTV-06b", "and the static-task-scope finding itself is folded inline rather than lost "
-                "(the venue-type / seven-category one-to-one mapping)",
+                "(the venue-type -> seven-category mapping; repointed 2026-10-03: the old "
+                "'one-to-one onto' wording claimed a bijection, but 284-365 types map many-to-one)",
      "chapters/4_courb.tex",
-     r"the venue-type feature maps one-to-one onto the seven top-level\s+categories", True),
+     r"each venue type maps to exactly one of the seven top-level\s+categories", True),
     ("RTV-07",  "5_mobiwac.tex's preface no longer points at Appendix B of the supplementary "
                 "volume for the errata record",
      "chapters/5_mobiwac.tex", r"\\extravolume", False),

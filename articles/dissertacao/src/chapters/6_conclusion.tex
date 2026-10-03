@@ -57,9 +57,11 @@ half a point.
 % partition") and the chapter opening (R13-aut32). Wording of the objectives follows the
 % introduction as rewritten on 2026-09-03 (objective 4 = protocol differences + verdict reading).
 
+% [2026-10-02, PROPOSAL from the Fable reviews of the stable text, pending the author's ruling; frame, no errata] (1) "shared its lower layers" -> "shared a trunk of
+% hidden layers": the lowest layers are task-specific encoders (3_cbic/method.tex); verified.
 Chapter~\ref{ch:cbic} presents MTLnet, the first joint model developed in this research.
-It combined static category classification with next-category prediction and shared its
-lower layers across the two tasks. Both tasks read a place-level graph embedding. In
+It combined static category classification with next-category prediction and shared a
+trunk of hidden layers across the two tasks. Both tasks read a place-level graph embedding. In
 this configuration, the joint model cost more to train and did not consistently
 outperform the dedicated single-task models on either task. The chapter contributes
 this negative finding and an analysis of three possible causes: task dissimilarity and
@@ -70,9 +72,11 @@ Section~\ref{sec:intro:objectives}, met with a negative answer. The next two stu
 examine what happens when these conditions change.
 
 Chapter~\ref{ch:courb} kept the MTLnet architecture fixed but replaced its single
+% [2026-10-02, PROPOSAL from the Fable reviews of the stable text, pending the author's ruling; frame, no errata] (3) the 20.2 to 22.0 figure takes the better of the two spatial
+% encoders per category-state combination, as 4_courb/results.tex and conclusion.tex state; verified.
 64-dimensional place embedding with separate spatial, temporal, and categorical
 encoders. On the static task, category macro-F1 rose by 20.2 to 22.0 percentage points
-across the three states tested. This increase exceeded those obtained from the
+across the three states tested, taking the better of the two spatial encoders in each combination. This increase exceeded those obtained from the
 architectural variations evaluated in the first study.
 % [round6, D-02] The 20.2-22.0 point gain is the STATIC task's (4_courb/results.tex:92), whose
 % input determines its target by construction (Appendix B), so it does not by itself diagnose the
@@ -124,7 +128,7 @@ margin rather than as ties. On
 the category task it outperforms the dedicated model at Florida ($+0.19$ macro-F1); the
 other five are equivalent to zero within half a point. The equivalence margin was registered for
 the region axis only, so the category bound is read off the intervals rather than chosen in advance.
-Non-inferiority was the registered primary analysis for the region task; the
+Non-inferiority was the registered analysis for the region task; the
 two superiority findings are secondary results outside that analysis plan. Further analyses
 clarify what these results do and do not establish. They isolate the contribution of the
 % [2026-08-12] The parameter-count clause is withdrawn from this list with the appendix it named
@@ -184,8 +188,10 @@ shows that it helps under the final configuration. The sequence that led to this
 configuration also identifies the conditions behind that answer. Identifying these
 conditions is the main finding of this dissertation.
 
+% [2026-10-02, PROPOSAL from the Fable reviews of the stable text, pending the author's ruling; frame, no errata] (5) "registered primary analysis" -> "registered
+% analysis" (:127). (6) "naive hard sharing" -> "hard sharing", twice (here and the paragraph below).
 The explanation begins with Chapter~\ref{ch:cbic}, which used a place-level embedding and
-naive hard sharing. Its joint model did not consistently outperform the two dedicated
+hard sharing. Its joint model did not consistently outperform the two dedicated
 models, leaving three possible explanations: the tasks might be too different, the input
 might be insufficient, or the sharing topology might be too restrictive.
 Chapter~\ref{ch:courb} separated one of these explanations by
@@ -196,7 +202,7 @@ that configuration. This diagnosis set the direction for the final study.
 
 Chapter~\ref{ch:mobiwac} responded to this diagnosis in two steps. First, it introduced
 Check2HGI, which replaced one vector per place with one vector per visit. Second, the
-joint architecture replaced naive hard sharing with task-specific streams that exchange
+joint architecture replaced hard sharing with task-specific streams that exchange
 information through cross-attention, while the region output retained a private spatial
 path.
 

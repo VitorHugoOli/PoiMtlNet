@@ -95,10 +95,17 @@ that constructs the folds, and the statistical scripts and output files listed b
 % script is: the registered Wilcoxon test, published in the code release but not reported in the
 % text (author ruling of this date). The pointer stays because the code exists; the sentence no
 % longer implies its result is on the page.
-  \item[The significance tests.] The registered Wilcoxon test and the TOST non-inferiority test are
-        implemented in \path{research/reproducibility/mobiwac_v17/superiority_wilcoxon.py}
-        and \path{research/reproducibility/mobiwac_v17/region_match_tost.py}. The values
-        they consume, and from which every cell of Chapter~\ref{ch:mobiwac}'s results table
+% [2026-10-02, PROPOSAL from the Fable reviews of the stable text, pending the author's ruling; frame, no errata] (10a) the scripts named did not read the files named:
+% superiority_wilcoxon.py is v17; wilcoxon_v18.py's INPUTS block names joint_best_perfold.json and
+% v18_results.json and computes ttest_rel + wilcoxon; region_match_tost.py reads docs/results/P1 and
+% closing_data/h100 (v17) records, not the v18 files, so it is scoped to "the records of the previous
+% build" rather than claimed as the chapter's computation; "they consume, and" dropped; verified.
+  \item[The significance tests.] The paired $t$ test the chapter reports, with the registered
+        Wilcoxon test alongside it, is implemented in
+        \path{research/reproducibility/mobiwac_v18/wilcoxon_v18.py}, which reads the two files
+        below; the TOST non-inferiority test is implemented, on the records of the previous build,
+        in \path{research/reproducibility/mobiwac_v17/region_match_tost.py}. The values
+        from which every cell of Chapter~\ref{ch:mobiwac}'s results table
         is computed, are the per-fold records in
         \path{docs/results/closing_data/v18/joint_best_perfold.json} for the joint model
         and \path{docs/studies/closing_data/v18/data/v18_results.json} for the dedicated
