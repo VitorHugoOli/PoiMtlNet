@@ -1,4 +1,4 @@
-# G2: frozen-CTLE control re-run on the MATCHED split, Alabama and Arizona (2026-10-02, M2 Pro)
+# G2: frozen-CTLE control re-run on the MATCHED split, Alabama, Arizona and Istanbul (2026-10-02/04, M2 Pro)
 
 **Why.** The June CTLE-SC cells (`docs/results/closing_data/baseline_compare/{alabama,arizona}_ctle.json`,
 `MACS_BOARD_RESULTS.md`) were mismatched:
@@ -27,6 +27,43 @@ sentence it supports is strengthened, not reversed. Ch. 5 prints no CTLE number 
 printed value changes.
 - **Caution:** the `Check2HGI-SC` comparand in `MACS_BOARD_RESULTS.md` (55.59 / 56.31) is a pre-v18
   substrate value. Any CTLE vs Check2HGI Δ should use the v18 dedicated cells, not that column.
+
+## Istanbul (added 2026-10-04)
+
+Same recipe, same asserts, run on the M2 Pro from the internal disk (`/Users/vitor/g2_scratch`), at commit `f0fca061`.
+- **Inputs:** the canonical `check2hgi/istanbul` plus `check2hgi_dk_ovl/istanbul`, md5-equal to nespedgpu
+  (`logs/ISTANBUL_INPUT_MD5S_box.txt`).
+- **Driver:** `drivers_istanbul/`, with a PID-scoped watchdog. No aborts.
+
+| fold | June | **matched split** | matched − June |
+|---|---:|---:|---:|
+| 0 | 25.7004 | 27.3487 | +1.65 |
+| 1 | 25.9156 | 26.5632 | +0.65 |
+| 2 | 25.5218 | 25.9805 | +0.46 |
+| 3 | 26.1830 | 27.1712 | +0.99 |
+| 4 | 26.2653 | 27.8820 | +1.62 |
+| **mean** | **25.92** | **26.99 ± 0.73** | **+1.07 ± 0.55** (0/5 lower, t p = 0.012) |
+
+**Asserts, 5/5 passed** (`logs/ASSERTS_g2_ist.log`):
+- the `check2hgi_ctle` rows equal `dk_ovl` (271,666);
+- `train.py`'s fold val-user sha equals `CTLE_FOLD.txt`;
+- report macro-F1 equals the f1-best epoch;
+- support equals `n_val` (54,333 / 54,333 / 54,334 / 54,333 / 54,333).
+
+**Cost:** build 4.5 min (peak RSS ≈ 5.0 GB) plus score 7–8 min (≈ 7.0 GB) per fold.
+
+**Reading.**
+- **At Istanbul the matched-split CTLE is *higher* than June's, in every fold.** A leak through
+  pre-training would make the matched value *lower*, as at AL and AZ.
+- So this supports the earlier inference that **June's Istanbul cell was not split-mismatched**. Its rows
+  were the 271,666 stride-1 rows that are row- and fold-identical to `dk_ovl`.
+- **The text can now state as measured, for all three states, that CTLE is pre-trained per fold on
+  training users only:** AL 16.31, AZ 17.67, IST 26.99.
+- **The +1.07 is most likely run-to-run or device spread** (not measured separately). Pre-training ran on MPS here; the one June log found
+  (AL) shows CPU. It also tempers the AL/AZ reading: part of their −1.5 may be the same kind of shift, so
+  the leak's own share there could be larger than 1.5. The direction of every conclusion is unchanged.
+- **Ordering at Istanbul, for the D3 sentence:** frozen CTLE 26.99 < place-level HGI 32.54 (paired,
+  `istanbul_pair/`) < check-in level 35.35 (the printed dedicated cell). The ordering holds, as at AL and AZ.
 
 ## Protocol
 
