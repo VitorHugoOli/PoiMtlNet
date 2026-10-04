@@ -8,6 +8,21 @@
 
 Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca correr.
 
+> ## Estado a 2026-10-04 de madrugada
+>
+> - **G5:** FEITO nos seis (`82ebfe5f`, `1fd63386`). O texto (coluna, parágrafo do piso, B.5) está na
+>   árvore e espera pelo D11 do autor.
+> - **G2:** FEITO em AL/AZ/IST (`c0f1e61c`). Istambul: 26,99, contra 25,92 em junho, mais alto em
+>   todos os folds. O D3 está na árvore e entra com o D11.
+> - **G1 Florida, fold 0, cat FULL:** cortado aos 17 s, com a pressão crítica. A leitura coube (8 GB).
+>   O corte veio da cópia do fold para a memória da GPU, por cima de 7 GB de swap herdados do G2 IST.
+>   Remédio: `MTL_DATASET_CPU=1`. A prova revelou um bug (a cópia CPU→MPS não bloqueante corrompia os
+>   rótulos), corrigido pelo **D2b** (`17571c16`, prova byte a byte em `gpu_queue/dataset_cpu_proof/`).
+>   Nenhuma corrida de evidência passou por esse caminho (auditoria para trás).
+> - **Próximo:** a Florida, depois de reiniciar o Mac: cat FULL e cat TO com `MTL_DATASET_CPU=1`, depois
+>   reg FULL medido tal como está. O p1 ignora o `MTL_DATASET_CPU`; se o reg disparar, há patch próprio
+>   com a mesma prova.
+>
 > ## Estado a 2026-10-03
 >
 > - **G1 Florida:** o autor escolheu a opção (b), o carregador mais leve (D2). O patch está em
