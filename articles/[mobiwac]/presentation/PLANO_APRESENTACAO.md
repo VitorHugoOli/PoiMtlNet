@@ -70,8 +70,10 @@ qual esta trilha não é o capítulo da dissertação encurtado:
 > retórica: é o que ele vai dizer de pé. O braço por lugar de Istambul veio do build `hgi_dk_ovl` de
 > 26/06, com 343 795 linhas, contra as 271 666 do v18 — outra versão. O POI-RGNN de FL/CA/TX veio da
 > implementação TF antiga. O controlo de concatenação, de outra corrida. As três são, literalmente,
-> fontes de versões diferentes. **A excepção que aí vem é o HMT-GRN** (ver S8): se os valores mudarem,
-> é por convenção de época, não por versão — e a frase precisará de mais meia oração.
+> fontes de versões diferentes. **A excepção é o HMT-GRN** — fechado a 2026-10-03 (`82ebfe5f`): os
+> valores mudaram por **convenção de época**, não por versão. O artigo leu-o no epoch fixo 50; a
+> dissertação lê-o no melhor epoch de validação, a mesma regra dos nossos modelos. A frase do autor
+> ganhou a meia oração que lhe faltava — ver §5.
 
 ### 2.1 De onde vêm os números
 
@@ -82,7 +84,7 @@ qual esta trilha não é o capítulo da dissertação encurtado:
 - Região (Acc@10), conjunto vs dedicado: **supera em 2 de 6** — Texas **+1,21**, California **+1,06**.
 - As outras quatro células de região ficam **dentro da margem de 2 pp** pré-registada (TOST).
 - Representação (Tab. 2): **+0,23 a +2,81** macro-F1, 6/6 datasets, 5/5 folds cada. *(Publicado: +6,29 — Istambul não pareado.)*
-- Margens sobre as externas: categoria ≥ **+4,11** (conjunto, mínimo em TX; o dedicado ≥ +4,00, em FL). Região ≥ +3,55 ⏸ **PENDENTE** — o HMT-GRN está a ser re-corrido no melhor epoch.
+- Margens sobre as externas: categoria ≥ **+4,11** (conjunto, mínimo em TX; o dedicado ≥ +4,00, em FL). Região ≥ **+3,55** (conjunto, FL sobre STAN) — **confirmado** com o HMT-GRN no melhor epoch; em CA a referência mais forte passa a ser o HMT-GRN (59,59), e a margem aí é +4,95.
 - Piso de Markov excedido por **+4,1 a +10,0**.
 
 ### 2.2 ⛔ NUNCA MOSTRAR
@@ -97,7 +99,7 @@ tinha um vazamento de rótulo. **Nenhum pode aparecer num slide.** Lista complet
 | "supera o dedicado em todos os datasets" (categoria) | supera **só em Florida** |
 | "supera em quatro de seis" (região) | supera em **dois**: TX e CA |
 | Representação "+27,63 … +39,62" / "cerca de 28 a 40 pontos" | **+0,23 … +2,81** (e **não** o +6,29 publicado — ver abaixo) |
-| "pelo menos 4 Acc@10" e "pelo menos 33 macro-F1" | categoria **4,11**; região ⏸ pendente (era 3,55) |
+| "pelo menos 4 Acc@10" e "pelo menos 33 macro-F1" | categoria **4,11**; região **3,55** (inalterado) |
 | Markov excedido por "4,9 a 10,3" | **4,1 a 10,0** |
 | "a lei de escala com o número de regiões" | **morta** — CA tem mais regiões do que TX e ganho menor |
 | Deltas do CTLE +37,8 / +37,0 / +28,7 | **não existem** em v18; só a ordenação sobrevive |
@@ -115,6 +117,8 @@ descarregar.** Quem preparar um slide "a partir do artigo" vai apanhá-los.
 | controlo de concatenação **+2,0 / +1,7 / +0,8** | **+1,73 / +1,70 / +1,02** |
 | "HMT-GRN abaixo do piso de Markov nos seis; STAN em quatro; ReHDM em três" | **sai** — a dissertação removeu a contagem (`e6ac03c0`) |
 | "HMT-GRN on our data, folds, and initialization" | **"on the same data"** — nenhuma externa corre nos nossos folds |
+| HMT-GRN no epoch 50: **57,05 / 43,70 / 60,4 / 63,74 / 49,61 / 53,85** (AL/AZ/IST/FL/CA/TX) | no melhor epoch de validação: **63,19 / 52,11 / 68,06 / 72,76 / 59,59 / 61,39** |
+| "o piso de Markov fica acima das externas" / "HMT-GRN abaixo do piso" | **falso** — no melhor epoch o HMT-GRN passa o piso nos seis (+0,3 a +3,0) |
 
 > ### ⛔ A armadilha mais tentadora, e é específica desta plateia
 >
@@ -396,6 +400,15 @@ vocabulários de região é **observação, não lei** — CA tem mais regiões 
 ### S8 · E contra os sistemas publicados — 45 s
 - **Mensagem:** estamos acima de tudo o que voltámos a correr — e essa margem não é prova sobre partilha.
 - **Mostra:** a tabela das externas (POI-RGNN · HMT-GRN · ReHDM · STAN), uma frase.
+- **Rodapé (2026-10-03): sim** — *"HMT-GRN: read at its best validation epoch, the same rule as our
+  models."* Três razões: (1) é uma anotação de protocolo **do mesmo tipo** das que o slide já tem para
+  o STAN (folds parciais) e o ReHDM (uma semente) — não é uma confissão, é a regra; (2) é a coluna que
+  mais diverge do PDF das actas (até +10 pontos em CA), portanto é onde a pergunta *"porque é que não
+  bate?"* nasce, e o rodapé responde-lhe antes; (3) **a correcção favorece a referência** — mostrar que
+  medimos o concorrente pela mesma regra que nós, mesmo quando isso lhe dá mais pontos, é o argumento
+  de equidade mais forte do slide. *(Decisão de plano, não do autor: é reversível e do mesmo género
+  das notas que já lá estão. Se o autor preferir a decisão de 03/10 à letra — explicar só se
+  perguntarem — sai.)*
 - **Fonte:** `CAMERA_READY §3.4`.
 - **Do deck:** **reaproveitar**, mas **reduzido e despromovido**.
 
@@ -408,7 +421,7 @@ vocabulários de região é **observação, não lei** — CA tem mais regiões 
 
 **Frase única, corrigida (ver §8, F11):** *"Both our models — the dedicated and the joint — are above
 every system we compared against. The joint model by at least **4.11** points on category
-[⏸ e região: pendente do HMT-GRN]. That margin belongs mostly to the representation from Result 1,
+and **3.55** on region. That margin belongs mostly to the representation from Result 1,
 so it is not evidence for sharing."*
 E segue.
 
@@ -495,7 +508,7 @@ Um slide, uma resposta, sem construção. Chamam-se pelo número.
 |---|---|---|---|
 | **B1** | *"Porquê *tracts* e não uma grelha?"* | A definição e a contagem por conjunto (520 → 8 501). **Reduzido**: a definição de região passou para o S2. | `CAMERA_READY §3.4`; `tbl1_datasets.tex` |
 | **B2** | *"De onde vêm os 2 pontos? Escolheram depois de ver?"* | Pré-registada, **só para a região**; a categoria **não tem** margem registada — por isso as cinco células dizem "não resolvido" e nunca "equivalente" | `CAMERA_READY §3` |
-| **B3** | *"Um Markov não faz isto?"* | Piso de Markov-1 (51,23–72,47), margem **+4,1 a +10,0**; **sem** a contagem por sistema ("HMT-GRN abaixo do piso nos seis…") — a dissertação removeu-a e os re-cálculos do HMT-GRN já a contradizem em AL e AZ. **⚠ Dizer a margem mais estreita antes que a calculem: Florida, +4,07.** | `CAMERA_READY §3.4` |
+| **B3** | *"Um Markov não faz isto?"* | Piso de Markov-1 (51,23–72,47), margem **+4,1 a +10,0**; **sem** a contagem por sistema ("HMT-GRN abaixo do piso nos seis…") — a dissertação removeu-a, e **no melhor epoch o HMT-GRN passa o piso nos seis** (+0,3 a +3,0). Nunca dizer que o piso bate as externas. O que se pode dizer é só a **nossa** margem sobre o piso. **⚠ Dizer a margem mais estreita antes que a calculem: Florida, +4,07.** | `CAMERA_READY §3.4` |
 | **B4** | *"Como sabem que o vector não vê o alvo?"* | O grafo é **forward-only**: um nó lê só as visitas que o precedem, no treino e na leitura. **Publicado, terceiro limite da §7.** | `07_discussion.tex` |
 | **B5** | *"Quanto custa um modelo em vez de dois?"* | 4,2 M vs 1,9 M (AL), 5,2 M vs 2,8 M (CA), contra **os dois somados** | `04_method.tex` |
 | **B6** | *"Se a representação faz quase tudo, para que serve o MTL?"* | A resposta honesta do artigo: na categoria a representação move mais do que a escolha entre um modelo e dois; se a troca acrescenta algo **não é separado pela evidência aqui** | `08_conclusion.tex` |
@@ -524,7 +537,7 @@ perguntas desta sala em concreto, e nenhuma tinha resposta na v1.
 
 | Pergunta | A frase |
 |---|---|
-| **"Os vossos números não batem com o artigo."** *(nova, 2026-10-03 — e é a mais provável de todas, porque o PDF está nas actas)* | **A frase do autor:** *"The paper mixed sources from different versions; the corrected values come from the delivered build."* Se pedirem o exemplo, o de Istambul é o mais claro e o mais honesto: *"the place-level cell for Istanbul was computed on an older build with more rows; matched on the same rows the gain is 2.81, not 6.29."* ⚠ **Não pedir desculpa nem dramatizar** — a mensagem do Resultado 1 sobrevive inteira: ganho em todos os seis conjuntos e em todos os folds. Muda a amplitude, não o sinal. |
+| **"Os vossos números não batem com o artigo."** *(nova, 2026-10-03 — e é a mais provável de todas, porque o PDF está nas actas)* | **A frase do autor:** *"The paper mixed sources from different versions; the corrected values come from the delivered build."* **Se a pergunta for sobre a coluna do HMT-GRN** (é a que mais mudou: até +10 pontos em CA), a meia oração é outra: *"the paper read HMT-GRN at a fixed final epoch; here it is read at its best validation epoch, the same rule as our models."* Note-se que esta correcção **favorece a referência** — o artigo sub-reportava-a. Dizê-lo assim é a resposta mais forte que existe a uma pergunta sobre equidade. Se pedirem o exemplo de uma correcção de versão, o de Istambul é o mais claro e o mais honesto: *"the place-level cell for Istanbul was computed on an older build with more rows; matched on the same rows the gain is 2.81, not 6.29."* ⚠ **Não pedir desculpa nem dramatizar** — a mensagem do Resultado 1 sobrevive inteira: ganho em todos os seis conjuntos e em todos os folds. Muda a amplitude, não o sinal. |
 | **"Latência? Energia? Corre na borda, no telemóvel?"** | *"About five million parameters and a window of nine visits per query. **We did not measure latency or energy.**"* ⚠ O título do S10 ("o que custa") torna esta pergunta inevitável: para esta sala, custo são **milissegundos e watts**, não parâmetros. |
 | **"Partiram por utilizador e não por tempo. E deriva? E re-treino?"** | Textual do artigo: *"The split is by user and not by time, so the evaluation does not measure drift or the effect of sporadic events."* E depois o lado bom: por ser por utilizador, **todos os números são sobre utilizadores nunca vistos**. |
 | **"Gowalla é de 2009–2011. Ainda representa alguma coisa?"** | Istanbul vem do Massive-STEPS, recolha recente; o Gowalla é o *benchmark* padrão desta linha. O que interessa é o padrão que **se repete** entre continentes e épocas. |
