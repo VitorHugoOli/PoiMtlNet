@@ -40,6 +40,17 @@ on MPS. Per-state logs: `logs/full_<st>/` (AL/AZ/IST) and `logs/g5_fl_5f_r2/` (F
   - category gap: FL 10.5 → 6.8, CA 11.6 → 7.4, TX 10.5 → 5.6.
 - **The printed tables carry HMT-GRN only in the region table.** The category best-epoch values are recorded here but do not change a printed cell.
 
+
+## Note: the JSONs' `windowing` field is a stale label (added 2026-10-03)
+
+Every `runs/*.json` says `"windowing": "stride-9 (current); ..."`. That string is hard-coded in
+`scripts/baselines/b3_hmt_grn.py` (the sidecar writer) and does not describe the run. The rows are
+the stride-1 `check2hgi_dk_ovl` windows: Alabama's five `n_val` sum to 96,326, the stride-1 count,
+where stride-9 would give 12,709. In all six states the five `n_val` sum exactly to the Windows
+column of the chapter's dataset table (`tables/mobiwac/datasets.tex`): 96,326 / 200,895 / 271,666 /
+1,274,418 / 2,925,466 / 3,830,414.
+The `alpha_prior` field (1.0 in all six) is real: the per-fold train-only region-transition
+prior was on.
 ## Folds and data
 
 - **AL, AZ, IST:** HMT's split (`b3_hmt_grn.build_fold_split`: StratifiedGroupKFold, seed 0, int64
