@@ -102,8 +102,8 @@ def train_single_task(
 
         for X_batch, y_batch in train_loader:
             if X_batch.device != device:
-                X_batch = X_batch.to(device, non_blocking=True)
-                y_batch = y_batch.to(device, non_blocking=True)
+                X_batch = X_batch.to(device, non_blocking=(device.type == "cuda"))
+                y_batch = y_batch.to(device, non_blocking=(device.type == "cuda"))
             optimizer.zero_grad(set_to_none=True)
             with _autocast_ctx:
                 logits = model(X_batch)
@@ -190,8 +190,8 @@ def train_single_task(
         with torch.no_grad():
             for X_batch, y_batch in val_loader:
                 if X_batch.device != device:
-                    X_batch = X_batch.to(device, non_blocking=True)
-                    y_batch = y_batch.to(device, non_blocking=True)
+                    X_batch = X_batch.to(device, non_blocking=(device.type == "cuda"))
+                    y_batch = y_batch.to(device, non_blocking=(device.type == "cuda"))
                 with _autocast_ctx:
                     logits = model(X_batch)
                     loss = criterion(logits, y_batch)

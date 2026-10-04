@@ -47,7 +47,7 @@ def _extract_diagnostics(
 
     with torch.no_grad():
         for X_batch, y_batch in val_loader:
-            X_batch = X_batch.to(device, non_blocking=True)
+            X_batch = X_batch.to(device, non_blocking=(device.type == "cuda"))
             if supports_attention:
                 logits, attn = model(X_batch, return_attention=True)
                 attn_list.append(attn)

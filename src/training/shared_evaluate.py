@@ -32,7 +32,7 @@ def evaluate(model: nn.Module, loader: DataLoader, device: torch.device,
     with torch.no_grad():
         for X_batch, y_batch in loader:
             if X_batch.device != device:
-                X_batch = X_batch.to(device, non_blocking=True)
+                X_batch = X_batch.to(device, non_blocking=(device.type == "cuda"))
             with _autocast_ctx:
                 logits = model(X_batch)
             preds_list.append(logits.argmax(dim=1))

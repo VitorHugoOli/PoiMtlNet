@@ -323,8 +323,10 @@ def _get_num_workers() -> int:
     # perturbs the consumption order (measured shift vs the byte-identical
     # workers=0 baseline). Adding a seeded generator would itself change the
     # frozen baseline numbers, so we keep workers=0. The VRAM win for large states
-    # comes from CPU-residency alone (MTL_DATASET_CPU, byte-identical), NOT from
-    # workers — so there's no quality-neutral reason to enable them.
+    # comes from CPU-residency alone (MTL_DATASET_CPU; byte-identical on CUDA, and on MPS
+    # only for the single-task path with the blocking copy of D2b, MTL path not covered —
+    # see ``_dataset_device``), NOT from workers — so there's no quality-neutral reason to
+    # enable them.
     return 0
 
 
@@ -341,10 +343,17 @@ def _dataset_device(num_workers: int, tensor_nbytes: int | None = None):
     it fits in (free VRAM − headroom); else keep it CPU-resident. Decisions are made
     per-loader as loaders are built, so ``cuda.mem_get_info()`` already reflects tensors
     pre-moved by earlier loaders (cumulative-aware). This removes the manual guessing
-    that caused the FL-overlap OOM and is robust across machines. **Byte-identical**:
-    the dataset's device never changes the computation (verified: CPU-resident vs
-    GPU-pre-move produce identical metrics) — only throughput/VRAM. The CHOICE may vary
-    with GPU occupancy (non-deterministic), but the trained model + scored numbers do not.
+    that caused the FL-overlap OOM and is robust across machines. **Byte-identical on
+    CUDA**: there the dataset's device never changes the computation (verified on CUDA:
+    CPU-resident vs GPU-pre-move produce identical metrics) — only throughput/VRAM. The
+    CHOICE may vary with GPU occupancy (non-deterministic), but the trained model + scored
+    numbers do not. **On MPS a CPU-resident dataset is byte-identical only through the
+    blocking single-task batch copy** (``non_blocking`` only on CUDA in
+    ``_single_task_train`` / ``shared_evaluate`` / ``next_cv``, D2b, 2026-10-04): a
+    non-blocking CPU→MPS copy from the pageable ``index_select`` temporary corrupted the
+    labels (AL proof, ``docs/studies/closing_data/v18/gpu_queue/dataset_cpu_proof/``). The
+    MTL loops (``mtl_cv`` / ``mtl_eval`` / ``mtl_validation``) still copy with
+    ``non_blocking=True`` and are NOT covered: do not use MTL_DATASET_CPU=1 for MTL on MPS.
 
     Overrides: ``MTL_DATASET_CPU=1`` forces CPU-resident; ``MTL_DATASET_GPU=1`` forces
     pre-move; ``MTL_GPU_HEADROOM_GB`` (default 16) reserves VRAM for model+activations.
