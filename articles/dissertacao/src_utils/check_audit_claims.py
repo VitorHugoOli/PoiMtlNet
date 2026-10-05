@@ -455,7 +455,8 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # sentence makes is about scope, so the scope has to be stated.
     ("R10-fab22",  "the introduction says WHY Istanbul is there (a non-United-States dataset), not "
                    "merely that it is there",
-     "chapters/1_introduction.tex", r"Istanbul as a non-United-States dataset", True),
+     # Re-pinned 2026-10-05 (D8b, author: one form, "non-U.S.", across the document).
+     "chapters/1_introduction.tex", r"Istanbul as a non-U\.S\. dataset", True),
     # R10-ch2defs: GER-08/09/10. The chapter must keep numbered, REFERENCEABLE definitions -- the
     # environment declaration in preamble.tex is what makes them numbered, and the cross-references are
     # what make the chapter GER-10's narrative rather than a definition dump. Two probes because the
@@ -1319,7 +1320,9 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R13-aut08",    "§1.2 uses the NORTH_STAR-sanctioned fallback for the task-choice defense instead "
                      "of the comparative claim that no open anchor supports",
      "chapters/1_introduction.tex",
-     r"Both are established end\s+targets in the mobility literature, and the next region feeds a "
+     # Re-pinned 2026-10-05 (D8b, author dropped "established": Ch.5 related work calls category and
+     # region auxiliary signals in multi-granularity systems, and region as an end target underexplored).
+     r"Both are end\s+targets in the mobility literature, and the next region feeds a "
      r"broader family of\s+downstream problems", True),
     ("R13-aut09",    "the arc sentence names its subject (each study, each chapter) and time-indexes "
                      "supersession, instead of letting an abstract noun act",
