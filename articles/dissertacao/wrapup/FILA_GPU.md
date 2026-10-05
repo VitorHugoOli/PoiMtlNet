@@ -8,6 +8,17 @@
 
 Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca correr.
 
+> ## Estado a 2026-10-04 à noite: fila vazia
+>
+> - **G1 Florida: FEITO**, 5 folds, 37 etapas rc 0, nenhum limite disparado (`17a35bc5`, `c526c388`).
+>   Só-treino − todos: categoria +0,012 ± 0,076, região −0,084 ± 0,083. Junto com AL e AZ, não há
+>   vantagem mensurável. Coube no Mac com D2 + D2b + `MTL_DATASET_CPU=1`; o p1 coube sem patch.
+> - **O texto** (05_setup "Whole-dataset training", o primeiro limite de 07_discussion, a linha da B.5)
+>   está com o writer. A ressalva antiga da categoria (um vetor por lugar, 67–87% de cobertura) não se
+>   aplica a este teste: cada visita de validação é embebida pelo codificador só-treino, e a avaliação
+>   conta todas as janelas de validação.
+> - **G4** continua de fora, sem GPU remota. Nada mais na fila.
+>
 > ## Estado a 2026-10-04 de madrugada
 >
 > - **G5:** FEITO nos seis (`82ebfe5f`, `1fd63386`). O texto (coluna, parágrafo do piso, B.5) está na
