@@ -172,6 +172,9 @@ measurement method.
 this entry originally recorded only Chapter 4, which left the smaller of the two unregistered.
 Extended 2026-07-28 after the visual pass measured it.
 
+**Decided by** the author, 2026-10-06 (E2 of the deposit dossier): "LO-6 vamos deixar ambos em como
+tá". Both figures stay at their published label size; nothing to do.
+
 ---
 
 ## LO-7 · The sub-area selection rule behind the state-distribution figure

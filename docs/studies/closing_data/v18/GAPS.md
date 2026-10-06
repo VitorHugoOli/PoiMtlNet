@@ -246,7 +246,10 @@ Recorded here so they are not mistaken for missing data:
    +0.04 pp because pairing on identical folds collapses the variance. Three independent arguments
    say those should not be reported as wins: fold dependence (folds within a seed share ~80 % of
    training data), the tuned-comparator bias (the dedicated arm got a per-state LR search the MTL
-   arm did not), and effect size (~+0.04 pp is not a claim anyone can defend). **Not yet decided.**
+   arm did not), and effect size (~+0.04 pp is not a claim anyone can defend). ~~Not yet decided.~~ **CLOSED 2026-10-06 by the
+   author (E2 of the deposit dossier): the text stays as it is.** The delivered Ch.5 already reads
+   the category differences as small ("every difference is small in both directions … Florida is
+   the only one the tests resolve"), so no generator "beats" reaches the text as a win.
 2. **P1 capacity-matched region control** (`POSTPONED.md`) — the experiment that would decide whether
    the +1.93/+1.96 region advantage is multi-task sharing or simply the dual-tower's extra
    parameters. The 1-fold triage already showed it survives severing the trunk *and* deleting the
