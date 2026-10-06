@@ -91,9 +91,17 @@ def volume_sources(srcroot: Path, entry: str = "main_extra.tex") -> list[Path]:
         seen.append(f)
         for m in pat.finditer(strip_comments(f.read_text(errors="replace"))):
             t = m.group(1)
-            cand = srcroot / (t if t.endswith(".tex") else t + ".tex")
-            if cand.exists():
-                todo.append(cand)
+            rel = t if t.endswith(".tex") else t + ".tex"
+            # Same search order as the volume's Makefile (TEXINPUTS=".//:<src>//:"): the volume's
+            # own tree first, then src/. FIXED 2026-10-05: after the 08-20 repoint only the first
+            # was tried, so every \input{tables/...} (the errata tables live in src/tables) was
+            # skipped silently, their labels went unseen, and six refs were reported MISSING while
+            # any real broken ref inside those tables could no longer be seen.
+            for base in (srcroot, SRCROOT):
+                cand = base / rel
+                if cand.exists():
+                    todo.append(cand)
+                    break
     return seen
 
 
