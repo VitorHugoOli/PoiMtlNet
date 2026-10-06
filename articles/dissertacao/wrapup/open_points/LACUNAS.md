@@ -324,7 +324,7 @@ ponto, e nao promovidas a empate."
 nenhum deles bloqueia o deposito por si. O bloco de cada um traz opcoes, troca e esforco.
 **DADOS:** medido: `PENDENCIAS.md:741` declara os 21 `[I DECIDE]` do §4.1 como fora do plano de
 execucao, esperando a palavra do autor. Dos itens `AUT-`, dois seguem abertos por natureza distinta:
-**AUT-26** (renomear o modelo conjunto) espera o orientador e tem raio de impacto medido: `MTLChkNet`
+**AUT-26** (renomear o modelo conjunto; FECHADO 2026-10-06: nome MTVisitNet, texto inalterado) tinha raio de impacto medido: `MTLChkNet`
 aparece **0 vezes** na arvore, e "the joint model" tem 57 ocorrencias em prosa viva, 17 delas no
 Cap. 5, que e o manuscrito submetido, e 5 dentro de tabelas de errata onde a string citada **e** a
 evidencia; **AUT-38** esta vazio no fonte, com decisao registrada "NADA A FAZER" e o ID reservado.

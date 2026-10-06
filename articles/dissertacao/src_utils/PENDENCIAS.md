@@ -417,11 +417,16 @@ tocaria `content.tex:398` e mais nada.
 > "§4 (os itens `AUT-`) — A SEGUNDA ONDA", e os blocos completos ficam em
 > [`_history/_round13/_aut_closed_blocks_wave2.md`](_history/_round13/_aut_closed_blocks_wave2.md).
 >
-> **Sobram os dois abaixo, e nenhum espera trabalho meu.** O AUT-26 espera o seu orientador. O AUT-38
+> **Sobram os dois abaixo, e nenhum espera trabalho meu.** O AUT-26 foi fechado pelo autor a 2026-10-06 (nome MTVisitNet, texto inalterado). O AUT-38
 > esta vazio no fonte e a sua decisao foi "NADA A FAZER"; o ID fica reservado, porque IDs deste arquivo
 > nunca sao reciclados.
 
 ### AUT-26 — renomear o modelo conjunto para MTLChkNet, e se ja e tarde
+
+> **FECHADO 2026-10-06 pelo autor (D8a do dossie).** O nome escolhido para a rede e **MTVisitNet**
+> (Multi-Task Visit Network), para distinguir a rede do modelo de embeddings (Check2HGI). **O texto da
+> dissertacao NAO muda**: continua "the joint model", como o artigo publicado. O nome fica para uso fora
+> do texto depositado. O que se segue e o registo de quando estava aberto.
 
 - **§4 item:** 25
 - **Source status:** [N/A] como citacao (pergunta). `MTLChkNet` aparece **0** vezes na arvore.
