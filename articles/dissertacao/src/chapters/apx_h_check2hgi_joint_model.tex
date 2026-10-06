@@ -164,7 +164,7 @@ trajectories, rather than only where it is located.
 \subsection{Step 3: add the spatial place neighborhood}
 
 The higher spatial route combines the pooled place representation with a trainable
-64-dimensional place table initialized from the pretrained place representation.
+64-dimensional place table initialized from the pre-trained place representation.
 A learned scalar, initialized to $1.0$, controls the table's contribution. One
 weighted graph convolution then propagates the combined state over the Delaunay
 place graph.
@@ -440,7 +440,7 @@ from the region map of each dataset and is therefore not one global constant.
 Check2HGI & Check-in input & 7 category indicators + 4 cyclic time values + 4 elapsed-time values; width 15 \\
 Check2HGI & Graph relations & Consecutive-user check-in edges; Delaunay place edges; polygon-adjacency region edges; hierarchy memberships \\
 Check2HGI & Encoders and pooling & Two check-in graph-convolution layers, one place graph convolution, one region graph convolution; width 64; four heads at both hierarchy pools \\
-Check2HGI & Auxiliary learning & Mask probability $0.15$; pretrained place-table anchor; loss weights in Equation~\ref{eq:apx-check2hgi-loss} \\
+Check2HGI & Auxiliary learning & Mask probability $0.15$; pre-trained place-table anchor; loss weights in Equation~\ref{eq:apx-check2hgi-loss} \\
 Check2HGI & Optimization & Full-batch Adam; learning rate $10^{-3}$; 500 epochs; weight decay 0; clip norm $0.9$; seed 42 \\
 Joint model & Examples and inputs & Nine-visit history; tenth visit as target; stride 1; separate check-in and region tensors, each $9\times64$ \\
 Joint model & Private encoders & Independent $64\rightarrow256\rightarrow256\rightarrow256$ stacks; ReLU and layer normalization; dropout $0.1$ after the first two transformations \\
