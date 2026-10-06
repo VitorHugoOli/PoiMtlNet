@@ -76,10 +76,25 @@ configuration throughout, inherited unchanged, with only the logit-adjustment st
 set to zero for that task. Section~\ref{sec:mobiwac:discussion} returns to what the uneven joint
 search may mean for the two datasets that did not receive one.
 
+% [2026-10-04, D2 PROPOSAL (author's ruling 2026-10-03: with Florida run, no dataset count, show the
+% conclusion); Table B.5 row rewritten by the writer for the registry] The integrity check re-run on
+% the delivered protocol (docs/results/closing_data/v18/g1_integrity_{al,az,fl}/, seed 0, five folds,
+% delivered int64 folds, dk_ovl stride-1 rows, cell_cat / cell_reg recipes). Re-derived by the writer
+% from the three G1_*_5fold.csv, train-only minus full: category AL -0.108, AZ -0.174, FL +0.012;
+% region AL -0.013, AZ +0.132, FL -0.084. Printed as full minus train-only (positive favors
+% whole-dataset training): category -0.01 to +0.17, region -0.13 to +0.08. Replaces -0.33..+0.01 /
+% 0.00..+0.29, which were the pre-v18 A4 check on different rows and folds. No significance is
+% claimed either way (only AZ category has paired t p < 0.05, 0.024; Wilcoxon 0.0625).
+% The second paragraph ("However, ... one vector per place ... 67 to 87 percent ...") described the
+% OLD check and is removed: in G1 every check-in, validation users' included, is embedded with the
+% train-only encoder (infer_checkins --readout prefix_forward_only) and every validation window is
+% scored (report support == n_val_rows, asserted). What the check still does not cover, kept out of
+% the prose by the author's rule except the seed: one seed; the three datasets not run. "at one
+% seed" is kept because the rest of the chapter reports four; verified.
 \emph{Whole-dataset training.} The question is whether using all users to train
-Check2HGI gives the prediction models an advantage. To check this, we built a new
-representation for each fold using only its training users. This check covers three datasets at
-one seed.
+Check2HGI gives the prediction models an advantage. To check this, we rebuilt the
+representation and the region vectors for each fold from its training users only, retrained
+the dedicated models on them, and scored every validation window.
 % [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item] ", on an earlier build of the
 % representation" added: the quoted ranges come from a pre-v18 substrate and the sentence did not
 % say so. The scope clause ("three datasets at one seed") stays and the quoted ranges are unchanged;
@@ -89,15 +104,25 @@ one seed.
 % build (on /dados); the two ranges in the next sentence are STILL the pre-v18 values and are
 % PENDING that re-run (deposit blocker tracked by the registry). When the re-run lands, replace the
 % numbers from its output; do not restore the build clause.
-The differences were $-0.33$ to $+0.01$ Acc@10 points for region and $0.00$ to
-$+0.29$ macro-F1 points for category.
+% [2026-10-04, D2] DISCHARGED: the re-run landed (g1_integrity_al / az / fl) and the numbers below are its
+% output; the build clause is not restored. The block is kept in two short paragraphs, method then
+% result, because probe COD-016b holds the author's approved paragraph structure for this passage (at
+% least four paragraphs under the Integrity heading).
+% [2026-10-05, after a cold read by a second reader] (i) "moved ... by -0.01 to +0.17" was read as a range
+% across FOLDS, under which it is false (per-fold differences run -0.09..+0.28 category, -0.42..+0.66
+% region): "the five-fold mean" and "across the datasets checked" added (no count, author's rule).
+% (ii) "embedded every check-in with the rebuilt representation" described the category half only
+% (the region half reads rebuilt region vectors; no check-in is embedded): replaced by "retrained
+% the dedicated models on them", which is true of both halves and states which models were scored
+% (the joint model was not run on a train-only build). (iii) "meaningfully" given a scale the reader
+% can check: |difference| / fold sd of the same score, full arm = 0.088, 0.153, 0.023 (category AL,
+% AZ, FL) and 0.004, 0.065, 0.073 (region), all under 0.2; "the results" -> "these scores"; verified.
 
-However, the region comparison uses region vectors directly. For category, a graph built only
-with training users has no visit vectors for validation users. We therefore used one
-vector per place and kept only windows whose input places occurred in training. These
-windows cover 67 to 87 percent of the validation data. The comparison does not cover
-information specific to each visit or places unseen in training. Within this
-coverage, whole-dataset training did not meaningfully change the results.
+At one seed, across the datasets checked, training on all users moved the five-fold mean by
+$-0.01$ to $+0.17$ macro-F1 points for category and by $-0.13$ to $+0.08$ Acc@10 points for
+region, where a positive value favors whole-dataset training. Each difference is under one-fifth
+of the fold-to-fold standard deviation of its score, so whole-dataset training did not
+meaningfully change these scores.
 
 %\emph{Links between consecutive visits.} The second question comes from the way the
 %graph is built. Check2HGI builds each visit vector from connected nodes. Since
@@ -229,10 +254,24 @@ We use the comparison models for two purposes: to compare each task with establi
 % [2026-10-01, AUTHOR-APPROVED A4, Table B.5 row] "We evaluate it on the same data, folds, and random
 % initializations." -> "We evaluate it on the same data." HMT-GRN's June partition is not the delivered
 % one; the note of this date in the results section (06_results) has the measurement.
-The primary next-region comparison is HMT-GRN~\cite{Lim2022}, an end-to-end recurrent model trained as one unit from the raw check-ins. We evaluate it on the same data. We keep its shared multitask structure and add a region-transition prior that is built from the training data in each fold. We remove the graph components and hierarchical beam search because they support exact next-place prediction, which we do not study. The resulting model predicts region as one of its original targets, but it is not a reproduction of the complete published system.
+% [2026-10-03, G5 PROPOSAL, Table B.5 row by the registry] "We evaluate it on the same data." -> "We evaluate
+% it on our windows and folds at one seed, reading each head at its best epoch as for the dedicated
+% models." (not "our models": the joint model is read at one jointly selected epoch)
+% (G5: delivered folds asserted 5/5, stride-1 rows, seed 0, --epoch-select per_task); verified.
+The primary next-region comparison is HMT-GRN~\cite{Lim2022}, an end-to-end recurrent model trained as one unit from the raw check-ins. We evaluate it on our windows and folds at one seed, reading each head at its best epoch as for the dedicated models. We keep its shared multitask structure and add a region-transition prior that is built from the training data in each fold. We remove the graph components and hierarchical beam search because they support exact next-place prediction, which we do not study. The resulting model predicts region as one of its original targets, but it is not a reproduction of the complete published system.
 
 We also run STAN~\cite{luo2021stan}. We re-implement its published architecture and train it from the raw check-ins with its own representations and sequence construction under one fixed configuration. We adapt its output to rank candidate regions, which are spatial objects compatible with its candidate-distance matching. We do not adapt STAN to category prediction because distance matching does not apply to categories. We report ReHDM~\cite{li2025rehdm} as a reference under its published protocol.
 
-\emph{Representation controls.} Two controls test whether the category gain comes from our representation design rather than from contextualization in general or from additional features. CTLE~\cite{lin2021ctle} is the closest prior contextual check-in representation. We train it end to end at Florida. At Alabama, Arizona, and Istanbul, we keep its weights fixed and do not fine-tune them. The second control adds raw features from each visit to a standard place embedding and uses the same prediction model.
+% [2026-10-04, D3 FINAL: the Istanbul matched run (c0f1e61c, 26.99) measures the frozen arm's per-fold
+% pre-training at all three datasets; wording unchanged from the proposal below.]
+% [2026-10-03, D3 PROPOSAL, author-approved regime sentence, final wording pending the Istanbul matched run;
+% Table B.5 row by the registry] "We train it end to end at Florida. At Alabama, Arizona, and Istanbul, we
+% keep its weights fixed and do not fine-tune them." -> the regime sentence, which carries both facts and
+% the one the text lacked: CTLE is pre-trained per fold on the fold's training users (G2 protocol,
+% docs/results/closing_data/v18/g2_ctle_matched/README.md, --split-engine check2hgi_dk_ovl), while HGI
+% and Check2HGI are built once on all users without task labels (04_method: "The training uses no task
+% label"; the whole-dataset-training check above). Placed here because it is protocol; 06_results keeps
+% the comparison only; verified.
+\emph{Representation controls.} Two controls test whether the category gain comes from our representation design rather than from contextualization in general or from additional features. CTLE~\cite{lin2021ctle} is the closest prior contextual check-in representation. The training regimes differ: HGI and our representation are pre-trained once on all users' check-ins, without the prediction targets, whereas CTLE is pre-trained for each fold on that fold's training users only, then fine-tuned with the task model at Florida and kept frozen at Alabama, Arizona, and Istanbul. The second control adds raw features from each visit to a standard place embedding and uses the same prediction model.
 
 A final control uses the standard place-level HGI representation~\cite{huang2023hgi} to measure what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development. The released code provides the full training configuration for every model (footnote~\ref{fn:mobiwac:code}).

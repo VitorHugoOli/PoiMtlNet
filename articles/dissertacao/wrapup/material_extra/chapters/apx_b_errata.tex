@@ -417,10 +417,20 @@ sentences for its tables, since the submitted text already introduces each of th
 % [2026-10-02] twenty-eight -> thirty-one: row 1 rewritten (universal negative removed, not narrowed), ERR-6/7
 % search grading and the Table 8 caption counts (corrections of fact 13 -> 15), arm/recipe wording
 % (presentation 2 -> 3). 1 + 15 + 3 + 1 + 8 + 3 = 31; the registry's rows, verified by me against the table.
-Table~\ref{tab:apx:mobiwac-scope} lists thirty-one further departures in the reproduced prose.
+% [2026-10-03, G5] thirty-one -> thirty-two; corrections of fact fifteen -> sixteen (HMT-GRN column at its best
+% epoch, floor paragraph restated). 1 + 16 + 3 + 1 + 8 + 3 = 32.
+% [2026-10-04, D2] The kind "One scopes a measurement to the build on which it was taken" becomes "One
+% re-runs a check under the reported protocol" (the integrity row, rewritten to its final state); the
+% opener names the third re-measurement. Counts unchanged: 1 + 16 + 4 + 1 + 8 + 3 = 33.
+% [2026-10-04, D3] thirty-two -> thirty-three; "state the delivered method" three -> four (the CTLE training
+% regime). 1 + 16 + 4 + 1 + 8 + 3 = 33.
+% [2026-10-05, D2] thirty-three -> thirty-two; corrections of fact sixteen -> fifteen: the 2026-09-08 row on
+% the half an integrity qualification was attributed to is folded into the integrity row, the chapter
+% no longer carrying that qualification. 1 + 15 + 4 + 1 + 8 + 3 = 32.
+Table~\ref{tab:apx:mobiwac-scope} lists thirty-two further departures in the reproduced prose.
 None alters a value of the joint model, or of a dedicated model on the check-in representation,
 in the two results tables; one place-level cell is re-run paired, three external-baseline cells
-change source, and a diagnostic constant and a control are re-measured. One predates the article's acceptance: it removes a
+change source, and a diagnostic constant, a control, and the integrity check are re-measured. One predates the article's acceptance: it removes a
 universal negative. The
 % [2026-09-08, second pass] "one adds a cross-reference to the appendix that measures the same
 % quantity on the final model" described a pointer that was added and then REVERTED in 2bb82234
@@ -428,37 +438,40 @@ universal negative. The
 % the eight Ch.5 files today. My restructure had re-authored the stale row's claim; the row is now
 % corrected by the registry and this clause follows it. Lesson recorded: a restructure is the time
 % to check the rows, not only to count them.
-other thirty were applied after the article was accepted, and they fall into five kinds. Fifteen
+other thirty-one were applied after the article was accepted, and they fall into five kinds. Fifteen
 are corrections of fact: the promise of a Wilcoxon result that the text never reports is
 withdrawn; the two dedicated-model parameter sums are corrected against the measured counts;
 the concatenation control is restated against the table it cites, with the paired re-run's $+1.73$,
 $+1.70$, and $+1.02$ in place of $+2.0$, $+1.7$, and $+0.8$; the logit-adjustment method
-receives its citation; a qualification recorded for the category half of an integrity check is
-no longer attributed to the region half; the widest confidence interval on the category axis is
+receives its citation; the widest confidence interval on the category axis is
 printed at the same precision as the interval it summarizes; the claim that all six category
 differences lie within half a point at once rests on a Bonferroni adjustment across the six
 comparisons rather than on six separate intervals; the check-in range across the
-U.S. datasets ends at Texas, the state with the most check-ins, rather than at California; and the
+U.S. datasets ends at Texas, the state with the most check-ins, rather than at California; the
 Markov floor is described, in the setup and results sections, as sharing the sliding windows and the
 user-grouped fold construction of the reported models, but not their partition of users, which is
 what the text now claims; the three POI-RGNN cells at Florida, California, and Texas now come from the same user-disjoint
 reimplementation as the other three, so the smallest margin of the joint model over POI-RGNN is
 4.11 macro-F1 points, at Texas, rather than 3.06; the gap between CTLE and the place embedding at
-Florida is printed as the 3.7 points the two numbers give, not two; and the nearest-neighbor purity is
+Florida is printed as the 3.7 points the two numbers give, not two; the nearest-neighbor purity is
 glossed as the share of vectors whose ten nearest neighbors vote for their own category, which is
-what the measurement computes; and the Istanbul place-level cell, which had been run on a different set
+what the measurement computes; the Istanbul place-level cell, which had been run on a different set
 of rows from its check-in counterpart, is re-run paired, moving it from 29.07 to 32.54, the difference
 from 6.29 to 2.81, and the derived range and ratio with it; the batch-size and learning-rate
-searches are graded by the folds each dataset actually received; and the dataset table's caption
-states which counts precede the ten-visit filter. Three
+searches are graded by the folds each dataset actually received; the dataset table's caption
+states which counts precede the ten-visit filter; and the HMT-GRN region cells are read at their
+best validation epoch, the convention of the dedicated cells, after which the floor paragraph states
+that the external systems fall on both sides of the floor. Four
 state the delivered method in place of development history: the gradient-cosine paragraph rests
 on the measurement taken on the reported joint model; the region vectors read by the
 spatial stream are described as a fixed region table shared by the joint and dedicated models;
 and the class-separability constants are re-measured on the delivered representation, which
-moves the silhouette score from about 0.57 to about 0.51 and leaves the purity at about 0.98.
-One scopes a measurement to the build on which it was taken: the
-whole-dataset integrity check says that it comes from an earlier build of the
-representation. Eight narrow a claim to what its evidence
+moves the silhouette score from about 0.57 to about 0.51 and leaves the purity at about 0.98. The fourth states how the CTLE control is pre-trained, per fold on
+the training users, against the representations it is compared with, pre-trained once on all users
+without the prediction targets.
+One re-runs a check under the reported protocol: the
+whole-dataset integrity check, whose differences are replaced by those of the re-run and whose
+coverage qualification no longer applies. Eight narrow a claim to what its evidence
 carries: the introduction names the model its two enhancements improve upon; the priority claim
 on fine-grained region as an end target is stated as the hedged form the related-work section
 already uses; the characterization of sharing on the check-in-level representation is replaced
@@ -467,11 +480,12 @@ results section is removed; and the explanation of the two region gains as the d
 an auxiliary signal has the most to add, given in the results section and in the conclusion, is
 replaced by the property it rested on, the number of classes to rank, because the chapter's
 discussion states that the evidence does not separate the contributions of the shared
-representation and the private spatial path; the external baselines are stated to run on their own
-embeddings and splits, ReHDM under its own chronological split, and the Markov order to be chosen
+representation and the private spatial path; the external baselines other than HMT-GRN are stated to run on their
+own embeddings and splits, ReHDM under its own chronological split, and the Markov order to be chosen
 on the evaluation folds; and the test behind the representation table is named as a two-sided paired
-$t$-test over the five folds of one seed, with the one Florida fold that differs by 0.001 stated; and no external system is any longer said to
-run on our folds, with the count of datasets at which each falls below the Markov floor removed. Three
+$t$-test over the five folds of one seed, with the one Florida fold that differs by 0.001 stated; and STAN is no longer said to run on our
+folds, while HMT-GRN is, after its re-run on them, with the count of datasets at which each falls
+below the Markov floor removed. Three
 concern presentation: the emphasis in the results table is
 split into a magnitude channel and a statistical channel; the sentence on the
 non-inferiority intervals scopes its superlative to the four datasets it discusses, since the

@@ -222,15 +222,11 @@ region result. No number, verdict or interval changes. \\
 % dissertacao nao: tres revisores EDAS mais um painel interno. Como o Cap. 5 E o artigo, o que
 % eles encontraram esta no mesmo texto. Cada uma verificada DUAS VEZES contra a fonte -- por esta
 % sessao e por uma auditoria Fable independente que as refez do zero.
-The discussion section reports the per-fold rebuild and
-says the qualification on it is recorded for the
-\emph{region} half. &
-The half is corrected to \emph{category}. The setup section
-qualifies the category side, where a graph built only from
-training users has no visit vectors for validation users; the
-region comparison reads region vectors directly and carries no
-such qualification. No number changes. \\
-\addlinespace
+% [2026-10-05, D2] The row that stood here (2026-09-08: the discussion attributed the integrity
+% check's qualification to the region half; corrected to category) was FOLDED into the integrity row
+% below: its right cell asserted a setup qualification the chapter no longer has, since the check was
+% re-run and scores every validation window. The submitted defect stays on record in that row's left
+% cell (registry's ruling). Row count 33 -> 32.
 % [2026-09-08] ⚠ NENHUM DOS DOIS DIGITOS ESTAVA ERRADO, e a linha diz isso: o valor e 0,3338,
 % logo -0,33 e o arredondamento e 0,34 o tecto. A pagina e que era incoerente. O artigo resolveu
 % doutra maneira, acrescentando um limite simultaneo de Bonferroni (0,49); ESSE NUMERO NAO ENTRA
@@ -307,7 +303,7 @@ coming from the same graph as the check-in vectors. &
 % [2026-09-30] REESCRITA pela mesma decisao do autor. A tabela de regiao continua a vir do v14 (o
 % symlink acima). A frase ja nao diz de que build vem, mas tambem nao afirma que vem do grafo que a
 % seccao descreve: diz o que e, uma tabela fixa partilhada pelos modelos conjunto e dedicado.
-Both now describe them as pretrained region vectors taken
+Both now describe them as pre-trained region vectors taken
 from a region table held fixed and shared by the joint and
 dedicated models, which no longer implies that they come from
 the graph the section describes. No number changes. \\
@@ -334,16 +330,24 @@ on the measurement stated beside it. \\
 \addlinespace
 % [2026-09-08] Os valores vem do A4 dos pre-freeze gates, substrato PRE-v18. A frase de escopo do
 % capitulo ("three datasets at one seed") ja era melhor que a do artigo; faltava-lhe a geracao.
-The integrity check states its scope as three datasets at one
-seed. &
-% ⚠ [2026-09-30] ESTA LINHA ESTA DESACTUALIZADA DE PROPOSITO, E E UM BLOQUEIO DO DEPOSITO. O capitulo
-% ja nao diz "on an earlier build" (decisao do autor), mas os numeros impressos continuam os do A4
-% pre-v18 ate a re-execucao no build entregue (em /dados) aterrar. Nesse dia: trocar os numeros no
-% 05_setup e no 07_discussion, reescrever esta linha para o estado final, e mover a sua classe na
-% prosa do apendice. Reescreve-la antes disso afirmaria uma medicao que ainda nao existe.
-The build is added to the scope: the check ran on an earlier
-build of the representation. The datasets, the seed and the
-reported differences are unchanged. \\
+% [2026-10-04, D2] Row rewritten to the final state (writer's draft for the registry): the stale-by-design
+% block of 2026-09-30 is discharged, the re-run on the delivered protocol having landed at AL, AZ, FL
+% (g1_integrity_*). The comment that stood here said to do exactly this on that day.
+The integrity check reports per-fold rebuild differences of
+$-0.33$ to $+0.01$ Acc@10 and $0.00$ to $+0.29$ macro-F1 over
+three datasets at one seed, with a category comparison limited
+to one vector per place and to the 67 to 87 percent of
+validation windows whose places occur in training; the
+discussion attributes that qualification to the region half. &
+The check was re-run under the reported protocol: the
+representation and the region vectors are rebuilt for each fold
+from its training users, the dedicated models are retrained on
+them, and every validation window is scored. Training on all
+users moves the five-fold mean by $-0.01$ to $+0.17$ macro-F1
+points for category and by $-0.13$ to $+0.08$ Acc@10 points for
+region, at one seed. The coverage qualification no longer applies and is
+removed, in the setup section and in the first limit of the
+discussion. The conclusion is unchanged. \\
 \addlinespace
 % [2026-09-08] LINHA DEZANOVE. UMA linha para DOIS sitios -- a seccao de resultados e a conclusao --
 % pelo mesmo padrao da linha 14 e da dos vectores de regiao: as duas frases fazem UMA alegacao (a
@@ -437,10 +441,11 @@ The setup and results sections describe the external
 comparisons without saying that they run on their own splits,
 and select the Markov order per dataset without saying on which
 data. &
-The externals are now said to run on their own embeddings and
-splits, ReHDM's split is named as chronological, and the Markov
-order is said to be chosen on the evaluation folds, which can
-only favor that floor. No number changes. \\
+The externals other than HMT-GRN are now said to run on their
+own embeddings and splits, ReHDM's split is named as
+chronological, and the Markov order is said to be chosen on the
+evaluation folds, which can only favor that floor. No number
+changes. \\
 \addlinespace
 % FL seed 0, check-in menos lugar por fold: +0,276 +0,434 +0,029 +0,001 +0,425; t pareado
 % bicaudal p = 0,067. O teste nao estava nomeado em 05_setup (que so nomeia o t sobre n=4 sementes).
@@ -462,11 +467,43 @@ table say that HMT-GRN runs on our data, folds and random
 initializations and that STAN runs on our folds, and the
 results section counts the datasets at which each external
 system falls below the Markov floor. &
-HMT-GRN is said to use the same data, and all external systems
-to run on their own embeddings and splits; neither claim of
-shared folds remains. The per-system count is removed; the
-explanation of why the floor is strong stays. No number
-changes. \\
+STAN and ReHDM are said to run on their own embeddings and
+splits; HMT-GRN, re-run on our windows and folds, is said to
+use them. The per-system count is removed; the explanation of
+why the floor is strong stays. No number changes. \\
+\addlinespace
+% [2026-10-03, G5, row text by the registry, typed by the writer] HMT-GRN re-read at its best validation
+% epoch; the floor paragraph follows (docs/results/closing_data/v18/g5_hmt_best_epoch/).
+The results table prints HMT-GRN's next-region cells at the
+final training epoch, while the dedicated cells it is compared
+with are read at each task's best validation epoch, and the
+results section, on those cells, places the Markov floor above
+the external region systems. &
+HMT-GRN was re-run on our windows and folds at one seed and is
+read at its best validation epoch, the convention of the
+dedicated cells: $63.19$, $52.11$, $68.06$, $72.76$, $59.59$ and
+$61.39$ in place of $57.05$, $43.70$, $60.4$, $63.74$, $49.61$
+and $53.85$. It then lies above the floor at every dataset, so
+the results section now says that the external systems fall on
+both sides of it. The joint model's smallest margin over the
+strongest region reference stays $3.55$ points, at Florida. No
+verdict about our models changes. \\
+\addlinespace
+% [2026-10-04, D3, row drafted by the writer at the registry's request; author-approved edit of 2026-10-03]
+The setup section describes the CTLE control only as trained
+end to end at Florida and kept frozen at Alabama, Arizona, and
+Istanbul, and says nothing about how its pre-training differs
+from that of the representations it is compared with. &
+The setup section now states the training regimes: HGI and
+our representation are pre-trained once on all users' check-ins,
+without the prediction targets, whereas CTLE is pre-trained for
+each fold on that fold's training users only, then fine-tuned
+with the task model at Florida and kept frozen elsewhere. The
+frozen comparison at Alabama, Arizona, and Istanbul rests on
+runs whose pre-training excludes each evaluation fold's users.
+No printed number changes: the chapter prints no CTLE value at
+those three datasets, and the Florida values are unchanged. The
+spelling pre-trained is made uniform across the chapter. \\
 \addlinespace
 % [2026-10-01] G3. O braco por lugar de Istambul (29,07) corria sobre um conjunto de janelas anterior
 % (343 795 linhas, contra 271 666 do v18) e nao era pareado. Refeito neste Mac (MPS, sem compile): o

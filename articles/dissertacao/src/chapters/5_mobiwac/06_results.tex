@@ -71,7 +71,7 @@ here, and it acts the same way everywhere it was measured.
 % "leave-one-out" stands. "ten nearest neighbors" = k=10 (the caption's k).
 The geometry of the vectors indicates why the representation helps this task in
 particular: the silhouette score by category of the representation's vectors, with the vectors aggregated per place (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale), is about $0.51$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of vectors whose ten nearest neighbors, excluding the vector itself, vote for its own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures characterize the representation family rather than the exact configuration
-evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads pretrained region vectors, taken from a region table held fixed and shared by the joint and dedicated models, Section~\ref{sec:mobiwac:method-model}).
+evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads pre-trained region vectors, taken from a region table held fixed and shared by the joint and dedicated models, Section~\ref{sec:mobiwac:method-model}).
 % [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item, same in 04_method.tex] "of the same
 % graph" -> "of an earlier build of the same graph design". run_phase0_build.sh symlinks
 % region_embeddings.parquet from the v14 engine (six PASS rows in AUDIT.md): check-in vectors are the
@@ -92,7 +92,24 @@ evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separat
 % [2026-10-01, A5 batch] (2) Markov-1 floor sentence: "under our windows and folds" -> "under our
 % windows, with user-grouped folds" (third site of the seed-42 partition fact; same ground as the
 % two sites corrected 2026-09-30).
-CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about 3.7 points below the place embedding under the same best-epoch rule. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
+% [2026-10-04, D3 FINAL (author-approved 2026-10-03; Istanbul matched run landed, commit c0f1e61c)]
+% Istanbul frozen CTLE on the matched split: 26.99 +- 0.73 (folds 27.35 / 26.56 / 25.98 / 27.17 / 27.88),
+% higher than June's 25.92 in every fold, rows == dk_ovl 271,666, train.py fold sha == CTLE_FOLD.txt 5/5
+% (g2_ctle_matched/G2_CTLE_matched_istanbul.csv, logs/ASSERTS_g2_ist.log; re-scored by the writer);
+% ordering 26.99 < place 32.54 < check-in 35.35, so "and Istanbul" is back in the ordering sentence.
+% Spelling made uniform across Ch.5: "pretrained"/"pretrains" -> "pre-trained"/"pre-trains" (here
+% twice, 04_method once), the method section's form.
+% [2026-10-03, D3 PROPOSAL, pending the Istanbul matched run; Table B.5 row by the registry] Numbers
+% re-derived by the writer: FL end-to-end 33.45 (best epoch, per fold 33.47 / 33.36 / 32.85 / 33.72 /
+% 33.84) and 29.69 (final epoch), baseline_compare/florida_ctle_e2e_seed0.json; place FL 37.13
+% (tables/mobiwac/representation.tex); 37.13 - 33.45 = 3.68. Frozen CTLE on the MATCHED split (G2,
+% g2_ctle_matched/G2_CTLE_matched.csv): AL 16.31 +- 1.02 (June mismatched 17.77), AZ 17.67 +- 1.13
+% (June 19.30), every fold lower, against dedicated check-in 30.77 / 34.51 and place 29.15 / 31.93, so
+% the ordering holds with more force; no AL/AZ number is printed. "and Istanbul" removed from the
+% ordering sentence UNTIL the Istanbul matched run lands (June Istanbul frozen cell 25.92 was on the
+% mismatched split); "With frozen weights, fed to" -> "Frozen and fed to". The regime sentence lives
+% in 05_setup (representation controls); verified.
+CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pre-trains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about 3.7 points below the place embedding under the same best-epoch rule. Frozen and fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
 % [2026-09-02, AUTHOR-APPROVED, errata Table B.5 of the supplement; Q13] Two defects in the
 % concatenation-control sentences. (1) NUMBER: "under a tenth of the place-to-check-in gap" is
 % contradicted by Table 9, printed right below: the gaps are +1.62 (AL), +2.58 (AZ), +0.23 (FL),
@@ -386,7 +403,8 @@ The joint model is also above every external baseline reported, on both tasks,
 across all six datasets (Table~\ref{tab:mobiwac:results}): on region, the primary
 region-native comparison HMT-GRN~\cite{Lim2022}, STAN~\cite{luo2021stan}
 trained from the raw check-ins, and a ReHDM reference~\cite{li2025rehdm}; on
-category, POI-RGNN~\cite{capanema2023poirgnn} and the Markov-K floor. These externals run on their own embeddings and splits, so this comparison also includes the representation advantage of Section~\ref{sec:mobiwac:results-part1}; the
+category, POI-RGNN~\cite{capanema2023poirgnn} and the Markov-K floor. These externals run on their own embeddings and, except HMT-GRN, their own splits, so this
+comparison also includes the representation advantage of Section~\ref{sec:mobiwac:results-part1}; the
 controlled comparison for the joint model remains the Dedicated column of
 Table~\ref{tab:mobiwac:results}, which uses the same representation, windows, and
 folds. The first-order Markov region floor of Section~\ref{sec:mobiwac:setup-baselines},
@@ -394,8 +412,33 @@ computed under our windows, with user-grouped folds, reaches $51$ to $72$ Acc@10
 datasets; the joint model exceeds it by $4.1$ to $10.0$ points on all six
 datasets.
 
-That floor is also above the three external region systems at most datasets, and the
-comparison deserves a direct word rather than being left for the reader to assemble.
+% [2026-10-03, G5 PROPOSAL, pending the registry's verification and the author's approval of the
+% floor paragraph; Table B.5 row by the registry] HMT-GRN re-run at every dataset with per-head
+% best-epoch selection (docs/results/closing_data/v18/g5_hmt_best_epoch/runs/*_bestepoch.json,
+% seed 0, delivered folds asserted 5/5, stride-1 dk_ovl rows). Region Acc@10 at the best epoch,
+% re-derived by the writer from fold_results: AL 63.19, AZ 52.11, IST 68.06, FL 72.76, CA 59.59,
+% TX 61.39 (epoch 50 of the same runs reproduces the printed cells within 0.2). Markov-1 floors
+% (markov_floor_stride1/<st>.json): 62.26 / 51.23 / 65.06 / 72.47 / 59.09 / 60.10, so HMT-GRN at
+% its best epoch is above the floor everywhere (+0.94 / +0.88 / +2.99 / +0.29 / +0.50 / +1.29);
+% ReHDM is above it at AL, AZ, IST and below at FL, CA, TX; STAN above at FL, TX and below at the
+% other four. Hence the rewrite: "That floor is also above the three external region systems at most
+% datasets" and "Neither fact establishes why the floor lies above the three systems" are false and
+% go; the floor is now said to sit close to the systems, some above and some below (no per-system
+% count, A4 ruling; first draft said "sit close to that floor", false for ReHDM at FL/CA/TX, -7.98 /
+% -8.83 / -11.29, corrected the same day to "fall on both sides of"); the two-facts frame is dissolved into the explanation of the floor's strength
+% (unchanged) and one protocol sentence. HMT-GRN is now stated to run on our windows and folds
+% (asserted in G5); STAN and ReHDM keep their own splits. Unchanged and re-checked: joint minus
+% floor 4.07 .. 10.02 ("4.1 to 10.0"); joint minus strongest reference, minimum 3.55 at FL (STAN
+% 72.99; CA's strongest becomes HMT-GRN 59.59, margin 4.95); table emphasis untouched (the two
+% largest values of every region row remain Dedicated and Joint). The externals sentence of the
+% comparison paragraph above ("These externals run on their own embeddings and splits") gets back the
+% exception "except HMT-GRN" that A4 removed on 2026-10-01: G5 asserted the delivered folds 5/5, so
+% the exception is now a measured fact, not the setup's claim. "The three systems also do not meet the
+% floor on equal terms. HMT-GRN runs on our windows and folds." -> "Of the three systems, only HMT-GRN runs
+% on our windows and folds.": the first sentence said none met the floor's terms and the next named one
+% that did; and strictly none does, the floor's folds being drawn at seed 42; verified.
+The three external region systems fall on both sides of that floor, so the floor deserves a
+direct word.
 % [2026-09-30, AUTHOR-APPROVED errata, Table B.5 row (with 05_setup.tex)] "under our own
 % sliding-window protocol and fold splits" -> "under our own sliding-window protocol, with
 % user-grouped folds": the floor's folds are user-grouped (StratifiedGroupKFold) but drawn at seed
@@ -409,9 +452,7 @@ comparison deserves a direct word rather than being left for the reader to assem
 % 19264, 19265, 19267, 19265]; counts-only JSON, input file gone), so no external is said to run on
 % our folds. The lead sentence, the floor explanation (stride-1 windows; 32.9% at Alabama), the
 % "two facts" frame and the ReHDM sentence are untouched; the paragraph was re-read whole.
-Two
-facts about how these numbers were produced bear on that comparison. The first concerns
-the floor: it is computed under our own sliding-window protocol, with user-grouped folds. Those
+Its
 windows advance one visit at a time, so the region of the last visit is a strong predictor
 of the next one, and a first-order transition table reads exactly that signal. At Alabama the target region is the last visited region in $32.9$ percent of
 windows.
@@ -422,14 +463,10 @@ windows.
 % the floor's own windows: 32.91% (31,704 of 96,326), see region_persistence_alabama.json.
 % A first attempt at this replacement quoted acc1_mean 0.32064 instead, which is a fitted table's
 % top-1 ACCURACY rather than a share of windows -- the same wrong-quantity class, caught in review.
-The second
-fact concerns the three systems, which do not meet the floor on equal terms. The external
-systems run on their own embeddings and splits. The
-ReHDM reference runs under its own published protocol, so its result is not measured on our
-windows or folds at all.
+Of the three systems, only HMT-GRN runs on our windows and folds. STAN builds its own embeddings and splits from the raw check-ins, and ReHDM runs under
+its own published protocol, on neither our windows nor our folds.
 
-Neither fact establishes why the floor lies above the three systems, and we do not claim a
-single explanation. We treat the floor, not the external systems, as the reference the
+We treat the floor, not the external systems, as the reference the
 region task has to clear, and we read the external columns as a comparison against
 published designs rather than as the standard for this task. The dedicated and joint
 models are above the floor at every dataset.
