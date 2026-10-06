@@ -496,6 +496,72 @@ achado da revisão Fable do Cap. 5, 2026-10-02.
 
 ---
 
+## V18 · A verificação "treinar a representação com todos os utilizadores" do Cap. 5 corresponde ao protocolo entregue?
+
+*Também chega como:* o A4 dos pre-freeze gates usou outro build / janelas stride-9 / outra divisão;
+a verificação de integridade cobre só 67 a 87% das janelas; "transductive leak" na representação;
+falta a Florida.
+
+**Veredito: SIM, desde 2026-10-05.** A verificação foi refeita no protocolo entregue (G1): folds
+int64 do `train.py`, linhas stride-1 do `dk_ovl`, receitas `cell_cat`/`cell_reg`, seed 0, cinco
+folds, em Alabama, Arizona e Florida. Por fold, a representação e os vectores de região são
+reconstruídos sem os utilizadores de validação, os modelos dedicados são re-treinados, e **todas** as
+janelas de validação são avaliadas (cada visita recebe vector do codificador só-treino). Só-treino −
+todos: categoria −0,11 / −0,17 / +0,01, região −0,01 / +0,13 / −0,08 (AL/AZ/FL), todos abaixo de um
+quinto do desvio entre folds. O texto (`05_setup` "Whole-dataset training", primeiro limite de
+`07_discussion`) diz só a conclusão, com "at the datasets checked" (decisão do autor, D12, 05/10).
+A ressalva antiga (um vector por lugar, 67–87%) saiu: descrevia o A4, não este teste.
+
+**Ressalva que não muda o veredito:** fora do MTL não há reseed por fold, por isso sob `--only-fold`
+só o fold 0 segue a trajetória aleatória do fold entregue. O contraste só-treino contra todos é
+pareado (READMEs dos três).
+
+**Prova:** `docs/results/closing_data/v18/g1_integrity_{al,az,fl}/` (`5cd62589`, `cb35cd62`,
+`17a35bc5`) · texto `e32c6507`. **Induz ao contrário:** `wrapup/FILA_GPU.md` §G1 abaixo do topo
+(registo de quando estava por correr) e a memória `a4_integrity_check_protocol_mismatch`.
+
+---
+
+## V19 · Os valores do HMT-GRN no Cap. 5 são os da época 50? O piso de Markov fica acima dos sistemas externos?
+
+*Também chega como:* HMT-GRN 57,05 / 43,70 / 60,4 / 63,74 / 49,61 / 53,85; "the floor lies above
+the three systems"; HMT-GRN na partição de junho; "all external systems run on their own splits".
+
+**Veredito: NÃO e NÃO, desde 2026-10-06.** O HMT-GRN foi re-corrido (G5) nas nossas janelas e
+folds (`n_val` igual ao `train.py`, 5/5), seed 0, e é lido na **melhor época de validação**, a regra
+das células dedicadas: região 63,19 / 52,11 / 68,06 / 72,76 / 59,59 / 61,39 (AL/AZ/IST/FL/CA/TX). A
+época 50 de cada corrida reproduz a célula antiga a ≤0,2, logo a antiga leu uma época sobretreinada.
+Nessa leitura o HMT-GRN fica **acima** do piso Markov-1 nos seis (+0,3 a +3,0); o texto diz que os
+externos ficam "dos dois lados" do piso, sem contagem por sistema (regra do autor de 01/10), e que só
+o HMT-GRN corre nas nossas janelas e folds. "At least 3.55" mantém-se (FL contra o STAN). Decisão do
+autor: D11, 06/10.
+
+**Prova:** `docs/results/closing_data/v18/g5_hmt_best_epoch/` (`82ebfe5f`, `1fd63386`; o campo
+`windowing: stride-9` dos JSONs é um rótulo fixo, as linhas são stride-1) · pisos em
+`docs/results/closing_data/markov_floor_stride1/<st>.json` · texto `e32c6507`. **Induz ao contrário:**
+`docs/results/baselines/hmt_grn/` (época 50) e a linha A4 antiga da B.5 em versões anteriores.
+
+---
+
+## V20 · O CTLE congelado de AL/AZ/IST foi pré-treinado com utilizadores de validação?
+
+*Também chega como:* CTLE frozen split mismatch; 75–83% dos utilizadores avaliados no pré-treino;
+"o CTLE repete a ordem nos três conjuntos" sem prova; Istambul "provavelmente limpo".
+
+**Veredito: o de junho, em AL e AZ, SIM; o que sustenta o texto, NÃO.** O G2 refez o pré-treino por
+fold só com os utilizadores de treino da divisão do `train.py` (sha dos utilizadores de validação
+5/5). AL 16,31 (junho 17,77), AZ 17,67 (19,30): mais baixos em todos os folds. Istambul 26,99 (junho
+25,92), mais alto em todos os folds, logo o junho de Istambul não estava inflacionado. A ordem
+mantém-se nos três (em IST: CTLE 26,99 < lugar 32,54 < check-in 35,35). O texto declara os regimes
+de treino e diz "Alabama, Arizona, and Istanbul" (D3, decisão do autor 03/10). Nenhum número CTLE
+dessas três é impresso; a Florida (ponta a ponta, por fold) estava certa.
+
+**Prova:** `docs/results/closing_data/v18/g2_ctle_matched/` (`ded26e96`, `c0f1e61c`) · texto
+`e32c6507`. **Induz ao contrário:** `docs/results/closing_data/baseline_compare/{alabama,arizona,istanbul}_ctle.json`
+(junho) e a memória `ctle_frozen_split_mismatch`.
+
+---
+
 ## Como acrescentar um verdete
 
 Um verdete entra aqui quando a questão está **fechada com prova**, não quando alguém tem uma
