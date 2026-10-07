@@ -171,7 +171,12 @@ cell_reg(){
   # (the target sits in a tie group straddling k) the cell ABORTS instead of banking a number
   # whose semantics differ from its CPU/topk-scored siblings. Warn-only was not enough for an
   # unattended wave -- the warning lands in this cell's log and nowhere a reader would look.
-  env MTL_CHUNK_VAL_METRIC=1 MTL_DISABLE_AMP=1 MTL_STRICT=1 \
+  # [2026-10-07] P1_HITS_FROM_RANK=0 P1_STREAM_GPU=0: score as the banked cells were scored (CPU +
+  # topk). With the GPU-streaming default, this recipe ABORTS at Florida under MTL_STRICT=1 (one row
+  # ambiguous at the 10/11 boundary, measured on nespedgpu 2026-10-07 at c7f34917). With these two
+  # values the same run completes and reproduces the printed FL cell (76.6989 vs 76.6998).
+  # p1_region_head_ablation.py's own comment names this the configuration that reproduces the banked cells EXACTLY.
+  env MTL_CHUNK_VAL_METRIC=1 MTL_DISABLE_AMP=1 MTL_STRICT=1 P1_HITS_FROM_RANK=0 P1_STREAM_GPU=0 \
     python -u scripts/p1_region_head_ablation.py --state "$st" --heads next_stan_flow \
     --input-type region --region-emb-source "$V14" \
     --override-hparams freeze_alpha=True alpha_init=0.0 \
