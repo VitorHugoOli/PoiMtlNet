@@ -8,6 +8,14 @@
 
 Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca correr.
 
+> ## Estado a 2026-10-10: fila vazia, G4 feito (nespedgpu, fonte nova desde 07/10)
+>
+> - **G4 STAN Arizona:** refeito com a receita do impresso. O fold 2 falha outra vez (25,79 contra 26,84),
+>   por isso a célula 49,86 é o comportamento do STAN nessa divisão e fica.
+> - **STAN CA/TX completos 5/5:** CA 58,61 (antes 2/5: 58,52), TX 61,75 (antes 4/5: 61,67). Evidência
+>   `docs/results/baselines/stan_rerun_2026-10-10/` (`b46477a6`). O texto (tabela, nota †, linha B.5) está
+>   com o writer.
+>
 > ## Estado a 2026-10-04 à noite: fila vazia
 >
 > - **G1 Florida: FEITO**, 5 folds, 37 etapas rc 0, nenhum limite disparado (`17a35bc5`, `c526c388`).
