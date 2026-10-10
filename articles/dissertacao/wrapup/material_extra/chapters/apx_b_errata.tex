@@ -31,8 +31,10 @@
 %                Table B.4 gained 2 further rows in the references pass of 2026-07-25
 %                (Kohavi DOI dropped; Rußwurm re-typed to ICLR 2024), for 14 total at that stage.
 %   Itemized rows, RE-MEASURED 2026-07-30 (round 9c) by parsing each table's own body rather than
-%                carrying the current arithmetic forward: B.1 CBIC content 14, B.2 CBIC wording 19,
-%                B.3 CoUrb content 10, B.4 bibliography 19. Total 62.
+%                carrying the current arithmetic forward: B.1 CBIC content 15, B.2 CBIC wording 19,
+%                B.3 CoUrb content 13, B.4 bibliography 19. Total 66.
+%                [2026-10-10] this line read B.1 14, B.3 10, Total 62 until the four method-description
+%                errata (DGI edge weights in B.1; spatial pairs, Sphere2Vec, census tracts in B.3).
 %                [2026-10-02] B.1 13 -> 14 (the MTPR sparsity row), Total 61 -> 62.
 %                [2026-09-02, third update of the day] B.1 12 -> 13 and B.3 8 -> 10, with the four
 %                rows the banca's own annotations produced once the author ruled on them: the
@@ -169,9 +171,12 @@ belong to the article records rather than to the chapter bodies.
 \section{Article 1 (Chapter~\ref{ch:cbic}, CBIC 2025)}
 \label{apx:errata:cbic}
 
+% [2026-10-10] B.1 14 -> 15 (DGI edge weights, a method-description correction of fact); the sentence
+% below names the two last rows.
 Table~\ref{tab:apx:cbic-errata} lists the content corrections applied in the chapter
-text; its last row corrects the concern the cited MTPR model addresses, sparsity rather
-than uncertainty.
+text; its last two rows correct the concern the cited MTPR model addresses, sparsity rather
+than uncertainty, and state that the edge weights defined for the DGI graph never enter its
+encoding.
 
 \input{tables/cbic/errata}
 % [round5, author decision 1b.3] The Nash-MTL cost claim moved OUT of this section and INTO the
@@ -266,11 +271,15 @@ publication; the audited values are the ones the chapter reports. The third subs
 verdict verb without changing the strength of the claim, and the fourth narrows one claim
 about a cited method to the guarantee that method's own paper states. Three correct
 attribution and vocabulary: two claims are returned to works that state them, and one data
-column is named for the reader rather than by its identifier in the source files. The last
-three concern presentation and scope: the two results tables state their emphasis rule and
+column is named for the reader rather than by its identifier in the source files. Three
+concern presentation and scope: the two results tables state their emphasis rule and
 underline the second largest value, \emph{consistently} gives way to the scope the counts
 support, and the single-dataset limitation names the period and the country the results
-depend on.
+depend on. The last three correct the description of a method against the code of record:
+the spatial encoders' contrastive pairs are formed by perturbation and random draw, not by
+distance thresholds; the Sphere2Vec sentence states only what both implementations share;
+and the POI Encoder's regions are census tracts, not counties.
+% [2026-10-10] B.3 10 -> 13, the three method-description rows above; the enumeration covers them.
 % [round9c, PENDENCIAS_RESOLVIDOS 2.15 (arquivado 2026-08-02), 2026-07-30] The banner enumerates this table ordinally and the table
 % grew from four rows to seven, so one sentence covers rows five to seven as a group rather than a
 % clause per row, the same treatment the CBIC banner gives its own tail. This file's header already

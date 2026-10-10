@@ -109,6 +109,34 @@ The sentence now names both dependencies: the places and visiting habits the cor
 records, which belong to its period, and the single country it covers. The verdict is
 scoped accordingly, as evidence about that period and that country whose generalization to
 current patterns, or to cities elsewhere, remains to be tested. No result changes. \\
+\addlinespace
+% [2026-10-10, author-approved method-description errata, rows drafted by the writer] #1 spatial pairs, #2 Sphere2Vec, #3 census tracts.
+The methodology states that the two spatial encoders train on
+pairs labeled by geographic distance, positive within 10 km and
+negative beyond 70 km. &
+The implementation of record forms a positive pair from a
+coordinate and a copy of it perturbed by Gaussian noise of
+standard deviation $0.01^{\circ}$, about 1 km, and a negative pair
+from the coordinate and another drawn at random; the temperature
+is as published. The distance rule belongs to a variant the
+article did not use. No number changes. \\
+\addlinespace
+The methodology describes Sphere2Vec-M as the \textit{sphereM}
+variant with sixteen scales spaced between 10 km and 10,000 km and
+interaction terms between latitude and longitude. &
+That description matches neither of the two Sphere2Vec
+implementations in the code of record, and which of the two
+produced the published column cannot be established. The sentence
+now states only what both share: each coordinate is mapped to a
+unit vector on the sphere, from which multi-scale features are
+computed and passed to a feed-forward network. No number changes. \\
+\addlinespace
+The POI Encoder's graph is said to penalize edges between
+distinct counties, identified by GEOID. &
+The regions are census tracts, from the TIGER 2021 shapefiles the
+implementation downloads, and the GEOID is the tract's. The word is
+corrected; the Haversine weights and the cross-region penalty
+stand. No number changes. \\
 \bottomrule
 \end{tabular}
 \end{table}

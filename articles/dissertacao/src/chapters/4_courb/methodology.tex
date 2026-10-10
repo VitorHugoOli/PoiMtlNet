@@ -99,8 +99,13 @@ For the \textit{Next-POI Prediction} task, the check-ins are ordered chronologic
 
 The original MTLnet model encodes spatial information implicitly through the topology of the Delaunay graph, without directly using geographic coordinates as an input signal. However, as discussed in Section~\ref{sec:courb:related}, continuous spatial encoders have shown effectiveness in various geospatial tasks \cite{wu2024torchspatial}, although their application in multitask POI models remains little explored. This chapter selects two encoders that represent distinct spatial encoding paradigms: SIREN \cite{russwurm2024geographiclocationencodingspherical}, which models continuous functions through sinusoidal activations with controllable frequencies, and Sphere2Vec-M \cite{mai2023sphere2vecgeneralpurposelocationrepresentation}, which operates directly on spherical coordinates preserving geodesic distance properties. This diversity allows evaluating how different geometric and architectural assumptions impact performance on POI tasks.
 
+% [2026-10-10, AUTHOR-APPROVED method-description errata (registry + jisa agree, both verified in the code; writer re-verified)] #1: "based on the geographic distance between pairs of coordinates" -> "on pairs of coordinates", and the
+% y_ij clause: the code of record (temp/tarik-new SIREN and Sphere2Vec notebooks, ContrastiveSpatialDataset,
+% pos_radius=0.01, tau=0.15) forms positives as a coordinate plus Gaussian noise of sd 0.01 degrees and
+% negatives as a random other coordinate; the 10 km / 70 km rule exists only in the dropped Space2Vec-grid
+% notebook. Table B.3 row. No number changes; verified.
 All encoders produce $\mathbf{E}_{loc} \in \mathbb{R}^{64}$ and are
-trained with the same binary contrastive loss based on the geographic distance between pairs of coordinates:
+trained with the same binary contrastive loss on pairs of coordinates:
 \begin{equation}
 \mathcal{L}_{\text{loc}}(i,j)
 =
@@ -112,7 +117,7 @@ y_{ij}\,\log \sigma\!\left(\frac{\text{sim}(z_i,z_j)}{\tau}\right)
 \right]
 \end{equation}
 
-in which $\sigma$ denotes the sigmoid function, $\text{sim}(\cdot,\cdot)$ is the cosine similarity, and $y_{ij} \in \{0,1\}$ indicates whether the pair is positive ($\Delta d_{ij} \leq 10$ km) or negative ($\Delta d_{ij} \geq 70$ km), with temperature $\tau = 0.15$. Using the same loss function for the two spatial encoders allows a controlled comparison, isolating the effect of the encoding architecture.
+in which $\sigma$ denotes the sigmoid function, $\text{sim}(\cdot,\cdot)$ is the cosine similarity, and $y_{ij} \in \{0,1\}$ indicates whether the pair is positive, a coordinate paired with a copy of itself perturbed by Gaussian noise of standard deviation $0.01^{\circ}$ (about 1 km), or negative, the coordinate paired with another coordinate drawn at random, with temperature $\tau = 0.15$. Using the same loss function for the two spatial encoders allows a controlled comparison, isolating the effect of the encoding architecture.
 
 \subsubsection{SIREN}
 
@@ -120,7 +125,12 @@ The SIREN model (\textit{Sinusoidal Representation Networks}) \cite{russwurm2024
 
 \subsubsection{Sphere2Vec-M}
 
-Sphere2Vec-M \cite{mai2023sphere2vecgeneralpurposelocationrepresentation} is a multi-scale encoder formulated to operate directly on spherical coordinates ($\lambda$, $\phi$), generating representations that preserve distance properties on the surface of the sphere. The \textit{sphereM} variant is used, in which $S=16$ multi-resolution scales are employed with geometrically spaced factors between 10 km and 10,000 km. Interaction terms between $\lambda$ and $\phi$ are constructed by keeping one of the components at the highest scale level, allowing the angular resolution of latitude and longitude to be controlled independently. The resulting vector is projected by an MLP to produce $\mathbf{E}_{loc} \in \mathbb{R}^{64}$.
+% [2026-10-10, AUTHOR-APPROVED method-description errata (registry + jisa agree, both verified in the code; writer re-verified)] #2: the sphereM / S=16 / 10 km to 10,000 km clause and the interaction-terms sentence removed: two
+% Sphere2Vec notebooks exist (sin/cos of the 3-D unit vector with 16 or 64 scales; and an RBF variant over
+% 128 or 256 random unit centroids with 16 or 32 scales), neither carries that range, and which one
+% produced the published column cannot be established; the replacement states only what both share.
+% Table B.3 row. No number changes; verified.
+Sphere2Vec-M \cite{mai2023sphere2vecgeneralpurposelocationrepresentation} is a multi-scale encoder formulated to operate directly on spherical coordinates ($\lambda$, $\phi$), generating representations that preserve distance properties on the surface of the sphere. In the implementation, each coordinate is mapped to a unit vector on the sphere, from which multi-scale features are computed and passed to a feed-forward network. The resulting vector is projected by an MLP to produce $\mathbf{E}_{loc} \in \mathbb{R}^{64}$.
 
 \subsection{Temporal Encoder}
 
@@ -159,10 +169,13 @@ The DGI used in the original model encodes categorical information through a \te
 
 \subsubsection{POI Encoder}
 
+% [2026-10-10, AUTHOR-APPROVED method-description errata (registry + jisa agree, both verified in the code; writer re-verified)] #3: "counties (GEOIDs)" -> "census tracts (GEOIDs)": the HGI script (temp/tarik-new/hgi.py:19) downloads
+% the TIGER 2021 census tracts of the state and the GEOID is the tract's. Table B.3 row. No number changes;
+% verified.
 The category embedding $\mathbf{E}_{\text{POI\_category}} \in \mathbb{R}^{64}$ is generated by the POI Encoder, which is trained independently. The POIs are organized into a spatial graph
 built by Delaunay triangulation over the geographic coordinates, with edges weighted by
 logarithmic decay of the Haversine distance and penalization for connections between distinct
-counties (GEOIDs).
+census tracts (GEOIDs).
 % [v2 review, 2026-07-26] F1 REPAIR, found by the mandatory L5 translation-fidelity gate
 % (src_utils/_history/_review_v2/08_translation_fidelity_report.md). The round-4 edit below appended the
 % second half of this published sentence to the END of its own last comment line, so three

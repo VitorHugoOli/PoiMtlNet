@@ -213,5 +213,14 @@ The related-work section says that MTPR combines recurrent networks and adversar
 The cited work addresses the sparsity of check-in data; uncertainty is the concern of another
 model described in the same paragraph. The phrase is corrected to ``the sparsity of check-in
 data''. \\
+\addlinespace
+% [2026-10-10, author-approved method-description erratum, row drafted by the writer] DGI edge weights.
+The method section defines a weighted Delaunay graph for DGI, with
+edge weights that decay logarithmically with the geodesic distance
+between POIs. &
+The released implementation computes those weights but its graph
+attention layer reads only the edge set, so they never enter the
+encoding. The definition is kept and its reach stated. No number
+changes. \\
 \end{longtable}
 }
