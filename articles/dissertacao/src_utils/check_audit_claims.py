@@ -1244,7 +1244,9 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R13-aut18",    "the task definition names the KIND of region unit, so it holds for any dataset the "
                      "work later adds",
      "chapters/2_fundamentals.tex",
-     r"the target is an administrative unit at\s+neighborhood scale", True),
+     # Re-pinned 2026-10-10 (E3, author-approved): "administrative unit" -> "areal unit", because after D7
+     # §2.4.1 calls the census tract a statistical unit; the KIND-of-unit intent of AUT-18 is kept.
+     r"the target is an areal unit at\s+neighborhood scale", True),
     ("R13-aut18b",   "and §2.4.1 names the unit each dataset actually supplies, which is what makes the "
                      "definition's pointer true",
      "chapters/2_fundamentals.tex",

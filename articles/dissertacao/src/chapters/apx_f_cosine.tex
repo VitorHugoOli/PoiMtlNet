@@ -120,9 +120,14 @@ The usual reason is a disagreement, and it shows up in the gradients: when the
 two tasks ask for opposite updates, one task improves at the other's expense. That has a direct measurement, and this appendix runs it on the joint model of
 Chapter~\ref{ch:mobiwac}.
 
-The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from
-orthogonal at each of the four datasets where the measurement was taken, which is a stronger statement than mere absence of
-conflict, and it carries a direct consequence for that model: a gradient balancer had nothing
+% [2026-10-07, PROPOSAL from the final Fable audit, verified by the registry and re-verified by the writer; pending the author's ruling] F8: "statistically indistinguishable from
+% orthogonal" -> "equivalent to orthogonal within a margin of five hundredths": at Istanbul the one-sample t
+% separates the mean from zero (p = 0.028, tables/frame/cosine.tex:95), as Chapter 2 already says; the
+% TOST verdict is what holds at all four. Nit: "nothing to balance" -> "little to balance" (D.3's hedge;
+% Nash-MTL +0.68 at Alabama in Chapter 5); verified.
+The two tasks turn out not to disagree. Their gradients are equivalent to orthogonal within a margin of
+five hundredths at each of the four datasets where the measurement was taken, which is a stronger statement than mere absence of
+conflict, and it carries a direct consequence for that model: a gradient balancer had little
 % [round9c, 2026-07-30] TWO EDITS IN THIS PARAGRAPH, both from PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30).
 % POINT 2: "a stronger and stranger result" -> "a stronger statement". The author: "Don't say
 % stranger result without cite some ref, but my main take is not to say this, is your jugdment and

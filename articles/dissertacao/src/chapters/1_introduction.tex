@@ -154,18 +154,24 @@ Chapter~\ref{ch:cbic}, published at CBIC 2025, introduces MTLnet, the first join
 % (3_cbic/method.tex, "first processed by separate, task-specific encoders"), so the tasks do not share
 % from the input up. The gloss "in which the tasks share one trunk of hidden layers" is true and stays:
 % it is the author's first-use gloss (probe R13-aut10); verified.
+% [2026-10-07, PROPOSAL from the final Fable audit, verified by the registry and re-verified by the writer; pending the author's ruling] nit: "predicts category classification and the
+% next category in a sequence" -> "performs category classification and next-category prediction" (one
+% cannot predict a classification); the R13-aut10 gloss before it is untouched; verified.
 developed in this research. It combines a place-level graph embedding with hard
-parameter sharing, in which the tasks share one trunk of hidden layers, and predicts category classification and the next category
-in a sequence. For that configuration, the joint model did not consistently outperform
+parameter sharing, in which the tasks share one trunk of hidden layers, and performs category classification and next-category prediction. For that configuration, the joint model did not consistently outperform
 the two dedicated single-task models and required more training time. The study
 treated this null result as a finding and proposed three possible explanations,
 including an input representation that might not provide enough information for both
 tasks.
 
+% [2026-10-07, PROPOSAL from the final Fable audit, verified by the registry and re-verified by the writer; pending the author's ruling] F1: the sentence covered only the
+% category task (true: 21 of 21, 4_courb/results.tex:44) and was silent on the sequential task (15 of 21,
+% results.tex:62; "most scenarios", intro.tex:27); split into one sentence naming both; verified.
 Chapter~\ref{ch:courb}, published at CoUrb 2026, examines that explanation through a
 controlled comparison. The study keeps MTLnet unchanged and replaces its monolithic
 64-dimensional place embedding with separate spatial, temporal, and categorical
-encoders. Category performance then increases substantially in every scenario evaluated.
+encoders. Category classification then improves in every scenario evaluated, and
+next-category prediction in most.
 Because the architecture remains fixed, the study identifies the input representation
 as the bottleneck for that stage of the research.
 

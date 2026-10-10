@@ -103,19 +103,19 @@ that constructs the folds, and the statistical scripts and output files listed b
   \item[The significance tests.] The paired $t$ test the chapter reports, with the registered
         Wilcoxon test alongside it, is implemented in
         \path{research/reproducibility/mobiwac_v18/wilcoxon_v18.py}, which reads the two files
-        below; the TOST non-inferiority test is implemented, on the records of the previous build,
-        in \path{research/reproducibility/mobiwac_v17/region_match_tost.py}. The values
-        from which every cell of Chapter~\ref{ch:mobiwac}'s results table
-        is computed, are the per-fold records in
+        below. The values from which every joint and dedicated cell of
+        Chapter~\ref{ch:mobiwac}'s results table is computed are the per-fold records in
         \path{docs/results/closing_data/v18/joint_best_perfold.json} for the joint model
         and \path{docs/studies/closing_data/v18/data/v18_results.json} for the dedicated
         models. Both store one value per fold per seed, so the seed-level means, the paired
         differences, and the intervals the chapter reports are recomputable from them
         without rerunning any model.
-  \item[The label-history benchmark.] Computed by
-        \path{research/reproducibility/mobiwac_v17/autocorrelation_ceiling.py}; its
-        machine-readable outputs are stored in
-        \path{docs/results/embedding_eval/rescreen_cat/}.
+% [2026-10-07, PROPOSAL from the final Fable audit, verified by the registry and re-verified by the writer; pending the author's ruling] F2: the
+% "label-history benchmark" item removed: the term is defined nowhere in this volume (it is the
+% supplement's Appendix D). F3: the TOST clause removed from the item above: region_match_tost.py reads
+% the v17 records of AL/AZ/IST only; the printed TOST values live in wrapup/evidence/ladder_recompute.json
+% and no script produces them; the clause also named a build generation. F4: "every cell" -> "every
+% joint and dedicated cell" (the external columns are not in those two files); stray comma gone; verified.
 % [round7, 2026-07-29] Repointed from \ref{apx:ceiling}: Appendix D moved to the
 % supplementary volume. The letter D is preserved there by construction (main_extra.tex sets the
 % chapter counter) and guarded by src_utils/check_extra_xrefs.py, so naming it literally is

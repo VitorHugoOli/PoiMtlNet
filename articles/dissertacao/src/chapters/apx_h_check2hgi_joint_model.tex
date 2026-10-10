@@ -12,7 +12,7 @@ remain available in the source directories listed at the end of the appendix.
 The pipeline has two separately trained parts. Check2HGI learns representations of
 individual visits and geographic regions without using the next-category or
 next-region targets. The joint model then reads sequences of those fixed
-representations and learns the two forecasting tasks together. Check2HGI therefore
+representations and learns the two prediction tasks together. Check2HGI therefore
 answers how a visit should be represented in its temporal and geographic context.
 The joint model answers how category and region prediction can exchange information
 while retaining task-specific routes.
@@ -37,24 +37,27 @@ The complete flow contains five stages:
 The boundary between Stages 3 and 4 is important. Check2HGI is fitted first, and
 its exported tables remain fixed during supervised training. The joint model does
 not reconstruct the graph or update the representation encoder. Conversely,
-Check2HGI never receives the two forecast labels.
+Check2HGI never receives the two prediction labels.
 
 \section{From check-in records to a heterogeneous mobility graph}
 \label{sec:apx-check2hgi-input}
 
+% [2026-10-07, PROPOSAL from the final Fable audit, verified by the registry and re-verified by the writer; pending the author's ruling] F9: notation aligned with Definition 2.1
+% (x_i the check-in, c_i its category; the appendix wrote c_i and g_i). Legend and the figure node
+% follow. F10 and the forecast/prediction nit are below; verified.
 Each observation is represented by
 \begin{equation}
-    c_i=(u_i,p_i,l_i,g_i,t_i).
+    x_i=(u_i,p_i,l_i,c_i,t_i).
     \label{eq:apx-checkin-tuple}
 \end{equation}
-Here, $c_i$ is check-in $i$, $u_i$ is its user, $p_i$ is its place, $l_i$
-contains latitude and longitude, $g_i$ is one of seven place categories, and $t_i$
+Here, $x_i$ is check-in $i$, $u_i$ is its user, $p_i$ is its place, $l_i$
+contains latitude and longitude, $c_i$ is one of seven place categories, and $t_i$
 is the timestamp. A spatial join between $l_i$ and the polygon file assigns the
 check-in's place to a region. Places outside every polygon are removed, and entity
 identifiers are mapped to stable contiguous integers. This mapping ensures that a
 row in an embedding table always refers to the same check-in, place, or region.
 
-Visits are sorted by user and timestamp before any temporal edge or forecast window
+Visits are sorted by user and timestamp before any temporal edge or prediction window
 is created. This order is part of the method. Changing it changes both the
 neighborhoods processed by Check2HGI and the examples processed by the joint model.
 
@@ -184,9 +187,9 @@ region polygons. Its output $\mathbf{z}_r\in\mathbb{R}^{64}$ is the representati
 of region $r$ used downstream.
 
 Finally, the model forms a city summary from an area-weighted combination of all
-region representations followed by a sigmoid. This city vector provides global
+region representations followed by the logistic function. This city vector provides global
 context for the highest self-supervised objective. It is not an input to the joint
-forecast model; the downstream model consumes the check-in and region tables.
+prediction model; the downstream model consumes the check-in and region tables.
 
 \section{How Check2HGI learns and what it exports}
 \label{sec:apx-check2hgi-learning}
@@ -253,7 +256,7 @@ added. Complete users, rather than individual windows, determine the supervised
 folds.
 
 Check2HGI is trained on the complete graph before those folds are fitted. The
-forecast evaluation is therefore user-disjoint, while representation learning is
+prediction evaluation is therefore user-disjoint, while representation learning is
 transductive with respect to the graph. Reproducing the study requires preserving
 this distinction.
 
@@ -480,9 +483,14 @@ Five checks distinguish the reported method from nearby alternatives:
 \end{itemize}
 
 The implementation is organized in four source areas:
+% [2026-10-07, PROPOSAL from the final Fable audit, verified by the registry and re-verified by the writer; pending the author's ruling] F11: "Representation build" entry added:
+% research/embeddings/check2hgi/preprocess.py:196-197 builds bidirectional edges, while the forward-only
+% build and the 15-value input this appendix describes are in scripts/integrity_v2/build_study_repr.py
+% (--forward-only, :473-486); verified.
 {\small
 \begin{description}
     \item[Check2HGI representation:] \path{research/embeddings/check2hgi/}
+    \item[Representation build:] \path{scripts/integrity_v2/build_study_repr.py}
     \item[Joint-model assembly:] \path{src/models/mtl/mtlnet_crossattn_dualtower/}
     \item[Task heads:] \path{src/models/next/}
     \item[Loss and training:] \path{src/losses/} and \path{src/training/}
