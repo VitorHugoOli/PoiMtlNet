@@ -1,0 +1,37 @@
+2026-10-10 13:58:24,264 - INFO - Loaded texas: rows=4039940  n_pois=160938  n_regions=6553  seq_len=50  centroids=(6553, 2)
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+2026-10-10 13:58:26,175 - INFO - Precomputed dd_poi (160939, 6553) (4.22 GB)
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/_inductor/lowering.py:7836: UserWarning: 
+Online softmax is disabled on the fly since Inductor decides to
+split the reduction. Cut an issue to PyTorch if this is an
+important use case and you want to speed it up with online
+softmax.
+
+  warnings.warn(
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/_inductor/lowering.py:7836: UserWarning: 
+Online softmax is disabled on the fly since Inductor decides to
+split the reduction. Cut an issue to PyTorch if this is an
+important use case and you want to speed it up with online
+softmax.
+
+  warnings.warn(
+2026-10-10 14:07:34,809 - INFO -     ep   1/200  val_Acc@10=0.6123  best=0.6123@1    loss=4.4092  | train 528.4s (1579 steps, 335 ms/step)  val 14.8s  <-best
+2026-10-10 14:16:13,562 - INFO -     ep   2/200  val_Acc@10=0.6186  best=0.6186@2    loss=3.7253  | train 511.7s (1579 steps, 324 ms/step)  val  7.1s  <-best
+2026-10-10 14:24:50,804 - INFO -     ep   3/200  val_Acc@10=0.6208  best=0.6208@3    loss=3.5085  | train 510.2s (1579 steps, 323 ms/step)  val  7.1s  <-best
+2026-10-10 14:33:31,372 - INFO -     ep   4/200  val_Acc@10=0.6170  best=0.6208@3    loss=3.2954  | train 513.4s (1579 steps, 325 ms/step)  val  7.2s
+2026-10-10 14:42:09,418 - INFO -     ep   5/200  val_Acc@10=0.6059  best=0.6208@3    loss=3.1085  | train 510.9s (1579 steps, 324 ms/step)  val  7.1s
+2026-10-10 14:50:48,898 - INFO -     ep   6/200  val_Acc@10=0.5909  best=0.6208@3    loss=2.9477  | train 512.3s (1579 steps, 324 ms/step)  val  7.2s
+2026-10-10 14:59:26,977 - INFO -     ep   7/200  val_Acc@10=0.5805  best=0.6208@3    loss=2.8056  | train 510.9s (1579 steps, 324 ms/step)  val  7.2s
+2026-10-10 15:08:05,092 - INFO -     ep   8/200  val_Acc@10=0.5653  best=0.6208@3    loss=2.6792  | train 511.0s (1579 steps, 324 ms/step)  val  7.1s
+2026-10-10 15:16:43,201 - INFO -     ep   9/200  val_Acc@10=0.5622  best=0.6208@3    loss=2.5662  | train 510.9s (1579 steps, 324 ms/step)  val  7.2s
+2026-10-10 15:25:21,328 - INFO -     ep  10/200  val_Acc@10=0.5461  best=0.6208@3    loss=2.4655  | train 511.0s (1579 steps, 324 ms/step)  val  7.1s
+2026-10-10 15:33:59,432 - INFO -     ep  11/200  val_Acc@10=0.5363  best=0.6208@3    loss=2.3754  | train 510.9s (1579 steps, 324 ms/step)  val  7.2s
+2026-10-10 15:42:37,583 - INFO -     ep  12/200  val_Acc@10=0.5289  best=0.6208@3    loss=2.2942  | train 511.0s (1579 steps, 324 ms/step)  val  7.2s
+2026-10-10 15:51:15,778 - INFO -     ep  13/200  val_Acc@10=0.5162  best=0.6208@3    loss=2.2200  | train 511.0s (1579 steps, 324 ms/step)  val  7.2s
+2026-10-10 15:51:15,778 - INFO -     early-stop at epoch 13 (best Acc@10=0.6208 @ep3, patience=10)
+2026-10-10 15:51:47,245 - INFO -   fold 4: Acc@1=0.2640 Acc@5=0.5217 Acc@10=0.6209 MRR=0.3879 F1=0.0817 (6797.1s, best_ep=3)
+2026-10-10 15:51:47,246 - INFO - AGGREGATE: accuracy_mean=0.2640 accuracy_std=0.0000 top5_acc_mean=0.5217 top5_acc_std=0.0000 top10_acc_mean=0.6209 top10_acc_std=0.0000 mrr_mean=0.3879 mrr_std=0.0000 f1_mean=0.0817 f1_std=0.0000
+2026-10-10 15:51:47,246 - INFO - Saved: docs/results/baselines/faithful_stan_texas_5f_200ep_v6_p10_fold4.json

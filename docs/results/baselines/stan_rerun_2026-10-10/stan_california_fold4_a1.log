@@ -1,0 +1,22 @@
+2026-10-10 17:26:46,844 - INFO - Loaded california: rows=3122423  n_pois=169145  n_regions=8501  seq_len=50  centroids=(8501, 2)
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+2026-10-10 17:26:48,525 - INFO - Precomputed dd_poi (169146, 8501) (5.75 GB)
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+2026-10-10 17:34:45,747 - INFO -     ep   1/200  val_Acc@10=0.5746  best=0.5746@1    loss=4.6884  | train 462.5s (1220 steps, 379 ms/step)  val  9.7s  <-best
+2026-10-10 17:45:30,759 - INFO -     ep   2/200  val_Acc@10=0.5774  best=0.5774@2    loss=4.0169  | train 637.1s (1220 steps, 522 ms/step)  val  7.9s  <-best
+2026-10-10 17:53:16,417 - INFO -     ep   3/200  val_Acc@10=0.5769  best=0.5774@2    loss=3.8612  | train 457.7s (1220 steps, 375 ms/step)  val  8.0s
+2026-10-10 18:01:01,117 - INFO -     ep   4/200  val_Acc@10=0.5719  best=0.5774@2    loss=3.6586  | train 456.8s (1220 steps, 374 ms/step)  val  7.9s
+2026-10-10 18:08:46,735 - INFO -     ep   5/200  val_Acc@10=0.5659  best=0.5774@2    loss=3.4399  | train 457.7s (1220 steps, 375 ms/step)  val  8.0s
+2026-10-10 18:18:01,601 - INFO -     ep   6/200  val_Acc@10=0.5562  best=0.5774@2    loss=3.2375  | train 546.9s (1220 steps, 448 ms/step)  val  8.0s
+2026-10-10 18:25:50,122 - INFO -     ep   7/200  val_Acc@10=0.5470  best=0.5774@2    loss=3.0584  | train 460.4s (1220 steps, 377 ms/step)  val  8.1s
+2026-10-10 18:33:34,934 - INFO -     ep   8/200  val_Acc@10=0.5317  best=0.5774@2    loss=2.8968  | train 456.9s (1220 steps, 374 ms/step)  val  7.9s
+2026-10-10 18:42:20,474 - INFO -     ep   9/200  val_Acc@10=0.5222  best=0.5774@2    loss=2.7495  | train 517.6s (1220 steps, 424 ms/step)  val  7.9s
+2026-10-10 18:50:05,227 - INFO -     ep  10/200  val_Acc@10=0.5079  best=0.5774@2    loss=2.6162  | train 456.8s (1220 steps, 374 ms/step)  val  7.9s
+2026-10-10 18:57:50,693 - INFO -     ep  11/200  val_Acc@10=0.5009  best=0.5774@2    loss=2.4935  | train 457.5s (1220 steps, 375 ms/step)  val  7.9s
+2026-10-10 19:07:05,286 - INFO -     ep  12/200  val_Acc@10=0.4826  best=0.5774@2    loss=2.3817  | train 546.7s (1220 steps, 448 ms/step)  val  7.9s
+2026-10-10 19:07:05,286 - INFO -     early-stop at epoch 12 (best Acc@10=0.5774 @ep2, patience=10)
+2026-10-10 19:07:27,998 - INFO -   fold 4: Acc@1=0.2688 Acc@5=0.4876 Acc@10=0.5776 MRR=0.3765 F1=0.0649 (6035.9s, best_ep=2)
+2026-10-10 19:07:27,998 - INFO - AGGREGATE: accuracy_mean=0.2688 accuracy_std=0.0000 top5_acc_mean=0.4876 top5_acc_std=0.0000 top10_acc_mean=0.5776 top10_acc_std=0.0000 mrr_mean=0.3765 mrr_std=0.0000 f1_mean=0.0649 f1_std=0.0000
+2026-10-10 19:07:27,998 - INFO - Saved: docs/results/baselines/faithful_stan_california_5f_200ep_v6_p10_fold4.json

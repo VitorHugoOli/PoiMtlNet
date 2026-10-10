@@ -1,0 +1,48 @@
+{
+  "state": "california",
+  "folds": 5,
+  "epochs": 200,
+  "seed": 0,
+  "n_regions": 8501,
+  "n_pois": 169145,
+  "seq_len": 50,
+  "config": {
+    "d_model": 128,
+    "dropout": 0.3,
+    "lr": 0.001,
+    "patience": 10,
+    "batch_size": 2048,
+    "schedule": "constant",
+    "precision": "bf16",
+    "compiled": true,
+    "sequence": "STAN prefix-expansion"
+  },
+  "only_fold": 4,
+  "per_fold": [
+    {
+      "accuracy": 0.26879194378852844,
+      "accuracy_macro": 0.06653579853827588,
+      "f1": 0.06488586217164993,
+      "f1_weighted": 0.23156920075416565,
+      "mrr": 0.3764666020870209,
+      "top5_acc": 0.4875873327255249,
+      "ndcg_5": 0.3874146342277527,
+      "top10_acc": 0.5776234269142151,
+      "ndcg_10": 0.41659533977508545,
+      "best_epoch": 2,
+      "n_epochs_ran": 12
+    }
+  ],
+  "aggregate": {
+    "accuracy_mean": 0.26879194378852844,
+    "accuracy_std": 0.0,
+    "top5_acc_mean": 0.4875873327255249,
+    "top5_acc_std": 0.0,
+    "top10_acc_mean": 0.5776234269142151,
+    "top10_acc_std": 0.0,
+    "mrr_mean": 0.3764666020870209,
+    "mrr_std": 0.0,
+    "f1_mean": 0.06488586217164993,
+    "f1_std": 0.0
+  }
+}

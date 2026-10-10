@@ -1,0 +1,167 @@
+2026-10-10 12:05:36,247 - INFO - Loaded arizona: rows=224625  n_pois=20666  n_regions=1547  seq_len=50  centroids=(1547, 2)
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+2026-10-10 12:05:36,465 - INFO - Precomputed dd_poi (20667, 1547) (0.13 GB)
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/_inductor/compile_fx.py:322: UserWarning: TensorFloat32 tensor cores for float32 matrix multiplication available but not enabled. Consider setting `torch.set_float32_matmul_precision('high')` for better performance.
+  warnings.warn(
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/_inductor/lowering.py:7836: UserWarning: 
+Online softmax is disabled on the fly since Inductor decides to
+split the reduction. Cut an issue to PyTorch if this is an
+important use case and you want to speed it up with online
+softmax.
+
+  warnings.warn(
+/home/vitor.oliveira/.venv/lib/python3.12/site-packages/torch/_inductor/lowering.py:7836: UserWarning: 
+Online softmax is disabled on the fly since Inductor decides to
+split the reduction. Cut an issue to PyTorch if this is an
+important use case and you want to speed it up with online
+softmax.
+
+  warnings.warn(
+2026-10-10 12:05:59,423 - INFO -     ep   1/200  val_Acc@10=0.3932  best=0.3932@1    loss=6.6642  | train  17.5s (88 steps, 199 ms/step)  val  4.7s  <-best
+2026-10-10 12:06:03,117 - INFO -     ep   2/200  val_Acc@10=0.5179  best=0.5179@2    loss=4.8317  | train   3.6s (88 steps, 40 ms/step)  val  0.1s  <-best
+2026-10-10 12:06:06,303 - INFO -     ep   3/200  val_Acc@10=0.5513  best=0.5513@3    loss=4.3792  | train   3.0s (88 steps, 35 ms/step)  val  0.1s  <-best
+2026-10-10 12:06:09,589 - INFO -     ep   4/200  val_Acc@10=0.5564  best=0.5564@4    loss=4.1606  | train   3.1s (88 steps, 36 ms/step)  val  0.1s  <-best
+2026-10-10 12:06:13,293 - INFO -     ep   5/200  val_Acc@10=0.5591  best=0.5591@5    loss=4.0419  | train   3.6s (88 steps, 41 ms/step)  val  0.1s  <-best
+2026-10-10 12:06:16,543 - INFO -     ep   6/200  val_Acc@10=0.5528  best=0.5591@5    loss=3.9605  | train   3.1s (88 steps, 35 ms/step)  val  0.1s
+2026-10-10 12:06:19,623 - INFO -     ep   7/200  val_Acc@10=0.5542  best=0.5591@5    loss=3.8905  | train   2.9s (88 steps, 33 ms/step)  val  0.1s
+2026-10-10 12:06:23,352 - INFO -     ep   8/200  val_Acc@10=0.5472  best=0.5591@5    loss=3.8276  | train   3.6s (88 steps, 41 ms/step)  val  0.1s
+2026-10-10 12:06:26,437 - INFO -     ep   9/200  val_Acc@10=0.5470  best=0.5591@5    loss=3.7695  | train   2.9s (88 steps, 33 ms/step)  val  0.1s
+2026-10-10 12:06:29,853 - INFO -     ep  10/200  val_Acc@10=0.5370  best=0.5591@5    loss=3.7109  | train   3.3s (88 steps, 37 ms/step)  val  0.1s
+2026-10-10 12:06:33,076 - INFO -     ep  11/200  val_Acc@10=0.5323  best=0.5591@5    loss=3.6521  | train   3.1s (88 steps, 35 ms/step)  val  0.1s
+2026-10-10 12:06:36,512 - INFO -     ep  12/200  val_Acc@10=0.5248  best=0.5591@5    loss=3.5936  | train   3.3s (88 steps, 37 ms/step)  val  0.1s
+2026-10-10 12:06:39,725 - INFO -     ep  13/200  val_Acc@10=0.5201  best=0.5591@5    loss=3.5343  | train   3.1s (88 steps, 35 ms/step)  val  0.1s
+2026-10-10 12:06:43,158 - INFO -     ep  14/200  val_Acc@10=0.5100  best=0.5591@5    loss=3.4787  | train   3.3s (88 steps, 37 ms/step)  val  0.2s
+2026-10-10 12:06:46,384 - INFO -     ep  15/200  val_Acc@10=0.5027  best=0.5591@5    loss=3.4179  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:06:49,832 - INFO -     ep  16/200  val_Acc@10=0.4977  best=0.5591@5    loss=3.3615  | train   3.3s (88 steps, 37 ms/step)  val  0.2s
+2026-10-10 12:06:53,055 - INFO -     ep  17/200  val_Acc@10=0.4903  best=0.5591@5    loss=3.3055  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:06:56,495 - INFO -     ep  18/200  val_Acc@10=0.4841  best=0.5591@5    loss=3.2521  | train   3.3s (88 steps, 37 ms/step)  val  0.2s
+2026-10-10 12:06:59,735 - INFO -     ep  19/200  val_Acc@10=0.4718  best=0.5591@5    loss=3.1991  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:07:03,181 - INFO -     ep  20/200  val_Acc@10=0.4645  best=0.5591@5    loss=3.1429  | train   3.3s (88 steps, 37 ms/step)  val  0.1s
+2026-10-10 12:07:06,403 - INFO -     ep  21/200  val_Acc@10=0.4582  best=0.5591@5    loss=3.0881  | train   3.1s (88 steps, 35 ms/step)  val  0.1s
+2026-10-10 12:07:09,847 - INFO -     ep  22/200  val_Acc@10=0.4527  best=0.5591@5    loss=3.0385  | train   3.3s (88 steps, 37 ms/step)  val  0.2s
+2026-10-10 12:07:13,092 - INFO -     ep  23/200  val_Acc@10=0.4450  best=0.5591@5    loss=2.9840  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:07:16,548 - INFO -     ep  24/200  val_Acc@10=0.4371  best=0.5591@5    loss=2.9373  | train   3.3s (88 steps, 38 ms/step)  val  0.1s
+2026-10-10 12:07:19,788 - INFO -     ep  25/200  val_Acc@10=0.4257  best=0.5591@5    loss=2.8861  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:07:19,788 - INFO -     early-stop at epoch 25 (best Acc@10=0.5591 @ep5, patience=20)
+2026-10-10 12:07:20,101 - INFO -   fold 0: Acc@1=0.2221 Acc@5=0.4533 Acc@10=0.5591 MRR=0.3330 F1=0.0378 (103.3s, best_ep=5)
+2026-10-10 12:07:23,421 - INFO -     ep   1/200  val_Acc@10=0.2937  best=0.2937@1    loss=6.6754  | train   3.1s (88 steps, 35 ms/step)  val  0.2s  <-best
+2026-10-10 12:07:27,245 - INFO -     ep   2/200  val_Acc@10=0.4904  best=0.4904@2    loss=4.9738  | train   3.7s (88 steps, 42 ms/step)  val  0.2s  <-best
+2026-10-10 12:07:30,994 - INFO -     ep   3/200  val_Acc@10=0.5415  best=0.5415@3    loss=4.4337  | train   3.6s (88 steps, 41 ms/step)  val  0.2s  <-best
+2026-10-10 12:07:34,179 - INFO -     ep   4/200  val_Acc@10=0.5528  best=0.5528@4    loss=4.2086  | train   3.0s (88 steps, 34 ms/step)  val  0.2s  <-best
+2026-10-10 12:07:37,455 - INFO -     ep   5/200  val_Acc@10=0.5569  best=0.5569@5    loss=4.0834  | train   3.1s (88 steps, 36 ms/step)  val  0.2s  <-best
+2026-10-10 12:07:40,855 - INFO -     ep   6/200  val_Acc@10=0.5608  best=0.5608@6    loss=4.0007  | train   3.2s (88 steps, 37 ms/step)  val  0.2s  <-best
+2026-10-10 12:07:44,595 - INFO -     ep   7/200  val_Acc@10=0.5612  best=0.5612@7    loss=3.9343  | train   3.6s (88 steps, 41 ms/step)  val  0.2s  <-best
+2026-10-10 12:07:47,704 - INFO -     ep   8/200  val_Acc@10=0.5578  best=0.5612@7    loss=3.8768  | train   3.0s (88 steps, 34 ms/step)  val  0.2s
+2026-10-10 12:07:51,447 - INFO -     ep   9/200  val_Acc@10=0.5558  best=0.5612@7    loss=3.8226  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:07:55,196 - INFO -     ep  10/200  val_Acc@10=0.5538  best=0.5612@7    loss=3.7660  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:07:58,308 - INFO -     ep  11/200  val_Acc@10=0.5515  best=0.5612@7    loss=3.7138  | train   3.0s (88 steps, 34 ms/step)  val  0.2s
+2026-10-10 12:08:02,051 - INFO -     ep  12/200  val_Acc@10=0.5427  best=0.5612@7    loss=3.6629  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:05,805 - INFO -     ep  13/200  val_Acc@10=0.5411  best=0.5612@7    loss=3.6103  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:08,933 - INFO -     ep  14/200  val_Acc@10=0.5302  best=0.5612@7    loss=3.5603  | train   3.0s (88 steps, 34 ms/step)  val  0.2s
+2026-10-10 12:08:12,686 - INFO -     ep  15/200  val_Acc@10=0.5224  best=0.5612@7    loss=3.5058  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:16,431 - INFO -     ep  16/200  val_Acc@10=0.5163  best=0.5612@7    loss=3.4547  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:19,548 - INFO -     ep  17/200  val_Acc@10=0.5125  best=0.5612@7    loss=3.3995  | train   3.0s (88 steps, 34 ms/step)  val  0.2s
+2026-10-10 12:08:23,303 - INFO -     ep  18/200  val_Acc@10=0.5025  best=0.5612@7    loss=3.3437  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:27,058 - INFO -     ep  19/200  val_Acc@10=0.4920  best=0.5612@7    loss=3.2906  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:30,177 - INFO -     ep  20/200  val_Acc@10=0.4902  best=0.5612@7    loss=3.2327  | train   3.0s (88 steps, 34 ms/step)  val  0.2s
+2026-10-10 12:08:33,932 - INFO -     ep  21/200  val_Acc@10=0.4764  best=0.5612@7    loss=3.1835  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:37,686 - INFO -     ep  22/200  val_Acc@10=0.4723  best=0.5612@7    loss=3.1276  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:40,809 - INFO -     ep  23/200  val_Acc@10=0.4635  best=0.5612@7    loss=3.0782  | train   3.0s (88 steps, 34 ms/step)  val  0.2s
+2026-10-10 12:08:44,565 - INFO -     ep  24/200  val_Acc@10=0.4609  best=0.5612@7    loss=3.0290  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:48,318 - INFO -     ep  25/200  val_Acc@10=0.4560  best=0.5612@7    loss=2.9730  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:51,436 - INFO -     ep  26/200  val_Acc@10=0.4473  best=0.5612@7    loss=2.9275  | train   3.0s (88 steps, 34 ms/step)  val  0.2s
+2026-10-10 12:08:55,190 - INFO -     ep  27/200  val_Acc@10=0.4411  best=0.5612@7    loss=2.8812  | train   3.6s (88 steps, 41 ms/step)  val  0.2s
+2026-10-10 12:08:55,190 - INFO -     early-stop at epoch 27 (best Acc@10=0.5612 @ep7, patience=20)
+2026-10-10 12:08:55,453 - INFO -   fold 1: Acc@1=0.2016 Acc@5=0.4404 Acc@10=0.5612 MRR=0.3172 F1=0.0412 (95.4s, best_ep=7)
+2026-10-10 12:08:58,828 - INFO -     ep   1/200  val_Acc@10=0.1448  best=0.1448@1    loss=7.0666  | train   3.2s (88 steps, 36 ms/step)  val  0.2s  <-best
+2026-10-10 12:09:02,715 - INFO -     ep   2/200  val_Acc@10=0.2192  best=0.2192@2    loss=6.0359  | train   3.7s (88 steps, 42 ms/step)  val  0.2s  <-best
+2026-10-10 12:09:06,521 - INFO -     ep   3/200  val_Acc@10=0.2442  best=0.2442@3    loss=5.4194  | train   3.7s (88 steps, 42 ms/step)  val  0.2s  <-best
+2026-10-10 12:09:10,088 - INFO -     ep   4/200  val_Acc@10=0.2481  best=0.2481@4    loss=5.0701  | train   3.4s (88 steps, 39 ms/step)  val  0.2s  <-best
+2026-10-10 12:09:13,415 - INFO -     ep   5/200  val_Acc@10=0.2508  best=0.2508@5    loss=4.7808  | train   3.2s (88 steps, 36 ms/step)  val  0.2s  <-best
+2026-10-10 12:09:17,222 - INFO -     ep   6/200  val_Acc@10=0.2516  best=0.2516@6    loss=4.5188  | train   3.7s (88 steps, 42 ms/step)  val  0.2s  <-best
+2026-10-10 12:09:21,103 - INFO -     ep   7/200  val_Acc@10=0.2538  best=0.2538@7    loss=4.2806  | train   3.7s (88 steps, 42 ms/step)  val  0.2s  <-best
+2026-10-10 12:09:24,908 - INFO -     ep   8/200  val_Acc@10=0.2562  best=0.2562@8    loss=4.0781  | train   3.7s (88 steps, 41 ms/step)  val  0.2s  <-best
+2026-10-10 12:09:28,201 - INFO -     ep   9/200  val_Acc@10=0.2579  best=0.2579@9    loss=3.9015  | train   3.1s (88 steps, 36 ms/step)  val  0.2s  <-best
+2026-10-10 12:09:31,524 - INFO -     ep  10/200  val_Acc@10=0.2539  best=0.2579@9    loss=3.7440  | train   3.2s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:09:34,905 - INFO -     ep  11/200  val_Acc@10=0.2491  best=0.2579@9    loss=3.6062  | train   3.2s (88 steps, 37 ms/step)  val  0.2s
+2026-10-10 12:09:38,228 - INFO -     ep  12/200  val_Acc@10=0.2491  best=0.2579@9    loss=3.4849  | train   3.2s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:09:41,610 - INFO -     ep  13/200  val_Acc@10=0.2452  best=0.2579@9    loss=3.3802  | train   3.2s (88 steps, 37 ms/step)  val  0.2s
+2026-10-10 12:09:44,927 - INFO -     ep  14/200  val_Acc@10=0.2401  best=0.2579@9    loss=3.2784  | train   3.2s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:09:48,184 - INFO -     ep  15/200  val_Acc@10=0.2392  best=0.2579@9    loss=3.1848  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:09:51,503 - INFO -     ep  16/200  val_Acc@10=0.2344  best=0.2579@9    loss=3.0997  | train   3.2s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:09:54,764 - INFO -     ep  17/200  val_Acc@10=0.2307  best=0.2579@9    loss=3.0228  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:09:58,415 - INFO -     ep  18/200  val_Acc@10=0.2303  best=0.2579@9    loss=2.9508  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:02,074 - INFO -     ep  19/200  val_Acc@10=0.2254  best=0.2579@9    loss=2.8811  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:05,732 - INFO -     ep  20/200  val_Acc@10=0.2217  best=0.2579@9    loss=2.8149  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:09,392 - INFO -     ep  21/200  val_Acc@10=0.2194  best=0.2579@9    loss=2.7528  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:13,051 - INFO -     ep  22/200  val_Acc@10=0.2146  best=0.2579@9    loss=2.6974  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:16,709 - INFO -     ep  23/200  val_Acc@10=0.2114  best=0.2579@9    loss=2.6390  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:20,367 - INFO -     ep  24/200  val_Acc@10=0.2112  best=0.2579@9    loss=2.5878  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:24,025 - INFO -     ep  25/200  val_Acc@10=0.2067  best=0.2579@9    loss=2.5361  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:27,684 - INFO -     ep  26/200  val_Acc@10=0.2052  best=0.2579@9    loss=2.4904  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:31,344 - INFO -     ep  27/200  val_Acc@10=0.2049  best=0.2579@9    loss=2.4481  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:35,003 - INFO -     ep  28/200  val_Acc@10=0.2051  best=0.2579@9    loss=2.4045  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:38,661 - INFO -     ep  29/200  val_Acc@10=0.1995  best=0.2579@9    loss=2.3639  | train   3.5s (88 steps, 40 ms/step)  val  0.2s
+2026-10-10 12:10:38,661 - INFO -     early-stop at epoch 29 (best Acc@10=0.2579 @ep9, patience=20)
+2026-10-10 12:10:38,920 - INFO -   fold 2: Acc@1=0.0825 Acc@5=0.1881 Acc@10=0.2579 MRR=0.1416 F1=0.0106 (103.5s, best_ep=9)
+2026-10-10 12:10:42,284 - INFO -     ep   1/200  val_Acc@10=0.1853  best=0.1853@1    loss=6.8876  | train   3.2s (88 steps, 36 ms/step)  val  0.2s  <-best
+2026-10-10 12:10:46,157 - INFO -     ep   2/200  val_Acc@10=0.4223  best=0.4223@2    loss=5.3480  | train   3.7s (88 steps, 42 ms/step)  val  0.2s  <-best
+2026-10-10 12:10:49,952 - INFO -     ep   3/200  val_Acc@10=0.5152  best=0.5152@3    loss=4.5970  | train   3.6s (88 steps, 41 ms/step)  val  0.2s  <-best
+2026-10-10 12:10:53,513 - INFO -     ep   4/200  val_Acc@10=0.5336  best=0.5336@4    loss=4.2257  | train   3.4s (88 steps, 39 ms/step)  val  0.2s  <-best
+2026-10-10 12:10:56,827 - INFO -     ep   5/200  val_Acc@10=0.5403  best=0.5403@5    loss=4.0672  | train   3.2s (88 steps, 36 ms/step)  val  0.2s  <-best
+2026-10-10 12:11:00,625 - INFO -     ep   6/200  val_Acc@10=0.5411  best=0.5411@6    loss=3.9657  | train   3.6s (88 steps, 41 ms/step)  val  0.2s  <-best
+2026-10-10 12:11:04,495 - INFO -     ep   7/200  val_Acc@10=0.5369  best=0.5411@6    loss=3.8959  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:11:08,356 - INFO -     ep   8/200  val_Acc@10=0.5381  best=0.5411@6    loss=3.8292  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:11:11,633 - INFO -     ep   9/200  val_Acc@10=0.5330  best=0.5411@6    loss=3.7698  | train   3.1s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:11:15,495 - INFO -     ep  10/200  val_Acc@10=0.5258  best=0.5411@6    loss=3.7131  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:11:18,770 - INFO -     ep  11/200  val_Acc@10=0.5233  best=0.5411@6    loss=3.6632  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:11:22,632 - INFO -     ep  12/200  val_Acc@10=0.5195  best=0.5411@6    loss=3.6041  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:11:25,910 - INFO -     ep  13/200  val_Acc@10=0.5154  best=0.5411@6    loss=3.5517  | train   3.1s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:11:29,774 - INFO -     ep  14/200  val_Acc@10=0.5066  best=0.5411@6    loss=3.4975  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:11:33,054 - INFO -     ep  15/200  val_Acc@10=0.5001  best=0.5411@6    loss=3.4389  | train   3.1s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:11:36,920 - INFO -     ep  16/200  val_Acc@10=0.4949  best=0.5411@6    loss=3.3828  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:11:40,199 - INFO -     ep  17/200  val_Acc@10=0.4869  best=0.5411@6    loss=3.3297  | train   3.1s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:11:44,062 - INFO -     ep  18/200  val_Acc@10=0.4841  best=0.5411@6    loss=3.2770  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:11:47,343 - INFO -     ep  19/200  val_Acc@10=0.4773  best=0.5411@6    loss=3.2219  | train   3.1s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:11:51,210 - INFO -     ep  20/200  val_Acc@10=0.4739  best=0.5411@6    loss=3.1746  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:11:54,492 - INFO -     ep  21/200  val_Acc@10=0.4611  best=0.5411@6    loss=3.1256  | train   3.1s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:11:58,360 - INFO -     ep  22/200  val_Acc@10=0.4587  best=0.5411@6    loss=3.0766  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:12:01,642 - INFO -     ep  23/200  val_Acc@10=0.4575  best=0.5411@6    loss=3.0278  | train   3.1s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:12:05,511 - INFO -     ep  24/200  val_Acc@10=0.4516  best=0.5411@6    loss=2.9826  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:12:08,792 - INFO -     ep  25/200  val_Acc@10=0.4474  best=0.5411@6    loss=2.9357  | train   3.1s (88 steps, 36 ms/step)  val  0.2s
+2026-10-10 12:12:12,657 - INFO -     ep  26/200  val_Acc@10=0.4402  best=0.5411@6    loss=2.8912  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:12:12,657 - INFO -     early-stop at epoch 26 (best Acc@10=0.5411 @ep6, patience=20)
+2026-10-10 12:12:12,918 - INFO -   fold 3: Acc@1=0.2156 Acc@5=0.4292 Acc@10=0.5411 MRR=0.3204 F1=0.0355 (94.0s, best_ep=6)
+2026-10-10 12:12:16,288 - INFO -     ep   1/200  val_Acc@10=0.1571  best=0.1571@1    loss=6.9898  | train   3.1s (88 steps, 36 ms/step)  val  0.2s  <-best
+2026-10-10 12:12:20,155 - INFO -     ep   2/200  val_Acc@10=0.4484  best=0.4484@2    loss=5.8029  | train   3.7s (88 steps, 42 ms/step)  val  0.2s  <-best
+2026-10-10 12:12:23,942 - INFO -     ep   3/200  val_Acc@10=0.5231  best=0.5231@3    loss=4.7047  | train   3.6s (88 steps, 41 ms/step)  val  0.2s  <-best
+2026-10-10 12:12:27,167 - INFO -     ep   4/200  val_Acc@10=0.5416  best=0.5416@4    loss=4.3305  | train   3.1s (88 steps, 35 ms/step)  val  0.2s  <-best
+2026-10-10 12:12:30,471 - INFO -     ep   5/200  val_Acc@10=0.5454  best=0.5454@5    loss=4.1429  | train   3.2s (88 steps, 36 ms/step)  val  0.2s  <-best
+2026-10-10 12:12:34,243 - INFO -     ep   6/200  val_Acc@10=0.5526  best=0.5526@6    loss=4.0138  | train   3.6s (88 steps, 41 ms/step)  val  0.2s  <-best
+2026-10-10 12:12:38,101 - INFO -     ep   7/200  val_Acc@10=0.5516  best=0.5526@6    loss=3.9166  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:12:41,950 - INFO -     ep   8/200  val_Acc@10=0.5487  best=0.5526@6    loss=3.8368  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:12:45,220 - INFO -     ep   9/200  val_Acc@10=0.5461  best=0.5526@6    loss=3.7686  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:12:49,066 - INFO -     ep  10/200  val_Acc@10=0.5401  best=0.5526@6    loss=3.7051  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:12:52,336 - INFO -     ep  11/200  val_Acc@10=0.5399  best=0.5526@6    loss=3.6445  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:12:56,190 - INFO -     ep  12/200  val_Acc@10=0.5266  best=0.5526@6    loss=3.5855  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:12:59,462 - INFO -     ep  13/200  val_Acc@10=0.5199  best=0.5526@6    loss=3.5242  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:13:03,315 - INFO -     ep  14/200  val_Acc@10=0.5147  best=0.5526@6    loss=3.4663  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:13:06,589 - INFO -     ep  15/200  val_Acc@10=0.5058  best=0.5526@6    loss=3.4072  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:13:10,439 - INFO -     ep  16/200  val_Acc@10=0.4952  best=0.5526@6    loss=3.3504  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:13:13,708 - INFO -     ep  17/200  val_Acc@10=0.4976  best=0.5526@6    loss=3.2988  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:13:17,563 - INFO -     ep  18/200  val_Acc@10=0.4805  best=0.5526@6    loss=3.2430  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:13:20,835 - INFO -     ep  19/200  val_Acc@10=0.4724  best=0.5526@6    loss=3.1936  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:13:24,689 - INFO -     ep  20/200  val_Acc@10=0.4695  best=0.5526@6    loss=3.1402  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:13:27,963 - INFO -     ep  21/200  val_Acc@10=0.4634  best=0.5526@6    loss=3.0878  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:13:31,822 - INFO -     ep  22/200  val_Acc@10=0.4500  best=0.5526@6    loss=3.0395  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:13:35,094 - INFO -     ep  23/200  val_Acc@10=0.4472  best=0.5526@6    loss=2.9888  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:13:38,949 - INFO -     ep  24/200  val_Acc@10=0.4435  best=0.5526@6    loss=2.9392  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:13:42,223 - INFO -     ep  25/200  val_Acc@10=0.4380  best=0.5526@6    loss=2.8929  | train   3.1s (88 steps, 35 ms/step)  val  0.2s
+2026-10-10 12:13:46,079 - INFO -     ep  26/200  val_Acc@10=0.4285  best=0.5526@6    loss=2.8450  | train   3.7s (88 steps, 42 ms/step)  val  0.2s
+2026-10-10 12:13:46,079 - INFO -     early-stop at epoch 26 (best Acc@10=0.5526 @ep6, patience=20)
+2026-10-10 12:13:46,338 - INFO -   fold 4: Acc@1=0.2164 Acc@5=0.4445 Acc@10=0.5526 MRR=0.3257 F1=0.0374 (93.4s, best_ep=6)
+2026-10-10 12:13:46,338 - INFO - AGGREGATE: accuracy_mean=0.1876 accuracy_std=0.0530 top5_acc_mean=0.3911 top5_acc_std=0.1018 top10_acc_mean=0.4944 top10_acc_std=0.1185 mrr_mean=0.2876 mrr_std=0.0732 f1_mean=0.0325 f1_std=0.0111
+2026-10-10 12:13:46,338 - INFO - Saved: docs/results/baselines/faithful_stan_arizona_5f_200ep_v5_compiled_rerun20261010.json

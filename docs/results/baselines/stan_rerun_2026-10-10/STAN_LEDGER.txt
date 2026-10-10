@@ -1,0 +1,23 @@
+STAN RERUN wait over: JISA CAMPAIGN ALL DONE, no train.py running 2026-10-10 12:04:50
+STAN GATE PASS 2026-10-10 12:05:29 gpu_check=unavailable(NVML) other_user_procs=6 notable: none
+STAN RUN wt=/dados/poimtlnet/wt_stan head=93a1a6c0f108dd349e72a07ce024be77e7056bba train_md5=52b91f65e419eacebde186f5f619b68e model_md5=52d6bd81981380671eb99c1978e34860 python=Python 3.12.3 torch=2.11.0+cu128 inputs: az=94074f34a0c8 ca=7a3812237b1d tx=e29bf333031c 2026-10-10 12:05:34
+STAN AZ START cmd: python -m research.baselines.stan.train --state arizona --folds 5 --epochs 200 --seed 0 --patience 20 --compile --tag v5_compiled_rerun20261010 2026-10-10 12:05:34
+STAN AZ END rc=0 wall=493s json=/dados/poimtlnet/wt_stan/docs/results/baselines/faithful_stan_arizona_5f_200ep_v5_compiled_rerun20261010.json 2026-10-10 12:13:47
+  fold_entry0: Acc@10=0.5591 Acc@5=0.4533 Acc@1=0.2221 MRR=0.3330 macroF1=0.0378 best_epoch=5 n_epochs_ran=25
+  fold_entry1: Acc@10=0.5612 Acc@5=0.4404 Acc@1=0.2016 MRR=0.3172 macroF1=0.0412 best_epoch=7 n_epochs_ran=27
+  fold_entry2: Acc@10=0.2579 Acc@5=0.1881 Acc@1=0.0825 MRR=0.1416 macroF1=0.0106 best_epoch=9 n_epochs_ran=29
+  fold_entry3: Acc@10=0.5411 Acc@5=0.4292 Acc@1=0.2156 MRR=0.3204 macroF1=0.0355 best_epoch=6 n_epochs_ran=26
+  fold_entry4: Acc@10=0.5526 Acc@5=0.4445 Acc@1=0.2164 MRR=0.3257 macroF1=0.0374 best_epoch=6 n_epochs_ran=26
+STAN california fold2 START attempt=1 cmd: python research/baselines/stan/train.py --state california --seed 0 --epochs 200 --folds 5 --only-fold 2 --batch-size 2048 --amp bf16 --compile --d-model 128 --patience 10 --tag v6_p10 2026-10-10 12:13:47
+STAN california fold2 END rc=0 wall=6265s json=/dados/poimtlnet/wt_stan/docs/results/baselines/faithful_stan_california_5f_200ep_v6_p10_fold2.json 2026-10-10 13:58:12
+  fold_entry0: Acc@10=0.5905 Acc@5=0.4975 Acc@1=0.2730 MRR=0.3854 macroF1=0.0568 best_epoch=2 n_epochs_ran=12
+STAN texas fold4 START attempt=1 cmd: python research/baselines/stan/train.py --state texas --seed 0 --epochs 200 --folds 5 --only-fold 4 --batch-size 2048 --amp bf16 --compile --d-model 128 --patience 10 --tag v6_p10 2026-10-10 13:58:12
+STAN texas fold4 END rc=0 wall=6817s json=/dados/poimtlnet/wt_stan/docs/results/baselines/faithful_stan_texas_5f_200ep_v6_p10_fold4.json 2026-10-10 15:51:49
+  fold_entry0: Acc@10=0.6209 Acc@5=0.5217 Acc@1=0.2640 MRR=0.3879 macroF1=0.0817 best_epoch=3 n_epochs_ran=13
+STAN california fold3 START attempt=1 cmd: python research/baselines/stan/train.py --state california --seed 0 --epochs 200 --folds 5 --only-fold 3 --batch-size 2048 --amp bf16 --compile --d-model 128 --patience 10 --tag v6_p10 2026-10-10 15:51:49
+STAN california fold3 END rc=0 wall=5687s json=/dados/poimtlnet/wt_stan/docs/results/baselines/faithful_stan_california_5f_200ep_v6_p10_fold3.json 2026-10-10 17:26:36
+  fold_entry0: Acc@10=0.5918 Acc@5=0.5010 Acc@1=0.2809 MRR=0.3883 macroF1=0.0676 best_epoch=2 n_epochs_ran=12
+STAN california fold4 START attempt=1 cmd: python research/baselines/stan/train.py --state california --seed 0 --epochs 200 --folds 5 --only-fold 4 --batch-size 2048 --amp bf16 --compile --d-model 128 --patience 10 --tag v6_p10 2026-10-10 17:26:36
+STAN california fold4 END rc=0 wall=6053s json=/dados/poimtlnet/wt_stan/docs/results/baselines/faithful_stan_california_5f_200ep_v6_p10_fold4.json 2026-10-10 19:07:29
+  fold_entry0: Acc@10=0.5776 Acc@5=0.4876 Acc@1=0.2688 MRR=0.3765 macroF1=0.0649 best_epoch=2 n_epochs_ran=12
+STAN RERUN ALL DONE 2026-10-10 19:07:29
