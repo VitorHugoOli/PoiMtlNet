@@ -18,9 +18,16 @@
 % [NEEDS SIGN-OFF 39 | CLOSED] Author approved the reproducibility section. Re-verified this
 % session: every \path{} entry in the section resolves on the public repository (see item 40),
 % and each item still names its script and output file per the Appendix D pattern.
+% [2026-10-13, author's D6 + department push] URL changed from VitorHugoOli/PoiMtlNet to NESPEDUFV/mtlnet,
+% a distinct repository: the final tree, published without history (live at 25f2decf, 4,223 files);
+% PoiMtlNet keeps the history and stays public, which is why the Chapter 3 and Chapter 5 footnotes keep
+% their URLs (D6) and the document still has one URL of record per repository. "working repository" ->
+% "repository": the department repository is a published snapshot, not the working tree. Every \path{}
+% entry below was re-checked against the new repository by the registry (fresh clone, 13 of 13 paths)
+% before this line went in; verified.
 This section identifies the code that implements each part of the protocol and the files
-that contain its outputs. All paths below are relative to this research's working
-repository, published at \url{https://github.com/VitorHugoOli/PoiMtlNet}. The protocol
+that contain its outputs. All paths below are relative to this research's repository,
+published at \url{https://github.com/NESPEDUFV/mtlnet}. The protocol
 applies only to the final study in Chapter~\ref{ch:mobiwac}, as specified in
 Chapter~\ref{ch:fundamentals}.
 
@@ -181,6 +188,9 @@ protocol reported in that chapter rather than the one described in this section.
 %   Chapters 3 and 5 (3_cbic/intro.tex:30; 5_mobiwac/01_introduction.tex:27, the mobiwac branch) and the separate
 %   repository of Chapter 4 (4_courb/intro.tex:35). This section cites the Chapter 5 footnote by \ref
 %   rather than reprinting the URL, so there is one URL of record per repository in the document.
+%   [2026-10-13] A third URL since the department push: NESPEDUFV/mtlnet above is a distinct repository (the
+%   final tree, no history), while PoiMtlNet, cited by the Chapter 3 and 5 footnotes, keeps the history and
+%   stays public; one URL of record per repository still holds.
 %  NOT INCLUDED, on purpose: hardware, package versions, and per-model training configurations.
 %   Chapter 5 states that the full training configuration for every model is in the released
 %   code, and I did not establish a committed version manifest this session.
