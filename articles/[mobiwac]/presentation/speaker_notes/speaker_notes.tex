@@ -1,0 +1,357 @@
+% Speaker cards for the MobiWac 2026 talk (Paris, Mon 2026-10-26, 8:30, first talk).
+% Source of every card: ../PLANO_APRESENTACAO.md §4 (track) and §5 (Q&A), plan v3.1 (efb94200),
+% plus the corrections applied to the deck up to 2026-10-20 (deck commit 4fa9cd22):
+%   - limit 1 = 0.17 macro-F1 / 0.13 Acc@10 (dissertation e32c6507, author 10-06);
+%   - only HMT-GRN runs on our windows and folds; STAN and ReHDM use their own splits (e32c6507);
+%   - "compared against", not "re-ran" (plan §5 alert).
+% Wording law: the paper's verbs ("outperforms", never "beats"/"wins"), American English.
+% ⚠ This file deliberately does NOT quote the superseded numbers (the antidote must not cite the poison).
+% Build: xelatex speaker_notes.tex (twice).
+
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=17mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{xltabular}
+\usepackage{fancyhdr}
+\definecolor{teal}{rgb}{0.18,0.61,0.58}
+\definecolor{navy}{rgb}{0.04,0.27,0.47}
+\definecolor{alert}{rgb}{0.74,0.07,0.43}
+\setlist{nosep,leftmargin=1.2em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\titleformat{\section}{\large\bfseries\color{navy}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+\pagestyle{fancy}\fancyhf{}
+\rhead{\small MobiWac 2026 $\cdot$ speaker cards}\lhead{\small Mon 26 Oct, 8:30 Paris (4:30 Brasília)}
+\cfoot{\small\thepage}
+
+\newcommand{\card}[3]{\section{#1 \hfill {\normalsize\color{teal} #2}}\textit{On screen:} #3\par}
+\newcommand{\open}[1]{\textbf{\color{teal}OPEN}\quad #1\par}
+\newcommand{\say}{\textbf{\color{teal}SAY}\par}
+\newcommand{\nums}[1]{\textbf{\color{teal}NUMBERS}\quad #1\par}
+\newcommand{\never}[1]{\textbf{\color{alert}NEVER}\quad #1\par}
+\newcommand{\ifasked}[1]{\textbf{\color{navy}IF ASKED}\quad #1\par}
+
+\begin{document}
+
+{\LARGE\bfseries Predicting the Next Category and Region of a Visit}\par
+\smallskip
+{\large Speaker cards: 12 slides, about 15 minutes of talk, about 15 minutes for questions}\par
+\smallskip
+Slot: 30 minutes \emph{including} questions. First talk of the symposium, right after the opening
+(8:15). Audience: wireless networking and mobility management, not machine learning.
+Deck: \texttt{slides/main.pdf} (slides 1--11 numbered; backups B1--B10 after the last slide).
+
+\medskip
+\begin{tabular}{@{}l l@{}}
+\toprule
+\textbf{Time marks} & S2 ends $\approx$ 2:30 $\cdot$ S5 ends $\approx$ 7:20 $\cdot$ S7 ends $\approx$ 10:30
+$\cdot$ S9 ends $\approx$ 12:15 $\cdot$ end $\approx$ 15:15\\
+\textbf{If short of time} & cut words in S3 and S6, never in S2 or S7\\
+\textbf{If ahead} & add up to +60 s in S4 (the concatenation control), +40 s in S7\\
+\bottomrule
+\end{tabular}
+
+% ---------------------------------------------------------------
+\card{S1 $\cdot$ Title}{20 s}{title, three authors, NESPeD-LAB / UFV.}
+\open{``Good morning. I am Vitor Hugo, from the Federal University of Viçosa, in Brazil. This is
+joint work with Germano dos Santos and Fabrício Silva.''}
+\say
+\begin{itemize}
+  \item One sentence and move on: ``We ask whether one model can predict both what kind of place a
+        person visits next and which neighborhood.''
+\end{itemize}
+
+% ---------------------------------------------------------------
+\card{S2 $\cdot$ One person's day, and the question}{130 s}{a schematic map, nine check-ins
+(coffee, gym, office, lunch), a ``?'', two boxes.}
+\textbf{\color{alert}Rehearse this one aloud. It wins or loses the room at 8:30.}\par
+\say
+\begin{itemize}
+  \item ``Here is one person's day: nine check-ins. Coffee, gym, office, lunch. The tenth is the
+        question.''
+  \item ``But nobody needs the tenth \emph{place}. Texas alone has about a hundred and sixty thousand
+        of them. A service needs two coarser things. What \textbf{kind} of place comes next: food,
+        shopping, nightlife. And which \textbf{neighborhood}: a census tract. About a thousand of them
+        in Alabama, eight and a half thousand in California.''
+  \item ``If you know the neighborhood before the person gets there, you can push content to the
+        cache that serves it, and plan capacity where demand is about to land. You already do this one
+        level down, at the radio cell, with handover prediction. We are at the neighborhood.
+        \textbf{A tract is not a cell, and we claim nothing about cells.}''
+  \item ``How far ahead? In our data the median gap from the last visit to the next runs from under
+        half an hour in Florida to five and a half hours in Istanbul.''
+  \item ``The obvious engineering answer is two models, one per question: two things to train,
+        version and serve. One model for both is the shortcut, and it is known to fail: parameters
+        shared between two jobs can settle on a compromise that is worse at both. So: \textbf{can one
+        model answer both, and what does it cost?}''
+  \item ``The answer, so you can decide whether to keep listening: yes. One model, one forward pass.
+        In California, ten neighborhoods out of 8,501 contain the right one 64 percent of the time. On
+        the neighborhood question it outperforms a dedicated model at the two biggest datasets and is
+        at worst 0.9 points behind at the others. And on the type-of-place question, how we represent a
+        visit moved the score more than anything about the model. Here is how.''
+\end{itemize}
+\ifasked{``Is that a real user?'' No. It is a schematic of the input format, not a case from the
+data.}
+\never{handover or cell-level gains as a claim. It is an analogy of scale only.}
+
+% ---------------------------------------------------------------
+\card{S3 $\cdot$ Check2HGI: a fourth level below the place}{100 s}{the Check2HGI diagram, two lines
+below it.}
+\open{``Most work gives each place one fixed vector. But the same coffee shop on a Tuesday morning
+and on a Saturday night is not the same signal.''}
+\say
+\begin{itemize}
+  \item ``So we add a fourth level below place, region and city: the check-in itself.''
+  \item ``Each visit gets its own 64-dimensional vector, built from its place's category, the hour and
+        day of week, and how long since the previous visit.''
+  \item ``The graph is trained without labels: it never sees the next category or the next region.''
+  \item \textbf{Keep:} ``It is built from the past alone. Edges between consecutive visits run forward
+        in time only.'' (This is limit 3 and the answer to every leak question.)
+\end{itemize}
+\never{``pre-trained encoder'' for the per-visit input. Nothing pre-trained is on that path.}
+
+% ---------------------------------------------------------------
+\card{S4 $\cdot$ Result 1: the representation}{115 s}{the six-row table, check-in level vs place
+level.}
+\open{``First result, and the most controlled one: only the input changes. Same model, same folds,
+same windows.''}
+\say
+\begin{itemize}
+  \item ``With a vector per visit instead of per place, next-category prediction improves at all six
+        datasets and in every fold.''
+  \item ``The gain is larger at the three smaller datasets, and under one point at the three largest.
+        At Florida the fold-to-fold spread is larger than the gap, and the paired test does not separate
+        the two.''
+  \item \textbf{Say this before anyone asks:} ``And to be clear: most of that gain is already there if
+        you just hand the place vector the hour and the category. What the graph adds beyond that, this
+        control does not separate.'' (Backup B9.)
+\end{itemize}
+\nums{gain $+0.23$ to $+2.81$ macro-F1 $\cdot$ AL $+1.62$, AZ $+2.58$, Istanbul $+2.81$ $\cdot$
+Florida $+0.23$, fold sd $0.42$, $p = 0.067$.}
+\ifasked{CA and TX place cells: do not defend them as verified pairs. Their matching could not be
+checked from what is on disk. Both gains are under one point, so the message does not change.}
+
+% ---------------------------------------------------------------
+\card{S5 $\cdot$ Why sharing is not free, and the model}{75 s}{the model figure; ``The risk'',
+``The answer''.}
+\open{``Two questions, one model. Why is that not obviously a good idea?''}
+\say
+\begin{itemize}
+  \item ``Because the parameters in the middle have to serve both jobs at once, and they can settle on
+        a compromise that is worse for each than a dedicated model would have been. You get one
+        artifact to deploy, and you may pay for it on both answers.''
+  \item \emph{[point at the figure]} ``So the model is built to limit that. The two inputs go into a
+        shared trunk where each task can read the other's context. That is the part we want.''
+  \item ``But the region task also keeps a \textbf{private} spatial path that the category task never
+        touches, because where someone goes and what kind of place it is are not the same question.
+        \textbf{The private path is the architecture admitting the risk.}''
+  \item ``Whether the shared part earns its keep is what we measured, and I will show you in two
+        slides.''
+\end{itemize}
+\never{define ``multi-task learning'' as a concept; count blocks or widths. This is minute 7.}
+
+% ---------------------------------------------------------------
+\card{S6 $\cdot$ How it was measured}{90 s}{five rows: Regions, Split, Scored, Repeated, Decided.}
+\open{``Before the verdict, how it was measured.''}
+\say
+\begin{itemize}
+  \item ``Regions are census tracts, from 520 in Istanbul to 8,501 in California.''
+  \item ``We split by user: the visits of a test user never appear in training. Every number is on
+        users the model has never seen.''
+  \item ``Category is scored with macro-F1. Region with Acc@10: is the true region among the model's
+        top ten?''
+  \item ``Twenty trained models per configuration: four seeds times five folds.''
+  \item \textbf{Never cut:} ``And we wrote down what would count as `not worse', two points, before we
+        saw any result.''
+\end{itemize}
+
+% ---------------------------------------------------------------
+\card{S7 $\cdot$ One model, two answers: the price}{100 s}{Dedicated vs Joint, six datasets, both
+tasks; green = outperforms.}
+\open{``This is the price of one model instead of two.''}
+\say
+\begin{itemize}
+  \item ``On region, the one model is better at the two largest datasets, Texas and California, by
+        about one point. Everywhere else it is behind by at most 0.87 points, inside the two-point margin
+        we fixed before we saw any result.''
+  \item ``Those four are real deficits, not ties. Every interval is entirely below zero.''
+  \item ``On category it is ahead at Florida. The other five are unresolved, all within a fifth of a
+        point of zero.''
+  \item \textbf{The thesis sentence:} ``The trade is a measured one and not a free substitution.''
+  \item Say with the numbers, not as a confession: ``The joint model is also the larger model, and this
+        design does not separate size from sharing. And the two region wins sitting at the two biggest
+        region counts is an observation, not a law: California has more regions than Texas and a smaller
+        gain.''
+\end{itemize}
+\nums{region: Texas $+1.21$, California $+1.06$ (20 of 20 folds); worst deficit Alabama $-0.87$
+$\cdot$ category: Florida $+0.19$ (19 of 20 folds).}
+\ifasked{``Your $\Delta$ is not the difference of the columns.'' Right: $\Delta$ is the paired mean over
+the four seeds, so it can differ from the rounded columns in the second decimal.}
+\never{``ties'', ``matches'', ``no difference'', ``the same'' for the four region cells.}
+
+% ---------------------------------------------------------------
+\card{S8 $\cdot$ And against published systems}{45 s}{externals vs Dedicated vs Joint, both tasks.}
+\say
+\begin{itemize}
+  \item ``Both our models, the dedicated and the joint, are above every system we compared against.
+        The joint model by at least 4.11 points on category and 3.55 on region.''
+  \item ``That margin belongs mostly to the representation from Result 1, so it is not evidence for
+        sharing.'' Then move on.
+\end{itemize}
+\ifasked{the HMT-GRN column: it runs on our windows and folds, at one seed, and is read at its best
+validation epoch, the same rule as our models. STAN and ReHDM use their own splits.}
+\never{``both our models by at least four points''. The four-point margin is the joint model's only.}
+
+% ---------------------------------------------------------------
+\card{S9 $\cdot$ What a service would receive}{60 s}{lead time, unseen users, a shortlist; caveat box.}
+\say
+\begin{itemize}
+  \item ``Lead time: the median gap to the next visit is from 0.4 hours in Florida to 5.5 hours in
+        Istanbul, and 5 to 27 percent of the targets come more than three days later.''
+  \item ``Unseen users: every number is on users whose visits never appeared in training.''
+  \item ``A shortlist: ten regions out of 8,501 contain the true next one 64.54 percent of the time in
+        California, and ten out of 6,553 do so 66.15 percent of the time in Texas.''
+  \item ``We built and evaluated no such service. This is motivation, not a measured service
+        result.''
+\end{itemize}
+\never{any distance in kilometers. See the Q\&A card.}
+
+% ---------------------------------------------------------------
+\card{S10 $\cdot$ What it costs, and four limits}{90 s}{parameters (left), four limits (right).}
+\say
+\begin{itemize}
+  \item ``The joint model is larger than the two dedicated models combined: 4.2 million against 1.9
+        million at Alabama, 5.2 against 2.8 at California. What one model gives is operational: one
+        artifact to train, version and deploy, one pass, two answers.''
+  \item Limit 1: ``The representation is trained once over all users. Rebuilding it per fold from
+        training users only moved the dedicated models by at most 0.17 macro-F1 and 0.13 Acc@10.''
+  \item Limit 2: ``Epoch selection reads the fold the score is read on, so absolute scores are
+        optimistic. The joint-versus-dedicated comparison is affected far less.''
+  \item Limit 3: ``Each visit reads only the visits before it.''
+  \item Limit 4: ``The joint model is larger, so its region result may come from size rather than
+        sharing.''
+\end{itemize}
+\ifasked{latency or energy: ``About five million parameters and a window of nine visits per query. We
+did not measure latency or energy.''}
+
+% ---------------------------------------------------------------
+\card{S11 $\cdot$ Conclusion}{60 s}{three bullets and one line.}
+\say
+\begin{itemize}
+  \item ``The evidence does not attribute the outcome to sharing alone. On category, the
+        representation moves the score more than the choice between one model and two.''
+  \item ``One saved model reads both answers: above the dedicated model on region at Texas and
+        California, within the two-point margin elsewhere.''
+  \item ``These results do not mean that multi-task learning helps automatically.''
+\end{itemize}
+\open{Close with: ``What a user will do next, and where, in a single forward pass instead of two.
+Thank you.''}
+
+% ---------------------------------------------------------------
+\card{S12 $\cdot$ Thank you}{30 s}{Questions? Code, data, funders.}
+\say
+\begin{itemize}
+  \item ``The code, the model, the representation, the baselines and the statistical tests are public
+        at this link, and both datasets are public. This work was supported by FAPEMIG, CNPq and
+        CAPES.''
+  \item \textbf{Leave this slide up during the questions.} Jump to a backup only when a question needs
+        it, then come back.
+\end{itemize}
+
+% ===============================================================
+\newpage
+\section{Questions: the prepared answers}
+
+\begin{xltabular}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.30\textwidth}X l@{}}
+\toprule
+\textbf{Question} & \textbf{Answer} & \textbf{Slide}\\
+\midrule
+\endhead
+``Your numbers do not match the paper.'' \emph{(most likely: the PDF is in the proceedings)} &
+``The paper mixed sources from different versions; the corrected values come from the delivered
+build.'' For the HMT-GRN column: ``the paper read HMT-GRN at a fixed final epoch; here it is read at
+its best validation epoch, the same rule as our models.'' That correction \emph{favors} the
+competitor. Example if asked: ``the Istanbul place-level cell was computed on an older build; matched
+on the same rows the gain is 2.81.'' The message survives: gain at all six datasets and every fold. Do
+not apologize or dramatize. & S8\\
+``How do you know a visit vector does not see its target?'' &
+By the mechanism: each visit node draws only on the visits before it, in training and at readout, and
+the graph is trained without the next-category or next-region label. & B4\\
+``Do the external systems run on your folds?'' &
+``Only HMT-GRN runs on our windows and folds. STAN and ReHDM use their own splits.'' & B7\\
+``Where does the 2-point margin come from? Chosen after looking?'' &
+Written in the analysis plan before any result was read, for region only. Category has no registered
+equivalence margin, so its differences are ``unresolved'', never a match. The two region gains are
+secondary results, outside the plan. & B2\\
+``Would a Markov chain do this?'' &
+A first-order Markov chain over regions gets 51.23 to 72.47 Acc@10. The joint model exceeds it by 4.1
+to 10.0 at every dataset. Say the narrowest first: Florida, $+4.07$. Talk only about \emph{our} margin
+over the floor. & B3\\
+``Isn't this just the timestamp added to the place vector?'' \emph{(the most dangerous one)} &
+Largely, yes, on category: a control that adds the raw features to the place vector gains about as
+much ($+1.73$ / $+1.70$ / $+1.02$ at AL / AZ / FL). What the graph adds beyond that, this control does
+not separate. & B9\\
+``Then what is multi-task learning for?'' &
+On category the representation moves the score more than the choice between one model and two.
+Whether the exchange between tasks adds anything beyond it is not separated here. What one model gives
+for certain is operational. & B6\\
+``What does one model instead of two cost?'' &
+4.2 M vs 1.9 M parameters (AL), 5.2 M vs 2.8 M (CA), against the two dedicated models combined. & B5\\
+``Does the gain grow with the number of regions?'' &
+No. California has more regions than Texas and a smaller gain. An observation, not a law. & B8\\
+``And the confidence intervals?'' & The twelve cells with 90\% intervals. & B10\\
+``Why census tracts and not a grid?'' &
+A grid cell is the usual target; we use official neighborhood-scale units, 520 to 8,501 per dataset. & B1\\
+``How far off are the misses, in kilometers?'' \emph{(rehearse: it comes as a friendly question)} &
+``Not measured. It needs per-visit predictions the evaluation path does not keep. It is the first
+thing we would measure for a service.'' \textbf{Never give a distance.} & none\\
+``Latency? Energy? Can it run on the edge?'' &
+``About five million parameters and a window of nine visits per query. We did not measure latency or
+energy.'' & none\\
+``You split by user, not by time. Drift? Retraining?'' &
+``The split is by user and not by time, so the evaluation does not measure drift or the effect of
+sporadic events.'' The upside: every number is on unseen users. & none\\
+``Gowalla is from 2009--2011.'' &
+Istanbul comes from Massive-STEPS, a recent collection, and Gowalla is the standard benchmark of this
+line. What matters is the pattern that repeats across continents and periods. & none\\
+``Privacy: the representation was trained on everyone.'' &
+Server side, on the operator's own logs; no privacy mechanism is claimed. Limit 1 measures the effect:
+rebuilding it with training users only moved the dedicated models by at most 0.17 macro-F1 and 0.13
+Acc@10. & S10\\
+``Only four runs?'' &
+Each seed is a full five-fold cross-validation: twenty trained models per configuration. The paired
+difference varies 0.02 to 0.16 points across seeds. & S6\\
+``Who would consume this?'' &
+Name the consumer: load and demand anticipation at neighborhood level, caching, capacity planning, by
+an operator or a city service. & S9\\
+\bottomrule
+\end{xltabular}
+
+\section{Never say}
+\begin{itemize}
+  \item ``beats'' or ``wins''. The verb is \textbf{outperforms}.
+  \item ``ties'', ``matches'', ``no difference'' for the four region cells. They are deficits inside a
+        registered margin.
+  \item Any distance in kilometers.
+  \item Handover or cell-level gains as a claim. The tract is a neighborhood, not a radio cell.
+  \item ``Both our models by at least four points''. The margins on S8 belong to the joint model.
+  \item ``The Markov floor beats the external systems''. At its best epoch HMT-GRN is above the floor
+        everywhere.
+  \item ``The gain comes from sharing''. The design does not separate size from sharing.
+  \item Any number read from the printed paper where the deck shows a different one. Use the slide.
+\end{itemize}
+
+\section{On the day}
+\begin{itemize}
+  \item 8:30 in Paris is 4:30 in Brasília (France leaves summer time on 25 Oct).
+  \item Arrive before the 8:15 opening and test the projector with the PDF.
+  \item Carry the PDF on a USB stick and in the cloud. The deck is 16:9.
+  \item The program publishes no room or chair. Introduce yourself to the chair before the session.
+  \item Leave slide 12 (code, data, funders) on screen during questions.
+\end{itemize}
+
+\end{document}
