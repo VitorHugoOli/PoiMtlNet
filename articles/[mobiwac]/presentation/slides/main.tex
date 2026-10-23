@@ -1,21 +1,26 @@
 % MobiWac 2026 talk -- Paris, Monday 2026-10-26, 8:30, Session 1 (first talk of the symposium).
-% 30 min slot INCLUDING Q&A. Main track follows ../PLANO_APRESENTACAO.md §4 **v2** (12 slides,
-% ~14:50, commit 138f97a9); backup = §5 (B1-B10).
+% 30 min slot INCLUDING Q&A.
 %
-% OWNERSHIP (one owner per file, the rule from the defense):
-%   ../PLANO_APRESENTACAO.md  -> session `mobiwac` (content: what goes on each slide, and the talk)
-%   this file                 -> session `mobiwac-ppt` (the only hand that edits the .tex)
-% Change the plan first, then propagate here. Locate frames by title, never by line number.
+% v4 (2026-10-23): restructured after the author's 20-point review, a Fable advisor (two rounds) and an
+% adversarial claim check (workflow wf_367bbbac-24c). The author adopted every recommendation:
+% S2b "Two models, or one?" carries the printed research question; "How it was measured" moves before
+% the results; check-in/POI/embedding/MTL defined in one sentence each; short "(Author, Year)" cites on
+% screen (all in the paper's references.bib) + backup B11 References; four limits kept, reframed;
+% the California capacity control is NEVER on a slide (Q&A only, if pressed).
+% Track: S1 title · S2 day + two questions · S2b two models or one · S3 Check2HGI · S4 measured ·
+% S5 Result 1 · S6 the joint model · S7 verdict · S8 published systems · S9 service · S10 cost+limits ·
+% S11 conclusion · S12 thanks. Backups B1-B11. Speaker cards: ../speaker_notes/speaker_notes.tex.
 %
-% NUMBERS: every number on screen comes from ../../CAMERA_READY.md §3 (v18, joint-best) or from the
-% camera-ready text in ../../src/. The defense deck is NOT a source. ⛔ PLANO §2.2 lists the v17
-% values that must never appear here (incl. the km near-miss metric).
+% OWNERSHIP: session `mobiwac-ppt` is the only hand that edits this .tex. The plan
+% (../PLANO_APRESENTACAO.md, owner session ended) is v3.1 and is now OLDER than this deck; the
+% speaker cards are the current talk.
 %
-% BUILD: `make all` (xelatex x3 + bibtex). NEVER pdflatex -- the title page renders blank.
-% Style law inherited from articles/dissertacao/presentation/{HANDOFF,BOAS_PRATICAS_SLIDES}.md:
-% no \scriptsize for content, a frame body never opens with "{" (the `\vspace{0pt}` guards),
-% canary + render after each build. Em-dash only as label separator / subtitle (HANDOFF §4f).
-% American English (paper GLOSSARY): "neighborhood", not "neighbourhood".
+% NUMBERS: the dissertation's corrected Ch.5 values (author decision 2026-10-03), each checked against
+% its result file; see the CORRECTED comments per slide. Never: km distances, "first", "beats",
+% ties/matches for the four region deficits, the joint model's margins applied to the dedicated one.
+%
+% BUILD: `make all` (xelatex x3). NEVER pdflatex. A frame body never opens with "{" (the guards).
+% Em-dash only as label separator / subtitle. American English.
 
 \documentclass{beamer}
 \usepackage[net,green]{nesped}
@@ -33,14 +38,18 @@
 
 \setlength{\columnsep}{6mm}
 
-% Verdict cell colors (S7, B10): green = outperforms the dedicated model; grey = inside the bound.
+% Verdict marks: green = outperforms the dedicated model (Holm-corrected). The four region deficits
+% are printed in BLACK (grey reads as "tie", which the house rule forbids); grey only for the category
+% differences that fail superiority.
 \newcommand{\win}[1]{\textbf{\color{primaryshade}#1}}
 \newcommand{\flatc}[1]{{\color{black!55}#1}}
+% Short on-screen citation, always a work in the paper's references.bib (listed in full on B11).
+\newcommand{\scite}[1]{{\color{black!60}\footnotesize(#1)}}
 
 \begin{document}
 
 % ============================================================
-% S1 · Title (PLANO v2 §4 S1, 20 s)
+% S1 · Title (20 s)
 % ============================================================
 \titleframe{
     \titlelogo{img/logo-nesped.png}
@@ -51,20 +60,17 @@
 \section{Question}
 % ============================================================
 
-% S2 · One person's day, and the question (PLANO v2 §4 S2, 130 s). The script is in the plan,
-% nearly word for word -- it is NOT duplicated here (the plan owns the talk).
-% The figure is drawn here (no plate existed). It is SCHEMATIC: the tract mesh is a jittered
-% lattice with a fixed seed, not a real map, and the dots are not a real user.
-% ⚠ "Region" is DEFINED on this slide (Fable F3). ⚠ Handover is an ANALOGY of scale, never a
-% claim (Fable F2; src/sections/04_method.tex, "a census tract is a neighborhood, not a radio cell").
-\begin{frame}{One person's day, and the question}
+% S2 · One person's day, and two questions (90 s). The figure is SCHEMATIC: a jittered lattice with a
+% fixed seed, not a real map, and the dots are not a real user. Defines check-in / POI (point 7),
+% the two targets as a CHOICE with the paper's uses (points 2-3), region incl. mahalle (verify fix).
+% Handover is spoken as an explicit analogy of scale with (Vielhaus 2022); the footer only fences it.
+\begin{frame}{One person's day, and two questions}
     \vspace{0pt}% guard
     \centering
-    \begin{tikzpicture}[x=1mm,y=1mm,
+    \begin{tikzpicture}[x=1mm,y=0.76mm,
             ci/.style={circle,fill=secondary,inner sep=0pt,minimum size=2.1mm},
             hop/.style={-{Stealth[length=1.6mm]},secondary,line width=0.6pt},
             lab/.style={font=\footnotesize\itshape,text=black!70}]
-        % --- the tract mesh (schematic): jittered lattice, fixed seed ---
         \pgfmathsetseed{11}
         \foreach \i in {0,...,12}{
             \foreach \j in {0,...,4}{
@@ -76,7 +82,6 @@
         \begin{scope}
             \clip[rounded corners=4mm] (-1,-1) rectangle (109,35);
             \fill[black!3] (-1,-1) rectangle (109,35);
-            % the unknown next tract
             \fill[alert!18] (m-10-2) -- (m-11-2) -- (m-11-3) -- (m-10-3) -- cycle;
             \foreach \i in {0,...,11}{
                 \pgfmathtruncatemacro{\ni}{\i+1}
@@ -92,7 +97,6 @@
             }
         \end{scope}
         \draw[black!35,rounded corners=4mm,line width=0.5pt] (-1,-1) rectangle (109,35);
-        % --- nine check-ins ---
         \node[ci] (v1) at (8,8)   {};
         \node[ci] (v2) at (20,5)  {};
         \node[ci] (v3) at (31,12) {};
@@ -109,60 +113,122 @@
         \node[lab,below=0.6mm] at (v2) {gym};
         \node[lab,right=0.6mm] at (v3) {office};
         \node[lab,above=0.6mm] at (v5) {lunch};
-        % --- the tenth: the question ---
         \coordinate (qc) at ($(m-10-2)!0.5!(m-11-3)$);
         \node[font=\Large\bfseries,text=alert] (q) at (qc) {?};
         \draw[-{Stealth[length=1.6mm]},alert,line width=0.8pt,dashed] (v9) -- (q);
     \end{tikzpicture}
 
-    \vspace{1.5mm}
+    \vspace{1mm}
     \begin{columns}[T,onlytextwidth]
         \begin{column}{0.465\textwidth}
             \begin{block}{What kind of place?}
                 \footnotesize \textbf{Next category}: one of 7 types, such as food, shopping,
-                nightlife.
+                nightlife. $\to$ \emph{what the user will want}
             \end{block}
         \end{column}
         \hfill
         \begin{column}{0.465\textwidth}
             \begin{block}{Which neighborhood?}
-                \footnotesize \textbf{Next region}: its census tract, 520 to 8,501 per dataset
-                (Istanbul: \emph{mahalle}).
+                \footnotesize \textbf{Next region}: its census tract (Istanbul: \emph{mahalle}),
+                520 to 8,501. $\to$ \emph{where to prepare}
             \end{block}
         \end{column}
     \end{columns}
 
     \vspace{0.5mm}
-    {\footnotesize A tract is a neighborhood, \alert{not a radio cell}: we claim nothing about
+    {\footnotesize\raggedright
+    \textbf{Check-in}: a visit shared on a location-based social network such as Gowalla: a place
+    (a \emph{point of interest}, POI) and a time \scite{Cho 2011}. Uses: caching, capacity, demand
+    anticipation \scite{Bastug 2014; Moura 2025}. A tract is not a radio cell: we claim nothing about
     cells or handover.\par}
+\end{frame}
+
+% S2b · Two models, or one? (90 s) -- NEW. The printed research question (point 1), the MTL appeal
+% and risk (point 8: never "known to fail", never "one cost"), the literature gap (point 6: never
+% "first", never "few MTL models"; scoped exactly as 02_related "fine-grained region as an end target
+% of equal standing"), and the short answer at minute 2 (point 9).
+\begin{frame}{Two models, or one?}
+    \vspace{0pt}% guard
+    \begin{itemize}\setlength{\itemsep}{1.2ex}
+        \item \textbf{Two dedicated models}: one per question; two things to train, version and serve.
+        \item \textbf{One joint model}: one artifact to deploy, and the tasks might help each other.
+              \alert{But shared parameters can settle on a compromise good for neither task}
+              \scite{Caruana 1997}.
+    \end{itemize}
+
+    \smallskip
+    {\footnotesize Multi-task models in this field use category and region as helpers for
+    next-place prediction \scite{MCMG, Sun 2024; HMT-GRN, Lim 2022}. To our knowledge, fine-grained
+    region as an end target of equal standing is underexplored.\par}
+
+    \smallskip
+    \begin{alertblock}{The question}
+        \centering
+        Can one model predict both the category and the region of a user's next visit,
+        and what does it cost?\par
+        \smallskip{\footnotesize\textbf{Short answer: yes, at a measured price.}}
+    \end{alertblock}
 \end{frame}
 
 % ============================================================
 \section{Representation}
 % ============================================================
 
-% S3 · Check2HGI (PLANO v2 §4 S3, 100 s) -- the defense's two frames fused (plate + "What each
-% visit contributes"). ⚠ Keep the forward-only clause: limit 3 of the paper and the B4 anchor.
+% S3 · Check2HGI (100 s). Hook first (points 11): a model needs a vector per input; DGI/HGI give one
+% per place. Both readings of the hierarchy (point 10): the check-in is the finest level, and its
+% vectors are pooled up into place, region, city. The caption says which vector the model reads.
 \begin{frame}{Check2HGI: a fourth level below the place}\label{fr:visit-past}
     \vspace{0pt}% guard
+    {\footnotesize Place embeddings: one vector per place, DGI \scite{Veličković 2019}, HGI
+    \scite{Huang 2023}. Two visits to one café look identical.\par}
     \vfill
     \noindent\makebox[\textwidth]{\includegraphics{c2h_deep}}
     \vfill
     {\footnotesize
     \leftskip=1.2em \parindent=-1.2em
     \textcolor{primary}{$\blacktriangleright$}~\textbf{Each visit carries} its place's category, the
-    hour and day of week, and four elapsed-time values $\to$ one \textbf{64-d} vector per visit.\par
+    hour and day of week, and four elapsed-time values $\to$ one \textbf{64-d} vector per visit,
+    \textbf{the vector our model reads}; pooled per place, it feeds the levels above.\par
     \smallskip
-    \textcolor{alert}{$\blacktriangleright$}~\textbf{Built from the past alone}: edges between
-    consecutive visits run forward in time only, and the graph never sees the next category or
-    region.\par}
+    \textcolor{alert}{$\blacktriangleright$}~Trained \textbf{without the task labels}, and
+    \textbf{built from the past alone}: edges between consecutive visits run forward in time
+    only.\par}
     \leftskip=0pt \parindent=0pt
 \end{frame}
 
-% S4 · Result 1 (PLANO v2 §4 S4, 115 s) -- table reused from the defense deck (cell-by-cell vs
-% CAMERA_READY §3.3). CORRECTED 2026-10-03 (author: the deck shows the corrected numbers): Istanbul
-% place cell is the PAIRED re-run, 32.54 / +2.81 (docs/results/closing_data/v18/istanbul_pair/), not the
-% published unpaired 29.07 / +6.29. Dissertation B.5 rows 22-28. The feature-concatenation control is SPOKEN here (plan) and has its own B9.
+% ============================================================
+\section{Protocol}
+% ============================================================
+
+% S4 · How it was measured (80 s) -- moved BEFORE the results (D5) so every metric is defined before a
+% table uses it. Scale anchors: Ch.5 06_results.tex "For scale: always predicting the most common
+% category reaches between 5.7 and 7.3 macro-F1 ... a random region top-ten guess is right at most
+% about two percent". Split row worded so it does not contradict limit 1 (verify fix).
+\begin{frame}{How it was measured}
+    \vspace{0pt}% guard
+    \small
+    \setlength{\tabcolsep}{6pt}
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabular}{@{}p{0.19\textwidth}p{0.76\textwidth}@{}}
+        \toprule
+        \textbf{Regions}  & census tracts (Istanbul: \emph{mahalle}), \textbf{520} to \textbf{8,501} \\
+        \textbf{Split}    & by user: the prediction models never train on a test user's visits \\
+        \textbf{Scored}   & category: \textbf{macro-F1} (always-majority: 5.7 to 7.3) \\
+                          & region: \textbf{Acc@10}, is the true region in the top ten?
+                            (random: at most about 2\%) \\
+        \textbf{Repeated} & \textbf{20 trained models} per configuration (4 seeds $\times$ 5 folds) \\
+        \textbf{Decided}  & for region, ``not worse'' $=$ within \textbf{2 Acc@10 points},
+                            \alert{written down before any result was seen} \scite{TOST, Lakens 2017} \\
+        \bottomrule
+    \end{tabular}
+\end{frame}
+
+% ============================================================
+\section{Results}
+% ============================================================
+
+% S5 · Result 1 (100 s). CORRECTED 2026-10-03: Istanbul place cell = paired re-run 32.54 / +2.81
+% (docs/results/closing_data/v18/istanbul_pair/). The concatenation control is SPOKEN here (B9).
 \begin{frame}{Result 1: the representation, at every dataset}
     \framesubtitle{Next category, single-task model, seed 0 --- only the input changes}
     \begin{center}
@@ -170,14 +236,14 @@
         \setlength{\tabcolsep}{9pt}
         \begin{tabular}{@{}lrrr@{}}
             \toprule
-            \textbf{Dataset} & \textbf{Check-in level} & \textbf{Place level} & \textbf{$\Delta$} \\
+            \textbf{Dataset} & \textbf{Check-in level} & \textbf{Place level (HGI)} & \textbf{$\Delta$} \\
             \midrule
-            AL       & \textbf{30.77} $\pm$1.16 & 29.15 $\pm$0.84 & $+1.62$ \\
-            AZ       & \textbf{34.51} $\pm$1.15 & 31.93 $\pm$1.08 & $+2.58$ \\
-            Istanbul & \textbf{35.35} $\pm$0.89 & 32.54 $\pm$1.03 & $+2.81$ \\
-            FL       & \textbf{37.36} $\pm$0.42 & 37.13 $\pm$0.41 & $+0.23$ \\
-            CA       & \textbf{35.62} $\pm$0.47 & 34.74 $\pm$0.41 & $+0.88$ \\
-            TX       & \textbf{36.32} $\pm$0.51 & 35.33 $\pm$0.48 & $+0.99$ \\
+            Alabama    & \textbf{30.77} $\pm$1.16 & 29.15 $\pm$0.84 & $+1.62$ \\
+            Arizona    & \textbf{34.51} $\pm$1.15 & 31.93 $\pm$1.08 & $+2.58$ \\
+            Istanbul   & \textbf{35.35} $\pm$0.89 & 32.54 $\pm$1.03 & $+2.81$ \\
+            Florida    & \textbf{37.36} $\pm$0.42 & 37.13 $\pm$0.41 & $+0.23$ \\
+            California & \textbf{35.62} $\pm$0.47 & 34.74 $\pm$0.41 & $+0.88$ \\
+            Texas      & \textbf{36.32} $\pm$0.51 & 35.33 $\pm$0.48 & $+0.99$ \\
             \bottomrule
         \end{tabular}\par
         \smallskip
@@ -189,175 +255,145 @@
     largest. A paired test separates the two at five of six; \alert{not at Florida}.\par}
 \end{frame}
 
-% ============================================================
-\section{Model}
-% ============================================================
-
-% S5 · Why sharing is not free, and the model (PLANO v2.2 §4 S5, 75 s; author 2026-10-01 via
-% `mobiwac`). Reading order INVERTED: first the risk, then the figure as the answer to it.
-% ⚠ "multi-task learning" is never a concept to define here (plan rule): the risk is said in the
-% room's own words. No block counts, no widths.
-% ⚠ The figure says "semantic/spatial stream" (it is Fig. 2 of the paper); say it once aloud.
-\begin{frame}{Why sharing is not free, and the model}
+% S6 · The joint model (95 s). MTL defined in one sentence (dissertation Ch.5 01_introduction:
+% "one model does several jobs at once by sharing most of its parts"); the trunk explained as
+% exchange (point 13). The verify pass removed "the private path is the architecture admitting the
+% risk" (interpretation, not in the text); the replacement follows 08_conclusion "keeps a private
+% spatial path where the tasks differ".
+\begin{frame}{One model for two tasks}
     \vspace{0pt}% guard
     \begin{columns}[c,onlytextwidth]
-        \begin{column}{0.60\textwidth}
+        \begin{column}{0.58\textwidth}
             \centering
             \includegraphics[width=\linewidth]{fig2_model_slides}
         \end{column}
         \hfill
-        \begin{column}{0.37\textwidth}
-            \small
-            \textbf{\color{alertshade}The risk}\par\smallskip
-            Parameters in the middle serve \textbf{both jobs at once}, and can settle on a
-            compromise \alert{worse for each}.\par\vspace{4mm}
-            \textbf{\color{primaryshade}The answer}\par\smallskip
-            A \textbf{shared trunk}, where each task reads the other's context; and a
-            \textbf{private spatial path} for region that category never touches.\par\vspace{4mm}
-            \alert{\textbf{The private path is the architecture admitting the risk.}}\par
+        \begin{column}{0.39\textwidth}
+            \footnotesize
+            \textbf{Multi-task learning}: one model does several jobs at once by sharing most of
+            its parts.\par\vspace{3mm}
+            \textbf{\color{alertshade}The risk}: what the tasks share can settle on a compromise
+            worse for each.\par\vspace{3mm}
+            \textbf{\color{primaryshade}Here}: each task has its own input and encoder. In the
+            shared trunk, attention lets each task read the other's features while keeping its
+            own weights: \textbf{they share by exchanging information}.\par\vspace{3mm}
+            \alert{\textbf{A private spatial path keeps what is purely spatial out of the
+            exchange.}}\par
         \end{column}
     \end{columns}
 \end{frame}
 
-% S6 · How it was measured (PLANO v2 §4 S6, 90 s) -- the defense's four protocol frames in one.
-% ⚠ The sentence that is never cut: the margin written before any result was seen.
-% The "Scored" row is NOT in the plan's four lines: added so that Acc@10 is defined before S7
-% reads it (flagged to `mobiwac`, 2026-09-30).
-\begin{frame}{How it was measured}
-    \vspace{0pt}% guard
-    \small
-    \setlength{\tabcolsep}{6pt}
-    \renewcommand{\arraystretch}{1.5}
-    \begin{tabular}{@{}p{0.2\textwidth}p{0.74\textwidth}@{}}
-        \toprule
-        \textbf{Regions}  & census tracts, \textbf{520} (Istanbul) to \textbf{8,501} (California) \\
-        \textbf{Split}    & by user: the visits of a test user \textbf{never appear in training} \\
-        \textbf{Scored}   & category: \textbf{macro-F1} $\cdot$ region: \textbf{Acc@10}, is the true
-                            region in the top ten? \\
-        \textbf{Repeated} & \textbf{20 trained models} per configuration (4 seeds $\times$ 5 folds) \\
-        \textbf{Decided}  & what counts as ``not worse'': \textbf{2 points},
-                            \alert{written down before any result was seen} \\
-        \bottomrule
-    \end{tabular}
-\end{frame}
-
-% ============================================================
-\section{Results}
-% ============================================================
-
-% S7 · One model, two answers: what it costs (PLANO v2 §4 S7, 100 s).
-% Only Dedicated vs Joint, no CI on screen (CIs -> B10). Values: CAMERA_READY §3.1/§3.2.
-% ⚠ The Δ column is the PAIRED difference (mean over the four seeds), the paper's own number. It is
-% NOT always the difference of the two rounded columns (AL reg -0.87 vs 70.12-69.24; FL, TX, AL cat
-% likewise, CAMERA_READY §7, item 6). The footnote says so on screen, because subtracting the columns is
-% the first thing a careful listener does.
-% Spoken with the numbers (plan): the joint model is also the larger one; the pairing of the two
-% wins with the two largest region counts is an observation, not a law.
+% S7 · One model, two answers: the price (100 s). Values: CAMERA_READY §3.1/§3.2 (unchanged by the
+% corrections). Δ = PAIRED mean over the four seeds (can differ from the rounded columns, CAMERA_READY
+% §7 item 6). Bold = the larger of the two (both on ties). Four region deficits in BLACK.
 \begin{frame}{One model, two answers: the price}
     \vspace{0pt}% guard
     \begin{center}
     \small
-    \setlength{\tabcolsep}{5.5pt}
-    \begin{tabular}{@{}l rrr @{\hspace{1.6em}} rrr@{}}
+    \setlength{\tabcolsep}{4.5pt}
+    \begin{tabular}{@{}l rrr @{\hspace{1.4em}} rrr@{}}
         \toprule
         & \multicolumn{3}{c}{\textbf{Next region} (Acc@10)}
         & \multicolumn{3}{c}{\textbf{Next category} (macro-F1)} \\
         \cmidrule(lr){2-4}\cmidrule(lr){5-7}
         & Ded. & Joint & $\Delta$ & Ded. & Joint & $\Delta$ \\
         \midrule
-        Alabama    & 70.12 & 69.24 & \flatc{$-0.87$} & 30.77 & 30.59 & \flatc{$-0.19$} \\
-        Arizona    & 59.48 & 59.04 & \flatc{$-0.44$} & 34.57 & 34.57 & \flatc{$-0.00$} \\
-        Istanbul   & 75.16 & 75.08 & \flatc{$-0.08$} & 35.34 & 35.42 & \flatc{$+0.08$} \\
-        Florida    & 76.69 & 76.54 & \flatc{$-0.16$} & 37.35 & 37.55 & \win{$+0.19$} \\
-        California & 63.48 & 64.54 & \win{$+1.06$}  & 35.63 & 35.63 & \flatc{$-0.00$} \\
-        Texas      & 64.94 & 66.15 & \win{$+1.21$}  & 36.33 & 36.19 & \flatc{$-0.13$} \\
+        Alabama    & \textbf{70.12} & 69.24 & $-0.87$ & \textbf{30.77} & 30.59 & \flatc{$-0.19$} \\
+        Arizona    & \textbf{59.48} & 59.04 & $-0.44$ & \textbf{34.57} & \textbf{34.57} & \flatc{$-0.00$} \\
+        Istanbul   & \textbf{75.16} & 75.08 & $-0.08$ & 35.34 & \textbf{35.42} & \flatc{$+0.08$} \\
+        Florida    & \textbf{76.69} & 76.54 & $-0.16$ & 37.35 & \textbf{37.55} & \win{$+0.19$} \\
+        California & 63.48 & \textbf{64.54} & \win{$+1.06$}  & \textbf{35.63} & \textbf{35.63} & \flatc{$-0.00$} \\
+        Texas      & 64.94 & \textbf{66.15} & \win{$+1.21$}  & \textbf{36.33} & 36.19 & \flatc{$-0.13$} \\
         \bottomrule
     \end{tabular}
     \end{center}
 
     {\footnotesize
-    \win{Green}: outperforms the dedicated model. \textbf{Region}: the other four are
-    \alert{deficits, not ties}, all inside the 2-point margin. \textbf{Category}: within a fifth of a
-    point. $\Delta$ is the paired mean over the four seeds, so it can differ from the rounded
-    columns in the second decimal.\par}
+    Ded.: two dedicated models; Joint: one model. \win{Green}: outperforms (Holm-corrected). Bold:
+    the larger. \textbf{Region}: the other four are \alert{deficits, not ties}, inside the 2-point
+    margin. \textbf{Category}: every interval within half a point; only Florida survives correction.
+    $\Delta$: paired mean over four seeds (can differ from the rounded columns).\par}
 
-    \vspace{1.5mm}
+    \vspace{1mm}
     \begin{block}{}
         \centering\small
         \textbf{The trade is a measured one and not a free substitution.}
     \end{block}
 \end{frame}
 
-% S8 · Against published systems (PLANO v2 §4 S8, 45 s) -- demoted and reduced (Fable F1).
-% CORRECTED 2026-10-03: POI-RGNN FL/CA/TX = user-disjoint reimplementation (docs/results/baselines/
-% faithful_poi_rgnn_*_5f_35ep_*.json), joint category margin 4.11 (TX), not 3.06.
-% CORRECTED 2026-10-04: HMT-GRN column = best validation epoch, seed 0, 5 folds (docs/results/
-% closing_data/v18/g5_hmt_best_epoch/, commit 82ebfe5f), not the paper's fixed epoch 50. Region margin
-% 3.55 unchanged (FL vs STAN); at CA the strongest reference becomes HMT-GRN (+4.95). Footnote wording
-% from PLANO v3.1 (efb94200).
-% CORRECTED 2026-10-10: STAN CA/TX now 5/5 folds, 58.61 / 61.75 (docs/results/baselines/
-% stan_rerun_2026-10-10/, commit b46477a6); the partial-folds mark is gone. Region margin 3.55 unchanged.
-% ⚠ "At least 4.11 / 3.55" are the JOINT model's margins. The DEDICATED model is also above every
-% external, with its own smaller margins (category: FL 37.35 - 33.35 = 4.00 after the correction).
-% So the screen never applies one model's margin to the other (flagged to `mobiwac`, 2026-09-30).
+% S8 · Against published systems (70 s). CORRECTED: POI-RGNN FL/CA/TX = user-disjoint
+% reimplementation (margin 4.11, TX); HMT-GRN = best validation epoch on our windows and folds, one
+% seed (e32c6507, 82ebfe5f); STAN CA/TX 5/5 folds (b46477a6). Bold = largest in the row (per block),
+% underline = second, both bold on a tie: the paper's own convention (tbl3 caption). No external is
+% ever marked. Margins 4.11 / 3.55 are the JOINT model's only (never "both by at least four").
 \begin{frame}{And against published systems}
     \vspace{0pt}% guard
-    {\small\setlength{\tabcolsep}{2.6pt}
+    {\footnotesize\setlength{\tabcolsep}{2.4pt}
     \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.38\textwidth}
-        \centering \textbf{Next category} {\footnotesize (macro-F1)}\\[1mm]
+    \begin{column}{0.37\textwidth}
+        \centering \textbf{Next category} (macro-F1)\\[1mm]
         \begin{tabular}{@{}lrrr@{}}
             \toprule & POI-RGNN & Ded. & Joint \\ \midrule
-            AL  & 23.80 & 30.77 & 30.59 \\
-            AZ  & 27.64 & 34.57 & 34.57 \\
-            IST & 30.12 & 35.34 & 35.42 \\
-            FL  & 33.35 & 37.35 & 37.55 \\
-            CA  & 30.71 & 35.63 & 35.63 \\
-            TX  & 32.08 & 36.33 & 36.19 \\
+            AL  & 23.80 & \textbf{30.77} & \underline{30.59} \\
+            AZ  & 27.64 & \textbf{34.57} & \textbf{34.57} \\
+            IST & 30.12 & \underline{35.34} & \textbf{35.42} \\
+            FL  & 33.35 & \underline{37.35} & \textbf{37.55} \\
+            CA  & 30.71 & \textbf{35.63} & \textbf{35.63} \\
+            TX  & 32.08 & \textbf{36.33} & \underline{36.19} \\
             \bottomrule
         \end{tabular}
     \end{column}
-    \begin{column}{0.60\textwidth}
-        \centering \textbf{Next region} {\footnotesize (Acc@10)}\\[1mm]
+    \begin{column}{0.61\textwidth}
+        \centering \textbf{Next region} (Acc@10)\\[1mm]
         \begin{tabular}{@{}lrrrrr@{}}
             \toprule & HMT-GRN & ReHDM & STAN & Ded. & Joint \\ \midrule
-            AL  & 63.19 & 65.38 & 60.72 & 70.12 & 69.24 \\
-            AZ  & 52.11 & 53.00 & 49.86 & 59.48 & 59.04 \\
-            IST & 68.06 & 69.33 & 61.86 & 75.16 & 75.08 \\
-            FL  & 72.76 & 64.49 & 72.99 & 76.69 & 76.54 \\
-            CA  & 59.59 & 50.26\rlap{$^\ddagger$} & 58.61 & 63.48 & 64.54 \\
-            TX  & 61.39 & 48.81\rlap{$^\ddagger$} & 61.75 & 64.94 & 66.15 \\
+            AL  & 63.19 & 65.38 & 60.72 & \textbf{70.12} & \underline{69.24} \\
+            AZ  & 52.11 & 53.00 & 49.86 & \textbf{59.48} & \underline{59.04} \\
+            IST & 68.06 & 69.33 & 61.86 & \textbf{75.16} & \underline{75.08} \\
+            FL  & 72.76 & 64.49 & 72.99 & \textbf{76.69} & \underline{76.54} \\
+            CA  & 59.59 & 50.26 & 58.61 & \underline{63.48} & \textbf{64.54} \\
+            TX  & 61.39 & 48.81 & 61.75 & \underline{64.94} & \textbf{66.15} \\
             \bottomrule
         \end{tabular}
     \end{column}
     \end{columns}\par}
 
-    \vfill
+    \vspace{1mm}
     {\footnotesize
     \textbf{Both our models are above every system we compared against}; the joint model by at least
-    \textbf{4.11} (category) and \textbf{3.55} (region). That margin belongs mostly to the
-    representation, so \alert{it is not evidence for sharing}.\par
-    \smallskip
-    HMT-GRN: on our windows and folds, read at its best validation epoch, the same rule as our models.
-    $^\ddagger$ReHDM: its own protocol, single seed at CA/TX.\par}
+    \textbf{4.11} (category) and \textbf{3.55} (region). That margin includes the representation's
+    advantage, so \alert{it is not evidence for sharing}. Bold: best in row; underline: second.\par}
+    \vspace{0.5mm}
+    {\footnotesize\color{black!75}
+    \textbf{POI-RGNN} \scite{Capanema 2023}: next category, re-implemented.
+    \textbf{HMT-GRN} \scite{Lim 2022}: multi-task next place + regions, next-place parts removed;
+    our windows and folds, best epoch; not the full published system.
+    \textbf{STAN} \scite{Luo 2021}: re-implemented, its own representations and splits, ranks
+    regions. \textbf{ReHDM} \scite{Li 2025}: its own split.\par}
 \end{frame}
 
-% S9 · What a service would receive (PLANO v2 §4 S9, 60 s) -- NEW (DA-4 recommendation (a), v2).
-% Horizon: src/sections/05_setup.tex (Windows). Shortlist + caveat: 07_discussion.tex.
-% ⛔ The km near-miss metric never enters (PLANO §2.2). The shortlist reading is its substitute.
+% ============================================================
+\section{Use}
+% ============================================================
+
+% S9 · What a service would receive (60 s). Three LABELLED lines (point 17). Horizon: 05_setup
+% (0.4 h on screen; say "under half an hour" -- the median is 0.4375 h, about 26 min, NOT 24).
+% Shortlist = the joint model's Acc@10 of S7 read as a hit rate (07_discussion). Floor: 51 to 72,
+% joint +4.1 to +10.0 (printed range only). ⛔ No km.
 \begin{frame}{What a service would receive}
     \vspace{0pt}% guard
-    \begin{itemize}\setlength{\itemsep}{2.4ex}
-        \item \textbf{Lead time} --- median gap from the last visit to the next: \textbf{0.4 h}
-              (Florida) to \textbf{5.5 h} (Istanbul); 5 to 27\% of the targets come more than
-              3 days later;
-        \item \textbf{Unseen users} --- every number is on users whose visits never appeared in
-              training;
-        \item \textbf{A shortlist} --- 10 regions out of \textbf{8,501} contain the true next one
-              \textbf{64.54\%} of the time (California); 10 of 6,553, \textbf{66.15\%} (Texas).
+    \begin{itemize}\setlength{\itemsep}{1.8ex}
+        \item \textbf{Time to act} --- half of the next visits come within \textbf{0.4 h} (Florida)
+              to \textbf{5.5 h} (Istanbul) of the previous one; 5 to 27\% come more than 3 days
+              later.
+        \item \textbf{A shortlist} --- ask the model for its ten most likely neighborhoods. In
+              California (8,501) the true one is among them \textbf{64.54\%} of the time; in Texas
+              (6,553), \textbf{66.15\%}. This is the Acc@10 of slide~7, read as a hit rate.
+        \item \textbf{For scale} --- a transition table with no learning reaches 51 to 72 Acc@10;
+              the joint model is 4 to 10 points above it everywhere.
     \end{itemize}
 
-    \bigskip
+    \medskip
     \begin{block}{}
         \centering\small
         We built and evaluated no such service: this is motivation, not a measured service result.
@@ -368,62 +404,75 @@
 \section{Wrap-up}
 % ============================================================
 
-% S10 · What it costs, and four limits (PLANO v2 §4 S10, 90 s) -- fused: the cost IS limit 4.
-% Paper rounding: 1.9 M (NOT the defense's 1.85 M) -- PLANO D-1.
-% CORRECTED 2026-10-20: limit 1 = dissertation e32c6507 (author, 10-06): the G1 rebuild on the delivered
-% protocol moved the dedicated models by at most 0.17 macro-F1 / 0.13 Acc@10 (was the old A4 0.33 / 0.29). The four limits are the PAPER's
-% (07_discussion.tex), not the defense's -- PLANO D-2.
+% S10 · What it costs, and four limits (95 s). Paper rounding 1.9 M (PLANO D-1); compute sentence
+% from 04_method ("a forward pass costs more compute"). Four limits = the paper's four (D15), limit 1
+% CORRECTED (e32c6507: 0.17 / 0.13, one seed, the datasets checked); limit 3 cost-first,
+% safeguard-second; limit 4 with the survival clause (D16). The California capacity control is
+% NEVER on a slide (author, 2026-10-23: Q&A only, if pressed).
 \begin{frame}{What it costs, and four limits}
     \vspace{0pt}% guard
-    \small
+    \footnotesize
     \begin{columns}[T,onlytextwidth]
-        \begin{column}{0.36\textwidth}
+        \begin{column}{0.35\textwidth}
             \textbf{\color{primaryshade}THE COST}\par\medskip
             Parameters, joint vs \textbf{the two dedicated models combined}:\par\medskip
             \begin{tabular}{@{}l@{\ \ }r@{\ vs\ }r@{}}
                 AL & 4.2 M & 1.9 M \\
                 CA & 5.2 M & 2.8 M
             \end{tabular}\par\medskip
-            What one model gives is \alert{operational}: one artifact to train, version and
-            deploy; one pass, two answers.
+            One pass costs \textbf{more} compute than the two small models together. The gain is
+            \alert{operational}: one artifact to train, version and deploy; two answers.
         \end{column}
         \hfill
-        \begin{column}{0.60\textwidth}
+        \begin{column}{0.61\textwidth}
             \textbf{\color{alertshade}FOUR LIMITS}\par\medskip
-            \begin{enumerate}\setlength{\itemsep}{1.4ex}
+            \begin{enumerate}\setlength{\itemsep}{1.1ex}
                 \item Representation trained \textbf{once over all users}; a per-fold rebuild
-                      moved the dedicated models by at most 0.17 macro-F1 and 0.13 Acc@10;
+                      moved the dedicated models by at most 0.17 macro-F1 and 0.13 Acc@10 (one
+                      seed, the datasets checked).
                 \item Epoch selection reads the scored fold: \textbf{absolute scores are
-                      optimistic}; joint vs dedicated is affected far less;
-                \item Each visit reads \textbf{only the visits before it}
-                      (slide~\ref{fr:visit-past});
-                \item The joint model is \textbf{larger}: its region result may come from
-                      \alert{size rather than sharing}.
+                      optimistic}; joint vs dedicated is affected far less.
+                \item Each visit's vector uses \textbf{only the visits before it}: no later
+                      context enters, which is also what keeps a vector from carrying its target
+                      (slide~\ref{fr:visit-past}).
+                \item The joint model is \textbf{larger}, so its region gains at Texas and
+                      California \alert{may come from size, not sharing}. The one-model result
+                      does not depend on which.
             \end{enumerate}
         \end{column}
     \end{columns}
 \end{frame}
 
-% S11 · Conclusion (PLANO v2 §4 S11, 60 s) -- the CONCLUSION's words (08_conclusion.tex), not the
-% abstract's "a cost bounded on both axes" (Fable F9).
+% S11 · Conclusion (70 s). Point 20, per Fable round 2: contributions in the dissertation's wording
+% (01_introduction "a check-in-level representation that extends hierarchical graph infomax from the
+% place to the individual visit"), "one model" not "unified", never "a new approach"; future work only
+% from the text (07_discussion: joint-model search at TX/CA; size vs sharing; size of a miss / a
+% service using the shortlist). Tagline: "from one model instead of two" -- NEVER "one forward pass
+% instead of two" (the joint pass costs more compute, 04_method).
 \begin{frame}{Conclusion}
     \vspace{0pt}% guard
-    \begin{itemize}\setlength{\itemsep}{2.6ex}
-        \item The evidence \textbf{does not attribute the outcome to sharing alone}: on category, the
-              representation moves the score more than the choice between one model and two;
-        \item \textbf{One saved model reads both answers}: above the dedicated model on region at
-              Texas and California, within the 2-point margin elsewhere;
-        \item These results \alert{do not mean that multi-task learning helps automatically}.
+    \small
+    \begin{itemize}\setlength{\itemsep}{1.3ex}
+        \item \textbf{Built}: a check-in-level representation that extends hierarchical graph
+              infomax from the place to the individual visit; and one model that answers both
+              questions.
+        \item \textbf{Measured}: on region, the joint model outperforms the dedicated model at Texas
+              and California and stays within the 2-point margin elsewhere (deficits, not ties); on
+              category, within half a point. A measured trade, not a free substitution.
+        \item \textbf{Not shown}: that sharing is the cause. On category the representation matters
+              more than one model versus two; the region gains may come from size.
+        \item \textbf{Next}: a joint-model search at Texas and California; separating size from
+              sharing; how far a miss lands, inside a service that uses the shortlist.
     \end{itemize}
 
-    \bigskip
+    \medskip
     \begin{alertblock}{}
         \centering\small
-        What a user will do next \textbf{and} where, in a single forward pass instead of two.
+        What a user will do next, and where, from one model instead of two.
     \end{alertblock}
 \end{frame}
 
-% S12 · Reproducibility and acknowledgments (PLANO v2 §4 S12, 30 s) -- stays up during Q&A.
+% S12 · Thank you (20 s) -- stays up during Q&A. The paper's link (printed in the proceedings).
 \begin{frame}{Thank you}
     \vspace{0pt}% guard
     \begin{center}
@@ -441,13 +490,13 @@
 \end{frame}
 
 % ============================================================
-% SÉRIE B -- backup for questions (PLANO v2 §5). Not on the main track; called by number.
-% ⛔ No v17->v18 disclosure slide, here or anywhere (CAMERA_READY §6 D1, closed by the author).
+% BACKUP B1-B11 -- not on the main track; called by number.
+% ⛔ No v17->v18 disclosure slide (CAMERA_READY §6 D1). ⛔ No capacity-control slide.
 % ============================================================
 \appendix
 \miniframesoff
 
-% B1 · "Why tracts and not a grid?" -- reduced: the definition moved to S2.
+% B1 · "Why tracts and not a grid?"
 \begin{frame}{B1 $\cdot$ Why census tracts}
     \vspace{0pt}% guard
     \begin{itemize}\setlength{\itemsep}{2ex}
@@ -468,23 +517,28 @@
     \end{center}
 \end{frame}
 
-% B2 · "Where do the 2 points come from? Chosen after looking?"
+% B2 · "Where do the 2 points come from? Chosen after looking?" Registered vs reported separated
+% (Ch.5 05_setup: the plan registered a paired Wilcoxon; at four seeds its exact one-sided p cannot
+% go below 0.0625, so a paired t carries the verdict; both tests are in the code release).
 \begin{frame}{B2 $\cdot$ The margin, and the tests}
     \vspace{0pt}% guard
-    \begin{itemize}\setlength{\itemsep}{2ex}
-        \item A written analysis plan, fixed \textbf{before any result was read}:
-              \textbf{superiority} for category, \textbf{non-inferiority} for region;
-        \item Region margin \textbf{$\delta = 2$ Acc@10 points}, fixed in advance; two one-sided
-              tests (TOST);
-        \item Paired $t$ on the four per-seed means, 90\% interval, \textbf{Holm} correction across
-              the six datasets, per task;
+    \small
+    \begin{itemize}\setlength{\itemsep}{1.4ex}
+        \item \textbf{Registered before any result was read}: superiority for category,
+              non-inferiority for region with a margin of \textbf{2 Acc@10 points}, paired Wilcoxon;
+        \item \textbf{Why 2}: a service that acts on which neighborhood will be busy would not behave
+              differently below it; the seed-to-seed sd of the paired difference is 0.02 to 0.16;
+        \item \textbf{Reported}: paired $t$ on the four per-seed means, 90\% interval, Holm across
+              the six datasets per task; at four seeds the exact Wilcoxon cannot go below 0.0625.
+              Both tests are in the code release;
         \item Category has \textbf{no registered equivalence margin}: a difference that fails
               superiority is \alert{unresolved}, never a match;
         \item The two region gains are \textbf{secondary results}, outside the registered plan.
     \end{itemize}
 \end{frame}
 
-% B3 · "Wouldn't a Markov chain do this?" -- say the narrowest margin before they compute it.
+% B3 · "Wouldn't a Markov chain do this?" Only OUR margin over the floor; never "the floor beats the
+% externals" (at its best epoch HMT-GRN is above the floor everywhere).
 \begin{frame}{B3 $\cdot$ The Markov floor}
     \vspace{0pt}% guard
     \begin{itemize}\setlength{\itemsep}{2.2ex}
@@ -496,7 +550,6 @@
 \end{frame}
 
 % B4 · "How do you know a visit's vector does not see the target?" -- published, limit 3.
-% DA-3 (pending): recommended (a) -- answer by the mechanism, no process history.
 \begin{frame}{B4 $\cdot$ Can a visit vector see its target?}
     \vspace{0pt}% guard
     \begin{itemize}\setlength{\itemsep}{2.2ex}
@@ -505,7 +558,8 @@
         \item The graph does \textbf{not pass information from a later visit back to an earlier
               one}, in training or at readout;
         \item That is what keeps a node from carrying a feature of the target it is used to predict;
-        \item The graph is trained without the next-category or next-region label.
+        \item The graph is trained without the task labels: it never sees the next category or the
+              next region.
     \end{itemize}
 \end{frame}
 
@@ -529,21 +583,25 @@
               one model and two};
         \item Whether the exchange between the tasks adds anything beyond the representation is
               \alert{not separated by the evidence here};
-        \item What one model gives for certain is operational: one artifact, one forward pass.
+        \item What one model gives for certain is operational: one artifact, two answers.
     \end{itemize}
 \end{frame}
 
-% B7 · "Why these external systems?"
+% B7 · "Why these external systems, and how were they run?"
 \begin{frame}{B7 $\cdot$ The external systems}
     \vspace{0pt}% guard
-    \begin{itemize}\setlength{\itemsep}{1.6ex}
-        \item \textbf{HMT-GRN} --- primary region comparison: our windows and folds, one seed, best epoch; its next-place
-              components removed;
-        \item \textbf{STAN} --- re-implemented with its own representations, output adapted to
-              regions; \alert{its own embeddings and splits}, seed 0;
-        \item \textbf{ReHDM} --- its own published chronological split; \alert{single seed at TX and
-              CA};
-        \item \textbf{POI-RGNN} --- next category, re-implemented, non-overlapping windows.
+    \small
+    \begin{itemize}\setlength{\itemsep}{1.4ex}
+        \item \textbf{HMT-GRN} \scite{Lim 2022} --- primary region comparison: our windows and folds,
+              one seed, best validation epoch; its multi-task structure kept, the graph components and
+              hierarchical beam search removed, a per-fold region-transition prior added (our own
+              reported models do not use it); not the complete published system;
+        \item \textbf{STAN} \scite{Luo 2021} --- re-implemented with \alert{its own representations
+              and splits} from the raw check-ins, output adapted to rank regions, seed 0;
+        \item \textbf{ReHDM} \scite{Li 2025} --- its own published chronological split;
+              \alert{single seed at TX and CA};
+        \item \textbf{POI-RGNN} \scite{Capanema 2023} --- next category, re-implemented,
+              non-overlapping windows.
     \end{itemize}
 \end{frame}
 
@@ -567,12 +625,12 @@
     \alert{An observation, not a law.}\par}
 \end{frame}
 
-% B9 · "Isn't this just the timestamp added to the place vector?" -- THE most dangerous question
-% (Fable F5). src/sections/06_results.tex, the feature-concatenation paragraph, quoted verbatim.
+% B9 · "Isn't this just the timestamp added to the place vector?" -- the most dangerous question.
+% CORRECTED 2026-10-03: control +1.73 / +1.70 / +1.02 (concat_control_q13).
 \begin{frame}{B9 $\cdot$ Is it just the raw features?}
     \vspace{0pt}% guard
     {\small Control: the place vector $+$ the same raw per-visit features (category one-hot, hour,
-    day of week), same single-task model.\par}
+    day of week), same single-task model. Run at three datasets.\par}
     \begin{center}
     \small
     \setlength{\tabcolsep}{9pt}
@@ -596,7 +654,7 @@
     \end{block}
 \end{frame}
 
-% B10 · "And the confidence intervals?" -- the 12-cell table with 90% CI that left S7.
+% B10 · "And the confidence intervals?" -- the 12 cells with 90% CI. Deficits in black.
 \begin{frame}{B10 $\cdot$ The intervals}
     \framesubtitle{Joint minus dedicated, 90\% interval of the paired difference}
     \begin{center}
@@ -623,7 +681,46 @@
     {\footnotesize
     \win{Green}: outperforms, Holm-corrected --- region at Texas ($p=0.00013$) and California
     ($p<10^{-4}$), 20 of 20 folds; category at Florida ($p=0.011$), 19 of 20.\par
-    Every region interval of the other four lies \textbf{entirely below zero}: deficits, not ties.\par}
+    Every region interval of the other four lies \textbf{entirely below zero}: deficits, not ties
+    (Istanbul only just).\par}
+\end{frame}
+
+% B11 · References -- every work cited on the slides, from the paper's references.bib.
+\begin{frame}{B11 $\cdot$ References}
+    \vspace{0pt}% guard
+    \scriptsize
+    \setlength{\parskip}{0.6ex}
+    \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+    Bastug, Bennis, Debbah. Living on the Edge: The Role of Proactive Caching in 5G Wireless
+    Networks. \emph{IEEE Commun. Mag.}, 2014.\par
+    Capanema et al. Combining recurrent and Graph Neural Networks to predict the next place's
+    category. \emph{Ad Hoc Netw.}, 2023.\par
+    Caruana. Multitask Learning. \emph{Mach. Learn.}, 1997.\par
+    Cho, Myers, Leskovec. Friendship and Mobility: User Movement in Location-Based Social Networks.
+    \emph{KDD}, 2011.\par
+    Huang et al. Learning Urban Region Representations with POIs and Hierarchical Graph Infomax.
+    \emph{ISPRS J. Photogramm. Remote Sens.}, 2023.\par
+    Lakens. Equivalence tests: A practical primer for t tests, correlations, and meta-analyses.
+    \emph{Soc. Psychol. Personal. Sci.}, 2017.\par
+    Li et al. Beyond Individual and Point: Next POI Recommendation via Region-aware Dynamic
+    Hypergraph with Dual-level Modeling. \emph{IJCAI}, 2025.\par
+    \end{column}
+    \hfill
+    \begin{column}{0.49\textwidth}
+    Lim et al. Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation.
+    \emph{SIGIR}, 2022.\par
+    Luo, Liu, Liu. STAN: Spatio-Temporal Attention Network for Next Location Recommendation.
+    \emph{WWW}, 2021.\par
+    Moura, Aquino, Loureiro. On the Design of Mobility-Aware Systems: A Tourist's Perspective.
+    \emph{MSWiM}, 2025.\par
+    Sun et al. A Multi-channel Next POI Recommendation Framework with Multi-granularity Check-in
+    Signals (MCMG). \emph{ACM TOIS}, 2024.\par
+    Veličković et al. Deep Graph Infomax. \emph{ICLR}, 2019.\par
+    Vielhaus et al. Handover Predictions as an Enabler for Anticipatory Service Adaptations in
+    Next-Generation Cellular Networks. \emph{MobiWac}, 2022.\par
+    \end{column}
+    \end{columns}
 \end{frame}
 
 \end{document}
