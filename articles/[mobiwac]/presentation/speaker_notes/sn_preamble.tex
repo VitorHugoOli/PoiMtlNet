@@ -1,0 +1,24 @@
+% Shared preamble of the speaker cards (both outputs). Content lives in sn_content.tex.
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\definecolor{teal}{rgb}{0.18,0.61,0.58}
+\definecolor{navy}{rgb}{0.04,0.27,0.47}
+\definecolor{alert}{rgb}{0.74,0.07,0.43}
+\setlist{nosep,leftmargin=1.1em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\titleformat{\section}{\large\bfseries\color{navy}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{9pt}{4pt}
+\sloppy
+\newcommand{\card}[3]{\section{#1 \hfill {\normalsize\color{teal} #2}}\textit{On screen:} #3\par}
+\newcommand{\open}[1]{\textbf{\color{teal}OPEN}\quad #1\par}
+\newcommand{\say}{\textbf{\color{teal}SAY}\par}
+\newcommand{\nums}[1]{\textbf{\color{teal}NUMBERS}\quad #1\par}
+\newcommand{\never}[1]{\textbf{\color{alert}NEVER}\quad #1\par}
+\newcommand{\ifasked}[1]{\textbf{\color{navy}IF ASKED}\quad #1\par}
+% Q&A entry: question, answer, slide to jump to.
+\newcommand{\qa}[3]{\par\medskip{\color{navy}\textbf{Q.} #1}\hfill{\small\color{teal}[#3]}\par #2\par}
+% Study-notes entry.
+\newcommand{\study}[1]{\par\medskip{\color{navy}\textbf{#1}}\par}
