@@ -43,7 +43,7 @@
 \smallskip
 Slot: 30 minutes \emph{including} questions. First talk of the symposium, right after the 8:15
 opening. Audience: wireless networking and mobility management, not machine learning.
-Deck: \texttt{slides/main.pdf}. Footer numbers 1--12 are the main slides; backups B1--B11 follow.
+Deck: \texttt{slides/main.pdf}. Footer numbers 1--12 are the main slides; backups B1--B12 follow.
 
 \medskip
 \begin{tabular}{@{}l p{0.66\textwidth}@{}}
@@ -53,7 +53,7 @@ $\approx$ 11:15 $\cdot$ end of S9 $\approx$ 13:25 $\cdot$ end $\approx$ 16:30\\
 \textbf{If short of time} & trim S3 and S5, never S2b, S7 or S10\\
 \textbf{Three sentences never cut} & the 2-point margin fixed in advance (S4) $\cdot$ ``deficits, not
 ties'' (S7) $\cdot$ ``one pass costs more compute; the gain is operational'' (S10)\\
-\textbf{Jump to a backup} & B$k$ is PDF page $13+k$ (B1 = 14 \dots{} B11 = 24): type the number, Enter\\
+\textbf{Jump to a backup} & B$k$ is PDF page $13+k$ (B1 = 14 \dots{} B12 = 25): type the number, Enter\\
 \bottomrule
 \end{tabular}
 
@@ -91,7 +91,8 @@ line.}
         A census tract is not a cell, and we claim nothing about cells or handover.''
 \end{itemize}
 \ifasked{``Is that a real user?'' No. It is a schematic of the input format, not a case from the
-data.}
+data. ``Why the tenth?'' It is simply the next visit: the model reads the last nine visits and predicts
+the one that follows. Nine is the window length, fixed during development and not tuned on results.}
 \never{``nobody needs the next place''; ``easier''; ``most work''; a tract is ``coarser'' than a cell
 (the paper never compares sizes).}
 
@@ -116,6 +117,10 @@ short answer.}
         within half a point, and how we represent a visit mattered more than one model versus two. Here
         is how.''
 \end{itemize}
+\ifasked{``Do MCMG and HMT-GRN use multi-task learning?'' Yes, both. HMT-GRN learns the next place
+and the next regions jointly, with the next place as its main task; MCMG adds next-region and
+next-category heads to a next-place model as auxiliary channels. They are multi-task, but category and
+region are there to help the next-place answer; here they are the answers.}
 \never{``known to fail''; ``first''; ``few multi-task models''; ``one cost'' or ``cheaper''.}
 
 % ---------------------------------------------------------------
@@ -140,7 +145,9 @@ Check2HGI diagram, two lines.}
         visits run forward in time only.''
 \end{itemize}
 \ifasked{``Is it pre-trained?'' The per-visit vectors come from an unsupervised graph trained on the
-same data; it is not an external pre-trained encoder.}
+same data; it is not an external pre-trained encoder. ``What are the four elapsed-time values?'' The
+time since the user's previous visit and since their first visit (both log-scaled), the gap within the
+same day, and a first-visit flag. Each is measured up to the visit itself, never after it.}
 
 % ---------------------------------------------------------------
 \card{S4 $\cdot$ How it was measured}{80 s}{five rows: Regions, Split, Scored, Repeated, Decided.}
@@ -186,7 +193,7 @@ as verified pairs. Both gains are under one point.}
 \card{S6 $\cdot$ One model for two tasks}{95 s}{the model figure; four short lines on the right.}
 \say
 \begin{itemize}
-  \item ``Now the one model. In multi-task learning, one model does several jobs at once by sharing
+  \item ``Now the one model. In multi-task learning, one model does several tasks at once by sharing
         most of its parts. The risk: whatever the two tasks share can settle on a compromise worse for
         each than a dedicated model would be.''
   \item ``Here is how this model is built. Each task has its own input and its own small encoder, with
@@ -199,6 +206,12 @@ as verified pairs. Both gains are under one point.}
         keeps what is purely spatial out of the exchange.''
   \item ``Whether one model holds up against two is the next slide.''
 \end{itemize}
+\ifasked{``What happens in the bidirectional cross-attention?'' Each task's input is a window of nine
+vectors. In each of the two blocks, every position of the category window asks the region window which
+of its nine vectors matter, and takes a weighted mix of them; the region window does the same toward
+the category window: that is the ``bidirectional''. Each adds what it read to its own vectors, then
+passes them through its own small feed-forward layer. So the tasks share by exchanging information
+between their streams, not by owning hidden layers in common.}
 \never{count blocks or widths; ``the private path was added because of negative transfer'' (untested).}
 
 % ---------------------------------------------------------------
@@ -381,6 +394,9 @@ pass costs more compute. & B5\\
 ``Does the gain grow with the number of regions?'' &
 No. California has more regions than Texas and a smaller gain. An observation, not a law. & B8\\
 ``And the confidence intervals?'' & The twelve cells with 90\% intervals. & B10\\
+``What are the datasets?'' &
+Five Gowalla states and Istanbul (Massive-STEPS): counts, regions, windows, lengths, density and the
+majority share are in the backup table. & B12\\
 ``Why census tracts and not a grid?'' &
 A grid cell is the usual target; we use official neighborhood-scale units, 520 to 8,501 per dataset. & B1\\
 ``How far off are the misses, in kilometers?'' \emph{(rehearse: it comes as a friendly question)} &
