@@ -9,7 +9,7 @@ Deck: \texttt{slides/main.pdf}. Footer numbers 1--12 are the main slides; backup
 \medskip
 \begin{itemize}
   \item \textbf{Time marks}: end of S2b $\approx$ 3:20 $\cdot$ end of S4 $\approx$ 6:20 $\cdot$ end of S7
-        $\approx$ 11:15 $\cdot$ end of S9 $\approx$ 13:25 $\cdot$ end $\approx$ 16:30.
+        $\approx$ 11:15 $\cdot$ end of S9 $\approx$ 13:25 $\cdot$ end $\approx$ 16:05.
   \item \textbf{If short of time}: trim S3 and S5, never S2b, S7 or S10.
   \item \textbf{Three sentences never cut}: the 2-point margin fixed in advance (S4); ``deficits, not
         ties'' (S7); ``one pass costs more compute; the gain is operational'' (S10).
@@ -23,8 +23,8 @@ Deck: \texttt{slides/main.pdf}. Footer numbers 1--12 are the main slides; backup
 \begin{itemize}
   \item ``Good morning. I am Vitor Hugo, from the Federal University of Viçosa, in Brazil. This is
         joint work with Germano dos Santos and Fabrício Silva.''
-  \item ``We ask whether one model can predict both what kind of place a person visits next, and in
-        which neighborhood.''
+  \item ``We ask whether one model can predict two properties of a person's next visit: its category,
+        the kind of place, and its region, the neighborhood.''
 \end{itemize}
 
 % ---------------------------------------------------------------
@@ -43,7 +43,7 @@ line.}
   \item ``What kind of place: one of seven types, such as food, shopping, nightlife. And which
         neighborhood: a census tract in the U.S., a \emph{mahalle} in Istanbul; from 520 in Istanbul to
         8,501 in California.''
-  \item ``Both are things a service can act on. The kind of place says what the user will want. The
+  \item ``Both are things a mobility-aware service can act on. The kind of place says what the user will want. The
         neighborhood says where to prepare: cache content where the user is heading, provision
         capacity before demand arrives. Over many users, that is where demand is heading.''
   \item ``Handover prediction already enables anticipatory adaptation at the radio cell; Vielhaus and
@@ -67,14 +67,14 @@ short answer.}
         the two tasks might help each other. But sharing has a cost: the shared parameters can settle on
         a compromise that is good for neither task, helping one while hurting the other.''
   \item ``The field increasingly models several granularities at once, but in those systems, such as
-        MCMG and HMT-GRN, category and region are helpers for predicting the exact next place. To our
+        MCMG and HMT-GRN, category and region are auxiliary signals for predicting the exact next place. To our
         knowledge, predicting a fine-grained region as an answer in its own right, next to category and
         with no next-place target, is underexplored.''
   \item ``So this is our question: can one model predict both, and what does it cost?''
   \item ``The short answer, so you can decide whether to keep listening: yes, at a measured price. On
-        the neighborhood question, one model outperforms a dedicated model at the two largest datasets
-        and is at most 0.87 points behind at the other four. On the kind-of-place question, the two are
-        within half a point, and how we represent a visit mattered more than one model versus two. Here
+        next region, the joint model outperforms the dedicated model at the two largest datasets and is
+        at most 0.87 points behind at the other four. On next category, the two are within half a point,
+        and how we represent a visit mattered more than one model versus two. Here
         is how.''
 \end{itemize}
 \ifasked{``Do MCMG and HMT-GRN use multi-task learning?'' Yes, both. HMT-GRN learns the next place
@@ -122,9 +122,10 @@ same day, and a first-visit flag. Each is measured up to the visit itself, never
         true region among the model's top ten? A random top ten is right at most about two percent of
         the time.''
   \item ``Each configuration is trained twenty times: four seeds, five folds each.''
-  \item \textbf{Never cut:} ``And for region we wrote down what counts as not worse, two Acc@10 points,
-        before we saw any result. Two points is below the level at which a service that acts on which
-        neighborhood will be busy would behave differently.''
+  \item \textbf{Never cut:} ``And we wrote down how we would decide before we saw any result. For
+        category: is the joint model better? For region: is it not worse by more than two Acc@10 points?
+        Two points is below the level at which a service that acts on which neighborhood will be busy
+        would behave differently.''
 \end{itemize}
 
 % ---------------------------------------------------------------
@@ -216,14 +217,17 @@ HMT-GRN at Florida, 3.78.}
 \never{``both our models by at least four points''. The margins are the joint model's only.}
 
 % ---------------------------------------------------------------
-\card{S9 $\cdot$ What a service would receive}{60 s}{three labelled lines and a caveat box.}
+\card{S9 $\cdot$ What a mobility-aware service would receive}{60 s}{the example service, three
+labelled lines and a caveat box.}
 \say
 \begin{itemize}
-  \item ``What would a service receive? First, time to act: half of the next visits come within under
+  \item ``What would a mobility-aware service receive? Think of one that caches content where users
+        are heading, or provisions capacity before demand arrives, at the level of a neighborhood.
+        First, time to act: half of the next visits come within under
         half an hour in Florida, and within five and a half hours in Istanbul; five to twenty-seven
         percent come more than three days later.''
-  \item ``Second, a shortlist. Ask the model for its ten most likely neighborhoods. In California, with
-        eight and a half thousand neighborhoods, the true one is in that list sixty-four percent of the
+  \item ``Second, a shortlist. Ask the model for its ten most likely regions. In California, with
+        eight and a half thousand regions, the true one is in that list sixty-four percent of the
         time; in Texas, sixty-six. That is the Acc@10 you saw on slide seven, read as a hit rate.''
   \item ``For scale, a transition table with no learning already gets fifty-one to seventy-two; the
         model is four to ten points above it.''
@@ -233,8 +237,8 @@ HMT-GRN at Florida, 3.78.}
 hour'').}
 
 % ---------------------------------------------------------------
-\card{S10 $\cdot$ What it costs, and four limits}{95 s}{parameters and the compute sentence (left),
-four limits (right).}
+\card{S10 $\cdot$ What it costs, and three limits}{80 s}{parameters and the compute sentence
+(left), three limits (right).}
 \say
 \begin{itemize}
   \item ``What does one model cost? The joint model is larger than the two dedicated models combined:
@@ -246,18 +250,17 @@ four limits (right).}
         seed and at the datasets checked.''
   \item Limit 2: ``Epoch selection reads the fold the score is read on, so absolute scores are
         optimistic. The joint-versus-dedicated comparison is affected far less.''
-  \item Limit 3: ``The vector of a visit is built from the visits before it and nothing after. That
-        costs context a two-way model would have. It is also what keeps any visit vector from carrying
-        its own target, so I would not trade it.''
-  \item Limit 4: ``The joint model is larger, so the two region gains may come from size rather than
+  \item Limit 3: ``The joint model is larger, so the two region gains may come from size rather than
         from sharing. This design does not separate them, and I do not credit sharing for them. What
         does not depend on that is the result itself: one model, both answers, at these levels.''
 \end{itemize}
 \ifasked{latency or energy: ``About five million parameters and a window of nine visits per query. We
-did not measure latency or energy.''}
+did not measure latency or energy.'' ``The paper lists four limits.'' The fourth is the forward-only
+rule of slide 3: a visit's vector uses nothing after the visit. It costs some context, and it is what
+keeps a vector from carrying its target, so here it is shown as part of the design.}
 
 % ---------------------------------------------------------------
-\card{S11 $\cdot$ Conclusion}{70 s}{Built / Measured / Not shown / Next, and the tagline.}
+\card{S11 $\cdot$ Conclusion}{60 s}{Built / Measured / Next, and the tagline.}
 \say
 \begin{itemize}
   \item ``To conclude. We built two things: a check-in-level representation that extends hierarchical
@@ -266,14 +269,15 @@ did not measure latency or energy.''}
   \item ``What we measured: on region the joint model outperforms the dedicated model at Texas and
         California and stays inside the two-point margin elsewhere, as deficits, not ties; on category
         the two are within half a point. The trade is measured, not free.''
-  \item ``What this does not show is that sharing is the cause: on category the representation
-        matters more than one model versus two, and the region gains may come from size.''
   \item ``The results are promising on the point a service cares about, one model carrying both
-        answers at a measured price, and they leave room to work: a search for the joint model at Texas
-        and California, separating size from sharing, and measuring how far a miss lands, inside a
-        service that uses the shortlist.''
+        answers at a measured price, and they leave room to work: an inductive version of the
+        representation, one that embeds unseen places and users without retraining; the exact next place
+        as a third target; newer, denser data and more cities; and measuring how far a miss lands, inside
+        a service that uses the shortlist.''
   \item Close: ``What a user will do next, and where, from one model instead of two. Thank you.''
 \end{itemize}
+\ifasked{``So does sharing help?'' This does not show that sharing is the cause: on category the
+representation matters more than one model versus two, and the region gains may come from size.}
 \never{``a new approach''; ``unified model''; ``in one forward pass instead of two'' (the joint pass
 costs more compute).}
 
@@ -313,6 +317,9 @@ two points is below the level at which a service acting on which neighborhood wi
 differently. The seed-to-seed standard deviation of the paired difference is 0.02 to 0.16, far below
 the margin.}{B2}
 \qa{``Why not one point?''}{``At one point, Istanbul, Arizona and Florida would still pass; Alabama would not.''}{B10}
+\qa{``Two points sounds like a lot. If one model scores 20 and the other 18.5, is that `not worse'?''}{Under a 2-point margin, yes, if the whole 90\% interval of the difference stays above $-2$. That is why a margin must fit the scale: our Acc@10 values are 59 to 77, so 2 points is about 3\% of the score, not 10\%. And the observed deficits are much smaller: at most 0.87, with the lowest interval end at $-1.00$; with a 1-point margin, three of the four would still pass.}{B2}
+\qa{``Which statistics do you use?''}{For category, a superiority test: paired $t$ on the four per-seed means, 90\% interval, Holm correction across the six datasets. For region, non-inferiority with the 2-point margin (two one-sided tests). The pre-registered Wilcoxon is reported too; at four seeds it cannot go below $p = 0.0625$, so the $t$ carries the verdict.}{B2}
+\qa{``Which service, exactly?''}{A mobility-aware service that prepares at the level of a neighborhood: caching content where users are heading, provisioning capacity before demand arrives, anticipating demand and load, capacity planning. Not cell association or handover. We built none; slide 9 shows what our predictions would give one.}{S9}
 \qa{``Would a Markov chain do this?''}{A first-order Markov chain over regions gets 51.23 to 72.47 Acc@10; the joint model exceeds it by 4.1 to
 10.0 at every dataset. Say the narrowest first: Florida, $+4.07$. Talk only about \emph{our} margin
 over the floor; at its best epoch HMT-GRN is above the floor too.}{B3}
@@ -418,6 +425,49 @@ Each direction has its own weights. What crosses between the tasks is informatio
 The information they read from each other in the trunk. Because of that reading, the category error
 also trains the region side, and the other way round. They do not own hidden layers in common.
 
+\study{How is it decided, and what does ``not worse within 2 points'' mean?}
+Both questions were written down before any result. For category the question is: is the joint model
+better? That is a superiority test (paired $t$ on the four seed means, Holm across the six datasets). If
+it fails, the answer is ``unresolved'', never ``equal'': no equivalence margin was registered for
+category. For region the question is: is the joint model not worse than the dedicated one by more than
+2 Acc@10 points? That is a non-inferiority test (two one-sided tests, TOST). It passes when the whole
+90\% interval of (joint $-$ dedicated) lies above $-2$.
+Your example: if the dedicated model scores 20 and the joint 18.5, the difference is $-1.5$; with a
+narrow interval it would count as ``not worse''. That is exactly why a margin has to match the scale.
+Ours was set for Acc@10 values of 59 to 77, where 2 points is about 3\% of the score; at 20 it would be
+10\%, and 2 points would be too loose. In our data the deficits are at most 0.87 and the lowest
+interval end is $-1.00$, so even a 1-point margin would pass at Istanbul, Arizona and Florida (not at
+Alabama). The two region \emph{gains} (Texas, California) are a different, secondary test, outside the
+plan.
+
+\study{Which service, exactly? (slide 9)}
+Source: the paper's problem section (``the category says what type of place comes next, hence what a
+user will want; the region says where, hence where to prepare'') and its discussion paragraph that
+starts ``A service could treat the model's top-ranked next regions as an anticipatory set''
+(dissertation chapter 5: 03\_problem.tex lines 15--26 and 07\_discussion.tex lines 74--83).
+The service is any \emph{mobility-aware} system that prepares by neighborhood before people arrive:
+an edge cache that pre-loads content for the tracts users are heading to (Bastug 2014, proactive
+caching), an operator or city service that provisions capacity or staff where demand is about to land,
+and demand and load forecasting in general (Moura 2025 ties hub-shaped mobility to infrastructure
+planning). It is \emph{not} a radio-level service: a census tract is a neighborhood, not a cell, so
+cell association and handover are out of scope.
+How to read slide 9 with that service in mind:
+\begin{itemize}
+  \item \emph{Time to act}: from the last check-in we see to the visit we predict, the median gap is
+        about 26 minutes in Florida and 5.5 hours in Istanbul; 5--27\% of next visits come more than
+        three days later. That is the window the service has to prepare (paper 05\_setup, ``Windows'').
+  \item \emph{Shortlist}: the model ranks all regions; the service prepares the top ten. In California
+        (8,501 regions) the true next region is among those ten 64.54\% of the time, in Texas (6,553)
+        66.15\%. That number is just the joint model's Acc@10, read as ``how often the prepared set
+        contains where the user actually goes''.
+  \item \emph{For scale}: a first-order Markov table (``from this region, where do people go next?'',
+        no learning) already reaches 51--72 Acc@10, so prediction is not hopeless without a model; the
+        joint model adds 4 to 10 points on top of it.
+\end{itemize}
+What is \emph{not} measured: how far a miss lands (a wrong region next door is better for a cache
+than one across the state). That needs per-visit predictions we did not keep; it is future work, and
+why we never give kilometers.
+
 \study{Why the ``tenth'' visit? Why nine?}
 There is nothing special about ``tenth'': the model reads the last nine visits and predicts the next
 one. Nine is the window length. It was fixed during development and not tuned on the results.
@@ -437,13 +487,14 @@ at which a service that acts on which neighborhood will be busy would behave dif
 much smaller: the paired difference varies 0.02 to 0.16 across seeds. With a 1-point margin, Istanbul,
 Arizona and Florida would still pass, Alabama would not.
 
-\study{Is limit 3 really a limit? Isn't it what prevents leakage?}
-It is both, and the paper says both in the same sentence. A visit's vector uses nothing after the
+\study{Is the forward-only rule a limit? Isn't it what prevents leakage?}
+It is both, and the paper says both in the same sentence (it is limit 3 of the paper's four). On the
+slide it now sits with the design (slide 3), not with the limits. A visit's vector uses nothing after the
 visit, so it has less context than a model that reads the whole sequence both ways. That same rule is
 what stops a vector from carrying its own target. Note: nearby places are already linked in the graph;
 what is left out on purpose is the user's later visits.
 
-\study{Doesn't limit 4 kill the shared model?}
+\study{Doesn't the size limit kill the shared model?}
 No. The paper never claims that sharing works; it claims that one model gives both answers at a
 measured price, and that holds whatever causes the region gains. And the limit is real: in one
 single-seed control at California, a dedicated region model with 97\% of the joint model's parameters

@@ -157,7 +157,7 @@
     \end{itemize}
 
     \smallskip
-    {\footnotesize Multi-task models in this field use category and region as helpers for
+    {\footnotesize Multi-task models in this field use category and region as auxiliary signals for
     next-place prediction \scite{MCMG, Sun 2024; HMT-GRN, Lim 2022}. To our knowledge, fine-grained
     region as an end target of equal standing is underexplored.\par}
 
@@ -208,7 +208,7 @@
     \vspace{0pt}% guard
     \small
     \setlength{\tabcolsep}{6pt}
-    \renewcommand{\arraystretch}{1.4}
+    \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{@{}p{0.19\textwidth}p{0.76\textwidth}@{}}
         \toprule
         \textbf{Regions}  & census tracts (Istanbul: \emph{mahalle}), \textbf{520} to \textbf{8,501} \\
@@ -217,8 +217,10 @@
                           & region: \textbf{Acc@10}, is the true region in the top ten?
                             (random: at most about 2\%) \\
         \textbf{Repeated} & \textbf{20 trained models} per configuration (4 seeds $\times$ 5 folds) \\
-        \textbf{Decided}  & for region, ``not worse'' $=$ within \textbf{2 Acc@10 points},
-                            \alert{written down before any result was seen} \scite{TOST, Lakens 2017} \\
+        \textbf{Decided}  & \leavevmode\textcolor{alert}{written down before any result was seen}: \\
+                          & category: is the joint model \textbf{better}? (superiority) \\
+                          & region: is it \textbf{not worse} by more than \textbf{2 Acc@10 points}?
+                            (non-inferiority, TOST) \scite{Lakens 2017} \\
         \bottomrule
     \end{tabular}
 \end{frame}
@@ -377,17 +379,21 @@
 \section{Use}
 % ============================================================
 
-% S9 · What a service would receive (60 s). Three LABELLED lines (point 17). Horizon: 05_setup
+% S9 · What a mobility-aware service would receive (60 s). Author 2026-10-25: name the service
+% (paper 03_problem/04_method: neighborhood-level caching, capacity, demand anticipation). Three LABELLED lines (point 17). Horizon: 05_setup
 % (0.4 h on screen; say "under half an hour" -- the median is 0.4375 h, about 26 min, NOT 24).
 % Shortlist = the joint model's Acc@10 of S7 read as a hit rate (07_discussion). Floor: 51 to 72,
 % joint +4.1 to +10.0 (printed range only). ⛔ No km.
-\begin{frame}{What a service would receive}
+\begin{frame}{What a mobility-aware service would receive}
     \vspace{0pt}% guard
-    \begin{itemize}\setlength{\itemsep}{1.8ex}
+    {\small For example, a service that caches content where users are heading, or provisions capacity
+    before demand arrives \scite{Bastug 2014}, at the level of a neighborhood.\par}
+    \medskip
+    \begin{itemize}\setlength{\itemsep}{1.4ex}
         \item \textbf{Time to act} --- half of the next visits come within \textbf{0.4 h} (Florida)
               to \textbf{5.5 h} (Istanbul) of the previous one; 5 to 27\% come more than 3 days
               later.
-        \item \textbf{A shortlist} --- ask the model for its ten most likely neighborhoods. In
+        \item \textbf{A shortlist} --- ask the model for its ten most likely regions. In
               California (8,501) the true one is among them \textbf{64.54\%} of the time; in Texas
               (6,553), \textbf{66.15\%}. This is the Acc@10 of slide~7, read as a hit rate.
         \item \textbf{For scale} --- a transition table with no learning reaches 51 to 72 Acc@10;
@@ -405,12 +411,13 @@
 \section{Wrap-up}
 % ============================================================
 
-% S10 · What it costs, and four limits (95 s). Paper rounding 1.9 M (PLANO D-1); compute sentence
+% S10 · What it costs, and three limits (80 s). Author 2026-10-25: the forward-only rule left the
+% limits (it is part of the solution, shown on S3); the paper still lists it as limit 3 of four. Paper rounding 1.9 M (PLANO D-1); compute sentence
 % from 04_method ("a forward pass costs more compute"). Four limits = the paper's four (D15), limit 1
 % CORRECTED (e32c6507: 0.17 / 0.13, one seed, the datasets checked); limit 3 cost-first,
 % safeguard-second; limit 4 with the survival clause (D16). The California capacity control is
 % NEVER on a slide (author, 2026-10-23: Q&A only, if pressed).
-\begin{frame}{What it costs, and four limits}
+\begin{frame}{What it costs, and three limits}
     \vspace{0pt}% guard
     \footnotesize
     \begin{columns}[T,onlytextwidth]
@@ -426,16 +433,13 @@
         \end{column}
         \hfill
         \begin{column}{0.61\textwidth}
-            \textbf{\color{alertshade}FOUR LIMITS}\par\medskip
+            \textbf{\color{alertshade}THREE LIMITS}\par\medskip
             \begin{enumerate}\setlength{\itemsep}{1.1ex}
                 \item Representation trained \textbf{once over all users}; a per-fold rebuild
                       moved the dedicated models by at most 0.17 macro-F1 and 0.13 Acc@10 (one
                       seed, the datasets checked).
                 \item Epoch selection reads the scored fold: \textbf{absolute scores are
                       optimistic}; joint vs dedicated is affected far less.
-                \item Each visit's vector uses \textbf{only the visits before it}: no later
-                      context enters, which is also what keeps a vector from carrying its target
-                      (slide~\ref{fr:visit-past}).
                 \item The joint model is \textbf{larger}, so its region gains at Texas and
                       California \alert{may come from size, not sharing}. The one-model result
                       does not depend on which.
@@ -444,7 +448,9 @@
     \end{columns}
 \end{frame}
 
-% S11 · Conclusion (70 s). Point 20, per Fable round 2: contributions in the dissertation's wording
+% S11 · Conclusion (60 s). Author 2026-10-25: "Not shown" moved to Q&A; Next = future work from the
+% dissertation (6_conclusion: inductive variant, next place as third target, denser traces/more cities)
+% and the paper (07: size of a miss inside a service). Point 20, per Fable round 2: contributions in the dissertation's wording
 % (01_introduction "a check-in-level representation that extends hierarchical graph infomax from the
 % place to the individual visit"), "one model" not "unified", never "a new approach"; future work only
 % from the text (07_discussion: joint-model search at TX/CA; size vs sharing; size of a miss / a
@@ -460,10 +466,9 @@
         \item \textbf{Measured}: on region, the joint model outperforms the dedicated model at Texas
               and California and stays within the 2-point margin elsewhere (deficits, not ties); on
               category, within half a point. A measured trade, not a free substitution.
-        \item \textbf{Not shown}: that sharing is the cause. On category the representation matters
-              more than one model versus two; the region gains may come from size.
-        \item \textbf{Next}: a joint-model search at Texas and California; separating size from
-              sharing; how far a miss lands, inside a service that uses the shortlist.
+        \item \textbf{Next}: an inductive variant that embeds unseen places and users without
+              retraining; the exact next place as a third target; newer, denser traces and more
+              cities; how far a miss lands, inside a service that uses the shortlist.
     \end{itemize}
 
     \medskip
