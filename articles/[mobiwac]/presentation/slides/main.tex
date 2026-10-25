@@ -150,7 +150,7 @@
 \begin{frame}{Two models, or one?}
     \vspace{0pt}% guard
     \begin{itemize}\setlength{\itemsep}{1.2ex}
-        \item \textbf{Two dedicated models}: one per question; two things to train, version and serve.
+        \item \textbf{Two dedicated models}: one per question; two models to train, version and serve.
         \item \textbf{One joint model}: one artifact to deploy, and the tasks might help each other.
               \alert{But shared parameters can settle on a compromise good for neither task}
               \scite{Caruana 1997}.
@@ -368,39 +368,51 @@
     advantage, so \alert{it is not evidence for sharing}. Bold: best in row; underline: second.\par}
     \vspace{0.5mm}
     {\footnotesize\color{black!75}
-    \textbf{POI-RGNN} \scite{Capanema 2023}: next category, re-implemented.
-    \textbf{HMT-GRN} \scite{Lim 2022}: multi-task next place + regions, next-place parts removed;
-    our windows and folds, best epoch; not the full published system.
-    \textbf{STAN} \scite{Luo 2021}: re-implemented, its own representations and splits, ranks
-    regions. \textbf{ReHDM} \scite{Li 2025}: its own split.\par}
+    All four run on our check-in data; only HMT-GRN on our windows and folds. HMT-GRN trimmed to its
+    region target; STAN's output adapted to rank regions. POI-RGNN \scite{Capanema 2023}, HMT-GRN
+    \scite{Lim 2022}, STAN \scite{Luo 2021}, ReHDM \scite{Li 2025}. Details: backup B7.\par}
 \end{frame}
 
 % ============================================================
 \section{Use}
 % ============================================================
 
-% S9 · What a mobility-aware service would receive (60 s). Author 2026-10-25: name the service
+% S9 · What a mobility-aware service would receive (60 s). 2026-10-25 (author + Fable): a table, floor vs
+% joint. Per-state Markov-1 floors from docs/results/closing_data/markov_floor_stride1/<state>.json
+% (markov_1step_region_acc10_mean; partition seed 42, NOT the delivered seeds: never say "same folds").
+% The dissertation prints only the range (51 to 72; +4.1 to +10.0) and derives these per-state gains in
+% its 06_results source comment. Gains = difference of the printed (rounded) columns. Author 2026-10-25: name the service
 % (paper 03_problem/04_method: neighborhood-level caching, capacity, demand anticipation). Three LABELLED lines (point 17). Horizon: 05_setup
 % (0.4 h on screen; say "under half an hour" -- the median is 0.4375 h, about 26 min, NOT 24).
 % Shortlist = the joint model's Acc@10 of S7 read as a hit rate (07_discussion). Floor: 51 to 72,
 % joint +4.1 to +10.0 (printed range only). ⛔ No km.
 \begin{frame}{What a mobility-aware service would receive}
     \vspace{0pt}% guard
-    {\small For example, a service that caches content where users are heading, or provisions capacity
-    before demand arrives \scite{Bastug 2014}, at the level of a neighborhood.\par}
-    \medskip
-    \begin{itemize}\setlength{\itemsep}{1.4ex}
-        \item \textbf{Time to act} --- half of the next visits come within \textbf{0.4 h} (Florida)
-              to \textbf{5.5 h} (Istanbul) of the previous one; 5 to 27\% come more than 3 days
-              later.
-        \item \textbf{A shortlist} --- ask the model for its ten most likely regions. In
-              California (8,501) the true one is among them \textbf{64.54\%} of the time; in Texas
-              (6,553), \textbf{66.15\%}. This is the Acc@10 of slide~7, read as a hit rate.
-        \item \textbf{For scale} --- a transition table with no learning reaches 51 to 72 Acc@10;
-              the joint model is 4 to 10 points above it everywhere.
-    \end{itemize}
-
-    \medskip
+    {\small The category says \textbf{what} the user will want; the region says \textbf{where} to
+    prepare, before the user arrives: e.g., caching content or provisioning capacity by neighborhood
+    \scite{Bastug 2014}.\par}
+    \smallskip
+    \begin{center}
+    \footnotesize
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabular}{@{}lrrrrrr@{}}
+        \toprule
+        & \textbf{AL} & \textbf{AZ} & \textbf{IST} & \textbf{FL} & \textbf{CA} & \textbf{TX} \\
+        {\color{black!60}regions} & {\color{black!60}1,109} & {\color{black!60}1,547} & {\color{black!60}520}
+          & {\color{black!60}4,703} & {\color{black!60}8,501} & {\color{black!60}6,553} \\
+        \midrule
+        Transition table, no learning & 62.26 & 51.23 & 65.06 & 72.47 & 59.09 & 60.10 \\
+        Joint model & 69.24 & 59.04 & 75.08 & 76.54 & 64.54 & 66.15 \\
+        \textbf{Gain} & \alert{$+6.98$} & \alert{$+7.81$} & \alert{$+10.02$}
+          & \fcolorbox{alert}{white}{\alert{$+4.07$}} & \alert{$+5.45$} & \alert{$+6.05$} \\
+        \bottomrule
+    \end{tabular}\par
+    \smallskip
+    {\footnotesize Acc@10: is the true next region among the ten most likely? Floor: first-order
+    Markov over region transitions, same windows, user-grouped folds, a different partition.\par}
+    \end{center}
+    {\footnotesize \textbf{Time to act}: half of the next visits come within 0.4 h (Florida) to 5.5 h
+    (Istanbul); 5 to 27\% come more than 3 days later.\par}
     \begin{block}{}
         \centering\small
         We built and evaluated no such service: this is motivation, not a measured service result.
@@ -428,21 +440,20 @@
                 AL & 4.2 M & 1.9 M \\
                 CA & 5.2 M & 2.8 M
             \end{tabular}\par\medskip
-            One pass costs \textbf{more} compute than the two small models together. The gain is
-            \alert{operational}: one artifact to train, version and deploy; two answers.
+            More compute per pass.\par\medskip
+            \alert{\textbf{Gain}}: one model to train, version and deploy.
         \end{column}
         \hfill
         \begin{column}{0.61\textwidth}
             \textbf{\color{alertshade}THREE LIMITS}\par\medskip
             \begin{enumerate}\setlength{\itemsep}{1.1ex}
-                \item Representation trained \textbf{once over all users}; a per-fold rebuild
-                      moved the dedicated models by at most 0.17 macro-F1 and 0.13 Acc@10 (one
+                \item The representation \textbf{saw all users once}. Rebuilt per fold from
+                      training users only, the dedicated models move by at most 0.17 points (one
                       seed, the datasets checked).
-                \item Epoch selection reads the scored fold: \textbf{absolute scores are
-                      optimistic}; joint vs dedicated is affected far less.
-                \item The joint model is \textbf{larger}, so its region gains at Texas and
-                      California \alert{may come from size, not sharing}. The one-model result
-                      does not depend on which.
+                \item The epoch is chosen on the fold that is scored: \textbf{absolute scores are
+                      optimistic}; joint vs dedicated much less.
+                \item The joint model is \textbf{bigger}: its region gains \alert{may come from
+                      size, not sharing}. The one-model result stands either way.
             \end{enumerate}
         \end{column}
     \end{columns}
@@ -459,24 +470,25 @@
 \begin{frame}{Conclusion}
     \vspace{0pt}% guard
     \small
-    \begin{itemize}\setlength{\itemsep}{1.3ex}
+    \begin{alertblock}{Can one model predict both, and what does it cost?}
+        \small\textbf{Yes.} \textbf{Region}: outperforms the dedicated model at Texas and California;
+        at most 0.87 behind elsewhere, inside the 2-point margin. \textbf{Category}: within half a
+        point. Above every published system we compared against. \textbf{Price}: a larger model.
+        \textbf{Gain}: one artifact to deploy.
+    \end{alertblock}
+    \begin{itemize}\setlength{\itemsep}{0.6ex}
         \item \textbf{Built}: a check-in-level representation that extends hierarchical graph
-              infomax from the place to the individual visit, a fixed per-visit vector that other
-              models can reuse; and one model that answers both questions.
-        \item \textbf{Measured}: on region, the joint model outperforms the dedicated model at Texas
-              and California and stays within the 2-point margin elsewhere (deficits, not ties); on
-              category, within half a point. \textbf{Above every published system we compared
-              against.} A measured trade, not a free substitution.
-        \item \textbf{Next}: extend the joint model to the \textbf{exact next place}, as a third
-              target on the same representation; an inductive variant for unseen places and users;
-              newer, denser data and more cities; how far a miss lands, inside a service.
+              infomax from the place to the individual visit, a fixed per-visit vector other models
+              can reuse; and one model for both tasks.
+        \item \textbf{Next}: the \textbf{exact next place} as a third target on the same
+              representation; an inductive variant for unseen places and users; denser data and more
+              cities; how far a miss lands, inside a service.
     \end{itemize}
 
-    \medskip
-    \begin{alertblock}{}
+    \begin{block}{}
         \centering\small
         What a user will do next, and where, from one model instead of two.
-    \end{alertblock}
+    \end{block}
 \end{frame}
 
 % S12 · Thank you (20 s) -- stays up during Q&A. The paper's link (printed in the proceedings).

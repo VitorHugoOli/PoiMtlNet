@@ -61,7 +61,7 @@ the one that follows. Nine is the window length, fixed during development and no
 short answer.}
 \say
 \begin{itemize}
-  \item ``The reference point is one dedicated model per question: two things to train, version and
+  \item ``The reference point is one dedicated model per question: two models to train, version and
         serve.''
   \item ``Multi-task learning puts both in one model: one artifact to train, version and deploy, and
         the two tasks might help each other. But sharing has a cost: the shared parameters can settle on
@@ -201,12 +201,10 @@ four seeds, so it can differ from the rounded columns in the second decimal.}
 underline second; a four-line legend.}
 \say
 \begin{itemize}
-  \item ``Four published systems, all run on our data. POI-RGNN predicts the next category; we
-        re-implemented it. HMT-GRN is a multi-task model for next place and next regions: we kept its
-        multi-task structure, removed the next-place parts, and ran it on our windows and folds, read at
-        its best epoch like our models. STAN is a next-location attention model, re-implemented with its
-        own representations, and adapted to rank regions. ReHDM is a reference under its own published
-        split.''
+  \item ``Four published systems, all run on our check-in data, so the comparison is on the same
+        cities and the same regions; only HMT-GRN on our exact windows and folds, the others use their
+        own splits. We kept HMT-GRN as a region model and removed its next-place parts; STAN's output we
+        adapted to rank regions. Details are in a backup slide.''
   \item ``Both our models, the dedicated and the joint, are above every system we compared against;
         the joint model by at least 4.11 points on category and 3.55 on region. That margin includes the
         representation's advantage, so it is not evidence for sharing.''
@@ -214,27 +212,29 @@ underline second; a four-line legend.}
 \ifasked{``Do they run on your folds?'' Only HMT-GRN runs on our windows and folds; STAN and ReHDM use
 their own splits. The 3.55 is against STAN at Florida on its own split; on our folds the closest is
 HMT-GRN at Florida, 3.78.}
-\never{``both our models by at least four points''. The margins are the joint model's only.}
+\never{``both our models by at least four points'' (the margins are the joint model's only); ``same
+base'' or ``same folds'' for all four; ``we adapted HMT-GRN to regions'' (region is one of its own
+targets).}
 
 % ---------------------------------------------------------------
-\card{S9 $\cdot$ What a mobility-aware service would receive}{60 s}{the example service, three
-labelled lines and a caveat box.}
+\card{S9 $\cdot$ What a mobility-aware service would receive}{60 s}{lead line, a table (transition
+table vs joint model, six datasets), time to act, caveat box.}
 \say
 \begin{itemize}
-  \item ``What would a mobility-aware service receive? Think of one that caches content where users
-        are heading, or provisions capacity before demand arrives, at the level of a neighborhood.
-        First, time to act: half of the next visits come within under
-        half an hour in Florida, and within five and a half hours in Istanbul; five to twenty-seven
-        percent come more than three days later.''
-  \item ``Second, a shortlist. Ask the model for its ten most likely regions. In California, with
-        eight and a half thousand regions, the true one is in that list sixty-four percent of the
-        time; in Texas, sixty-six. That is the Acc@10 you saw on slide seven, read as a hit rate.''
-  \item ``For scale, a transition table with no learning already gets fifty-one to seventy-two; the
-        model is four to ten points above it.''
-  \item ``We built and evaluated no such service. This is motivation, not a measured result.''
+  \item ``What would a service receive? Two things: the category says what the user will want, the
+        region says where to prepare, and it gets them before the user arrives. Think of a service that
+        caches content where users are heading, or provisions capacity, by neighborhood.''
+  \item ``The scale: a transition table with no learning already gets fifty-one to seventy-two percent
+        of true regions into a top-ten list. The joint model is above it at every dataset; the narrowest
+        gain is Florida, four points, the widest Istanbul, ten.''
+  \item ``And there is time to act: half of the next visits come within under half an hour in Florida
+        and within five and a half hours in Istanbul.''
+  \item ``We built and evaluated no such service; this slide is motivation, not a measured result.''
 \end{itemize}
-\never{any distance in kilometers; ``24 minutes'' (the median is about 26: say ``under half an
-hour'').}
+\ifasked{``Is the floor on the same folds?'' Same windows and user-grouped folds, but a different
+partition. Its scores are the range the paper prints (51 to 72); the per-dataset values come from the
+same result files.}
+\never{read the six floors aloud; ``same folds'' for the floor; any minute figure; any kilometer.}
 
 % ---------------------------------------------------------------
 \card{S10 $\cdot$ What it costs, and three limits}{80 s}{parameters and the compute sentence
@@ -251,8 +251,8 @@ hour'').}
   \item Limit 2: ``Epoch selection reads the fold the score is read on, so absolute scores are
         optimistic. The joint-versus-dedicated comparison is affected far less.''
   \item Limit 3: ``The joint model is larger, so the two region gains may come from size rather than
-        from sharing. This design does not separate them, and I do not credit sharing for them. What
-        does not depend on that is the result itself: one model, both answers, at these levels.''
+        from sharing. This design does not separate them, and I do not credit sharing for them. And
+        whichever it is, one model gives both answers at these levels.''
 \end{itemize}
 \ifasked{latency or energy: ``About five million parameters and a window of nine visits per query. We
 did not measure latency or energy.'' ``The paper lists four limits.'' The fourth is the forward-only
@@ -260,17 +260,17 @@ rule of slide 3: a visit's vector uses nothing after the visit. It costs some co
 keeps a vector from carrying its target, so here it is shown as part of the design.}
 
 % ---------------------------------------------------------------
-\card{S11 $\cdot$ Conclusion}{60 s}{Built / Measured / Next, and the tagline.}
+\card{S11 $\cdot$ Conclusion}{60 s}{the answer block (highlighted), Built, Next, and the tagline.}
 \say
 \begin{itemize}
-  \item ``To conclude. We built two things: a check-in-level representation that extends hierarchical
+  \item ``The answer to the question we started with: yes. On region, the joint model outperforms
+        the dedicated model at Texas and California and is at most 0.87 behind elsewhere, inside the
+        two-point margin. On category, the two are within half a point. And it is above every published
+        system we compared against. The price is a larger model; the gain, one artifact to deploy.''
+  \item ``To get there we built two things: a check-in-level representation that extends hierarchical
         graph infomax from the place to the individual visit, and one model that answers both
         questions. The representation is a fixed per-visit vector, so other models and other studies can
         reuse it.''
-  \item ``What we measured: on region the joint model outperforms the dedicated model at Texas and
-        California and stays inside the two-point margin elsewhere, as deficits, not ties; on category
-        the two are within half a point. And it is above every published system we compared against.
-        The trade is measured, not free.''
   \item ``The results are promising on the point a service cares about, one model carrying both
         answers at a measured price, and they leave room to work. The natural next step is the exact
         next place, as a third target on the same representation. Then an inductive version, for unseen
@@ -457,7 +457,7 @@ cell association and handover are out of scope.
 How to read slide 9 with that service in mind:
 \begin{itemize}
   \item \emph{Time to act}: from the last check-in we see to the visit we predict, the median gap is
-        about 26 minutes in Florida and 5.5 hours in Istanbul; 5--27\% of next visits come more than
+        0.4 hours (under half an hour) in Florida and 5.5 hours in Istanbul; 5--27\% of next visits come more than
         three days later. That is the window the service has to prepare (paper 05\_setup, ``Windows'').
   \item \emph{Shortlist}: the model ranks all regions; the service prepares the top ten. In California
         (8,501 regions) the true next region is among those ten 64.54\% of the time, in Texas (6,553)
@@ -504,12 +504,15 @@ single-seed control at California, a dedicated region model with 97\% of the joi
 scored 0.41 Acc@10 above it (5 of 5 folds, $p = 0.010$). So at California the region gain measures
 capacity. Texas has no matched control. Say this only if pressed, and never put it on a slide.
 
-\study{What do the numbers on slide 9 mean?}
-\emph{Time to act}: half of the next visits come within 0.4 hours (about 26 minutes) in Florida and
-5.5 hours in Istanbul; 5 to 27\% come more than 3 days later. \emph{Shortlist}: if a service prepares
-the model's top ten neighborhoods, the right one is in that list 64.54\% of the time in California
-(out of 8,501) and 66.15\% in Texas. That is simply Acc@10 read as a hit rate. \emph{Scale}: a
-transition table with no learning already reaches 51 to 72; the model is 4 to 10 points above it.
+\study{How to read the table on slide 9}
+Row 1, \emph{transition table, no learning}: from the region of the last visit, rank the regions where
+people most often go next, and check whether the true one is in the top ten. It already gets 51 to 72.
+Row 2, \emph{joint model}: the same check (Acc@10) for our model, e.g.\ 64.54 in California, where there
+are 8,501 regions to choose from. Row 3, \emph{gain}: row 2 minus row 1, from $+4.07$ (Florida, boxed,
+the narrowest) to $+10.02$ (Istanbul). The floor uses the same windows and user-grouped folds but a
+different partition, so never say ``same folds''. Below the table, \emph{time to act}: half of the next
+visits come within 0.4 h (Florida) to 5.5 h (Istanbul). Say ``under half an hour'', never a minute
+figure.
 
 \study{How were the external systems run?}
 POI-RGNN: re-implemented, next category. HMT-GRN: its multi-task structure kept, the next-place parts
