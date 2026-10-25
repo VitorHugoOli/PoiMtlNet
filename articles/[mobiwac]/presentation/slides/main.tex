@@ -461,14 +461,15 @@
     \small
     \begin{itemize}\setlength{\itemsep}{1.3ex}
         \item \textbf{Built}: a check-in-level representation that extends hierarchical graph
-              infomax from the place to the individual visit; and one model that answers both
-              questions.
+              infomax from the place to the individual visit, a fixed per-visit vector that other
+              models can reuse; and one model that answers both questions.
         \item \textbf{Measured}: on region, the joint model outperforms the dedicated model at Texas
               and California and stays within the 2-point margin elsewhere (deficits, not ties); on
-              category, within half a point. A measured trade, not a free substitution.
-        \item \textbf{Next}: an inductive variant that embeds unseen places and users without
-              retraining; the exact next place as a third target; newer, denser traces and more
-              cities; how far a miss lands, inside a service that uses the shortlist.
+              category, within half a point. \textbf{Above every published system we compared
+              against.} A measured trade, not a free substitution.
+        \item \textbf{Next}: extend the joint model to the \textbf{exact next place}, as a third
+              target on the same representation; an inductive variant for unseen places and users;
+              newer, denser data and more cities; how far a miss lands, inside a service.
     \end{itemize}
 
     \medskip

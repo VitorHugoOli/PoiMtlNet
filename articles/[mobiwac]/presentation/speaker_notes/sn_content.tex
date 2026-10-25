@@ -265,21 +265,24 @@ keeps a vector from carrying its target, so here it is shown as part of the desi
 \begin{itemize}
   \item ``To conclude. We built two things: a check-in-level representation that extends hierarchical
         graph infomax from the place to the individual visit, and one model that answers both
-        questions.''
+        questions. The representation is a fixed per-visit vector, so other models and other studies can
+        reuse it.''
   \item ``What we measured: on region the joint model outperforms the dedicated model at Texas and
         California and stays inside the two-point margin elsewhere, as deficits, not ties; on category
-        the two are within half a point. The trade is measured, not free.''
+        the two are within half a point. And it is above every published system we compared against.
+        The trade is measured, not free.''
   \item ``The results are promising on the point a service cares about, one model carrying both
-        answers at a measured price, and they leave room to work: an inductive version of the
-        representation, one that embeds unseen places and users without retraining; the exact next place
-        as a third target; newer, denser data and more cities; and measuring how far a miss lands, inside
-        a service that uses the shortlist.''
+        answers at a measured price, and they leave room to work. The natural next step is the exact
+        next place, as a third target on the same representation. Then an inductive version, for unseen
+        places and users without retraining; newer, denser data and more cities; and measuring how far a
+        miss lands, inside a service that uses the shortlist.''
   \item Close: ``What a user will do next, and where, from one model instead of two. Thank you.''
 \end{itemize}
 \ifasked{``So does sharing help?'' This does not show that sharing is the cause: on category the
 representation matters more than one model versus two, and the region gains may come from size.}
 \never{``a new approach''; ``unified model''; ``in one forward pass instead of two'' (the joint pass
-costs more compute).}
+costs more compute); ``state of the art'' as a claim (say ``every published system we compared
+against'': four systems, run by us, the margin includes the representation).}
 
 % ---------------------------------------------------------------
 \card{S12 $\cdot$ Thank you}{20 s}{Questions? Code, data, funders.}
